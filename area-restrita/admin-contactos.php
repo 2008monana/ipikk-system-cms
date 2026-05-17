@@ -45,16 +45,16 @@ $feedback_tipo = 'success';
 if (isset($_GET['action']) && $_GET['action'] === 'buscar' && isset($_GET['id'])) {
     header('Content-Type: application/json');
     $id = (int)$_GET['id'];
-    
+
     $stmt = $db->prepare("SELECT * FROM mensagens WHERE id = ?");
     $stmt->execute([$id]);
     $msg = $stmt->fetch();
-    
+
     if ($msg) {
         // Marcar como lida automaticamente ao visualizar
         $stmt_upd = $db->prepare("UPDATE mensagens SET lida = 1 WHERE id = ?");
         $stmt_upd->execute([$id]);
-        
+
         echo json_encode(['success' => true, 'mensagem' => $msg]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Mensagem não encontrada']);
@@ -65,7 +65,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'buscar' && isset($_GET['id'])
 // Processar exclusão
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = trim($_POST['acao'] ?? '');
-    
+
     try {
         if ($acao === 'excluir' && isset($_POST['message_id'])) {
             $message_id = (int)$_POST['message_id'];
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$message_id]);
             $feedback = 'Mensagem excluída permanentemente.';
             $feedback_tipo = 'success';
-            
+
         } elseif ($acao === 'excluir_multiplas' && isset($_POST['message_ids'])) {
             $ids = array_map('intval', $_POST['message_ids']);
             $placeholders = implode(',', array_fill(0, count($ids), '?'));
@@ -81,23 +81,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute($ids);
             $feedback = count($ids) . ' mensagem(ns) excluída(s) permanentemente.';
             $feedback_tipo = 'success';
-            
+
         } elseif ($acao === 'marcar_respondida' && isset($_POST['message_id'])) {
             $message_id = (int)$_POST['message_id'];
-            $stmt = $db->prepare("UPDATE mensagens SET respondida = 1, lida = 1 WHERE id = ?");
-            $stmt->execute([$message_id]);
+            $stmt = $db->prepare("UPDATE mensagens SET respondida = 1, lida = 1, data_resposta = COALESCE(data_resposta, NOW()), respondido_por = COALESCE(respondido_por, ?) WHERE id = ?");
+            $stmt->execute([$_SESSION['utilizador_id'], $message_id]);
             $feedback = 'Mensagem marcada como respondida.';
             $feedback_tipo = 'success';
-            
+
         } else {
             throw new Exception('Ação inválida.');
         }
-        
+
     } catch (Exception $e) {
         $feedback = $e->getMessage();
         $feedback_tipo = 'error';
     }
-    
+
     // Se for AJAX, retorna JSON
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         header('Content-Type: application/json');
@@ -144,15 +144,15 @@ $total_paginas = ceil($total_registros / $itens_por_pagina);
 
 // Buscar mensagens
 $sql = "
-    SELECT *, 
-           CASE 
+    SELECT *,
+           CASE
                WHEN respondida = 1 THEN 'respondida'
                WHEN lida = 1 THEN 'lida'
                ELSE 'nao_lida'
            END as estado
     FROM mensagens
     $where_sql
-    ORDER BY 
+    ORDER BY
         CASE WHEN lida = 0 THEN 0 ELSE 1 END,
         data_envio DESC
     LIMIT $itens_por_pagina OFFSET $offset
@@ -193,7 +193,7 @@ include 'includes/sidebar.php';
     </header>
 
     <div class="conteudo-pagina">
-        
+
         <?php if (!empty($feedback)): ?>
         <div class="alert alert-<?= $feedback_tipo === 'error' ? 'danger' : 'success' ?> alert-dismissible">
             <i class="fas fa-<?= $feedback_tipo === 'error' ? 'exclamation-circle' : 'check-circle' ?>"></i>
@@ -256,7 +256,7 @@ include 'includes/sidebar.php';
                     <i class="fas fa-check-circle"></i> Respondidas
                 </a>
             </div>
-            
+
             <div class="filtros-busca">
                 <form method="GET" class="form-busca">
                     <?php if ($status !== 'todas'): ?>
@@ -293,7 +293,7 @@ include 'includes/sidebar.php';
                         <i class="fas fa-trash-alt"></i> Excluir selecionados
                     </button>
                 </div>
-                
+
                 <?php foreach ($mensagens as $msg): ?>
                 <div class="mensagem-card <?= $msg['estado'] ?>" data-id="<?= $msg['id'] ?>">
                     <div class="mensagem-checkbox">
@@ -327,21 +327,24 @@ include 'includes/sidebar.php';
                                 <?= date('d/m/Y H:i', strtotime($msg['data_envio'])) ?>
                             </div>
                         </div>
-                        
+
                         <div class="mensagem-assunto">
                             <strong>Assunto:</strong> <?= htmlspecialchars($msg['assunto']) ?>
                         </div>
-                        
+
                         <div class="mensagem-preview">
                             <?= htmlspecialchars(substr($msg['mensagem'], 0, 200)) ?>...
                         </div>
-                        
+
                         <div class="mensagem-acoes">
                             <button class="btn-ver" onclick="verMensagem(<?= $msg['id'] ?>)">
                                 <i class="fas fa-eye"></i> Ver detalhes
                             </button>
-                        
+
                             <?php if ((int)$msg['respondida'] !== 1): ?>
+                            <button class="btn-responder" onclick="abrirModalRespostaPorId(<?= $msg['id'] ?>)">
+                                <i class="fas fa-reply"></i> Responder
+                            </button>
                             <button class="btn-ver" onclick="marcarComoRespondida(<?= $msg['id'] ?>)">
                                 <i class="fas fa-check"></i> Marcar respondida
                             </button>
@@ -353,7 +356,7 @@ include 'includes/sidebar.php';
                     </div>
                 </div>
                 <?php endforeach; ?>
-                
+
                 <!-- Paginação -->
                 <?php if ($total_paginas > 1): ?>
                 <div class="paginacao">
@@ -366,7 +369,7 @@ include 'includes/sidebar.php';
                             <i class="fas fa-chevron-left"></i> Anterior
                         </a>
                         <?php endif; ?>
-                        
+
                         <?php
                         $start = max(1, $pagina_atual - 2);
                         $end = min($total_paginas, $pagina_atual + 2);
@@ -376,7 +379,7 @@ include 'includes/sidebar.php';
                             <?= $i ?>
                         </a>
                         <?php endfor; ?>
-                        
+
                         <?php if ($pagina_atual < $total_paginas): ?>
                         <a href="?<?= http_build_query(array_merge($_GET, ['pagina' => $pagina_atual + 1])) ?>" class="pagina-link">
                             Próximo <i class="fas fa-chevron-right"></i>
@@ -408,10 +411,46 @@ include 'includes/sidebar.php';
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn-responder-modal" id="btnAbrirResposta" style="display:none;" onclick="abrirModalRespostaAtual()">
+                    <i class="fas fa-reply"></i> Responder
+                </button>
                 <button type="button" class="btn-secondary" onclick="fecharModalVisualizar()">
                     <i class="fas fa-times"></i> Fechar
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL RESPONDER MENSAGEM -->
+<div id="modalResposta" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-reply"></i> Responder Mensagem
+                </h5>
+                <button type="button" class="close-modal" onclick="fecharModalResposta()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="formResposta" onsubmit="enviarResposta(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="respostaMensagemId">
+                    <div class="resposta-destino" id="respostaDestino"></div>
+                    <label for="respostaTexto" class="resposta-label">Resposta</label>
+                    <textarea id="respostaTexto" class="resposta-textarea" rows="8" placeholder="Escreva a resposta que será enviada por email..." required></textarea>
+                    <small class="resposta-ajuda">O email incluirá automaticamente a mensagem original citada abaixo da sua resposta.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="fecharModalResposta()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-enviar-resposta" id="btnEnviarResposta">
+                        <i class="fas fa-paper-plane"></i> Enviar Resposta
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -459,7 +498,7 @@ include 'includes/sidebar.php';
 /* Cards de estatísticas */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -467,10 +506,11 @@ include 'includes/sidebar.php';
 .stat-card {
     background: white;
     border-radius: 16px;
-    padding: 20px;
+    padding: 25px;
+    min-height: 112px;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     transition: transform 0.2s;
 }
@@ -481,8 +521,9 @@ include 'includes/sidebar.php';
 }
 
 .stat-icon {
-    width: 55px;
-    height: 55px;
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 50%;
     display: flex;
@@ -815,6 +856,35 @@ include 'includes/sidebar.php';
     color: white;
 }
 
+.btn-responder,
+.btn-responder-modal,
+.btn-enviar-resposta {
+    background: #e8f5e9;
+    color: #1e7e34;
+}
+
+.btn-responder:hover,
+.btn-responder-modal:hover,
+.btn-enviar-resposta:hover {
+    background: #28a745;
+    color: white;
+}
+
+.btn-responder-modal,
+.btn-enviar-resposta {
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 10px 20px;
+    transition: all 0.2s;
+}
+
+.btn-enviar-resposta:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
 .btn-excluir {
     background: #fee2e2;
     color: #c62828;
@@ -896,6 +966,7 @@ include 'includes/sidebar.php';
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
     z-index: 10000;
     align-items: center;
     justify-content: center;
@@ -1049,57 +1120,98 @@ include 'includes/sidebar.php';
     word-wrap: break-word;
 }
 
+.resposta-destino {
+    background: #f8f9fa;
+    border-left: 4px solid #0a9396;
+    border-radius: 12px;
+    color: #2c3e50;
+    line-height: 1.6;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+}
+
+.resposta-label {
+    color: #003072;
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.resposta-textarea {
+    border: 1px solid #d9e2ec;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    outline: none;
+    padding: 14px 16px;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+}
+
+.resposta-textarea:focus {
+    border-color: #0a9396;
+    box-shadow: 0 0 0 3px rgba(10,147,150,0.12);
+}
+
+.resposta-ajuda {
+    color: #64748b;
+    display: block;
+    margin-top: 8px;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .filtros-tabs {
         flex-wrap: wrap;
     }
-    
+
     .filtro-tab {
         flex: 1;
         justify-content: center;
     }
-    
+
     .form-busca {
         flex-direction: column;
     }
-    
+
     .mensagem-header {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .remetente-info {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .mensagem-acoes {
         flex-direction: column;
     }
-    
+
     .mensagem-acoes button {
         width: 100%;
     }
-    
+
     .paginacao {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .modal-dialog {
         margin: 10px;
     }
-    
+
     .modal-header, .modal-footer {
         padding: 15px;
     }
-    
+
     .modal-body {
         padding: 15px;
     }
@@ -1109,12 +1221,12 @@ include 'includes/sidebar.php';
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .acoes-em-massa {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .btn-excluir-massa {
         width: 100%;
     }
@@ -1123,6 +1235,7 @@ include 'includes/sidebar.php';
 
 <script>
 let itensSelecionados = [];
+let mensagemAtual = null;
 
 // Fechar alertas
 document.querySelectorAll('.close-alert').forEach(btn => {
@@ -1135,17 +1248,20 @@ document.querySelectorAll('.close-alert').forEach(btn => {
 function verMensagem(id) {
     const modal = document.getElementById('modalVisualizar');
     const conteudo = document.getElementById('visualizarConteudo');
-    
+
     conteudo.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
     modal.classList.add('active');
-    
+
     fetch(`admin-contactos.php?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
                 const m = data.mensagem;
+                mensagemAtual = m;
+                const btnAbrirResposta = document.getElementById('btnAbrirResposta');
+                if (btnAbrirResposta) btnAbrirResposta.style.display = Number(m.respondida) === 1 ? 'none' : 'inline-flex';
                 const estadoTexto = m.respondida ? 'Respondida' : (m.lida ? 'Lida' : 'Não lida');
-                
+
                 conteudo.innerHTML = `
                     <div class="visualizar-mensagem">
                         <div class="msg-header">
@@ -1175,10 +1291,70 @@ function fecharModalVisualizar() {
     document.getElementById('modalVisualizar').classList.remove('active');
 }
 
-function responderMensagem(id, email, assunto) {
-    const assuntoResposta = encodeURIComponent(`Re: ${assunto || 'Mensagem de Contacto'}`);
-    const destinatario = encodeURIComponent(email || '');
-    window.location.href = `mailto:${destinatario}?subject=${assuntoResposta}`;
+function preencherModalResposta(mensagem) {
+    if (!mensagem) return;
+    document.getElementById('respostaMensagemId').value = mensagem.id;
+    document.getElementById('respostaTexto').value = '';
+    document.getElementById('respostaDestino').innerHTML = `
+        <strong>Para:</strong> ${escapeHtml(mensagem.nome)} &lt;${escapeHtml(mensagem.email)}&gt;<br>
+        <strong>Assunto:</strong> RE: ${escapeHtml(mensagem.assunto || 'Mensagem de Contacto')}
+    `;
+    document.getElementById('modalResposta').classList.add('active');
+    setTimeout(() => document.getElementById('respostaTexto')?.focus(), 80);
+}
+
+function abrirModalRespostaAtual() {
+    preencherModalResposta(mensagemAtual);
+}
+
+function abrirModalRespostaPorId(id) {
+    fetch(`admin-contactos.php?action=buscar&id=${id}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                mensagemAtual = data.mensagem;
+                preencherModalResposta(data.mensagem);
+            } else {
+                mostrarNotificacao(data.message || 'Erro ao carregar mensagem.', 'error');
+            }
+        })
+        .catch(() => mostrarNotificacao('Erro ao carregar mensagem.', 'error'));
+}
+
+function fecharModalResposta() {
+    document.getElementById('modalResposta').classList.remove('active');
+}
+
+function enviarResposta(event) {
+    event.preventDefault();
+    const btn = document.getElementById('btnEnviarResposta');
+    const formData = new URLSearchParams();
+    formData.append('message_id', document.getElementById('respostaMensagemId').value);
+    formData.append('resposta', document.getElementById('respostaTexto').value.trim());
+
+    btn.disabled = true;
+    const textoOriginal = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+    fetch('processos/processar-resposta.php', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        mostrarNotificacao(data.message, data.success ? 'success' : 'error');
+        if (data.success) {
+            fecharModalResposta();
+            fecharModalVisualizar();
+            setTimeout(() => location.reload(), 1200);
+        }
+    })
+    .catch(() => mostrarNotificacao('Erro ao enviar resposta.', 'error'))
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = textoOriginal;
+    });
 }
 
 function marcarComoRespondida(id) {
@@ -1197,26 +1373,31 @@ function marcarComoRespondida(id) {
 
 // Excluir mensagem individual
 function excluirMensagem(id) {
-    if (confirm('Excluir esta mensagem permanentemente? Esta ação não pode ser desfeita.')) {
-        const formData = new URLSearchParams();
-        formData.append('acao', 'excluir');
-        formData.append('message_id', id);
-        
-        fetch(window.location.href, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: formData
-        })
-        .then(r => r.json())
-        .then(data => {
-            mostrarNotificacao(data.message, data.success ? 'success' : 'error');
-            if (data.success) {
-                setTimeout(() => location.reload(), 1500);
-            }
-        });
-    }
+    abrirModalConfirmacao(
+        'Confirmar eliminação',
+        'Excluir esta mensagem permanentemente? Esta ação não pode ser desfeita.',
+        () => {
+            const formData = new URLSearchParams();
+            formData.append('acao', 'excluir');
+            formData.append('message_id', id);
+
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                mostrarNotificacao(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            });
+        },
+        'eliminar'
+    );
 }
 
 // Excluir múltiplas mensagens
@@ -1224,7 +1405,7 @@ function excluirMultiplas(ids) {
     const formData = new URLSearchParams();
     formData.append('acao', 'excluir_multiplas');
     ids.forEach(id => formData.append('message_ids[]', id));
-    
+
     fetch(window.location.href, {
         method: 'POST',
         headers: {
@@ -1250,10 +1431,10 @@ function mostrarNotificacao(mensagem, tipo) {
         ${mensagem}
         <button type="button" class="close-alert">&times;</button>
     `;
-    
+
     const container = document.querySelector('.conteudo-pagina');
     container.insertBefore(alert, container.firstChild);
-    
+
     alert.querySelector('.close-alert').addEventListener('click', () => alert.remove());
     setTimeout(() => alert.remove(), 5000);
 }
@@ -1270,11 +1451,11 @@ function atualizarSelecao() {
             itensSelecionados.push(parseInt(cb.value));
         }
     });
-    
+
     if (excluirSelecionadosBtn) {
         excluirSelecionadosBtn.disabled = itensSelecionados.length === 0;
     }
-    
+
     if (selectAllCheckbox && checkboxes.length > 0) {
         const todosChecked = Array.from(checkboxes).every(cb => cb.checked);
         selectAllCheckbox.checked = todosChecked;
@@ -1298,9 +1479,12 @@ document.querySelectorAll('.selecionar-msg').forEach(cb => {
 if (excluirSelecionadosBtn) {
     excluirSelecionadosBtn.addEventListener('click', () => {
         if (itensSelecionados.length === 0) return;
-        if (confirm(`Excluir ${itensSelecionados.length} mensagem(ns) permanentemente? Esta ação não pode ser desfeita.`)) {
-            excluirMultiplas(itensSelecionados);
-        }
+        abrirModalConfirmacao(
+            'Confirmar eliminação em massa',
+            `Excluir ${itensSelecionados.length} mensagem(ns) permanentemente? Esta ação não pode ser desfeita.`,
+            () => excluirMultiplas(itensSelecionados),
+            'eliminar'
+        );
     });
 }
 
@@ -1309,10 +1493,15 @@ document.getElementById('modalVisualizar')?.addEventListener('click', (e) => {
     if (e.target === document.getElementById('modalVisualizar')) fecharModalVisualizar();
 });
 
+document.getElementById('modalResposta')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modalResposta')) fecharModalResposta();
+});
+
 // Escape key fecha modal
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         fecharModalVisualizar();
+        fecharModalResposta();
     }
 });
 
