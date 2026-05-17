@@ -28,27 +28,42 @@ $resposta = ['success' => false, 'message' => ''];
 
 if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome = trim($_POST['nome'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+    $email = strtolower(trim($_POST['email'] ?? ''));
     $assunto = trim($_POST['assunto'] ?? '');
     $mensagem = trim($_POST['mensagem'] ?? '');
     $ip = $_SERVER['REMOTE_ADDR'] ?? '';
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    
+
     // Validação simplificada
     $erros = [];
     if (empty($nome)) $erros[] = 'Nome é obrigatório';
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) $erros[] = 'Email inválido';
     if (empty($assunto)) $erros[] = 'Assunto é obrigatório';
     if (empty($mensagem)) $erros[] = 'Mensagem é obrigatória';
-    
+
     if (empty($erros)) {
         try {
             $db = getDB();
-            $stmt = $db->prepare("INSERT INTO mensagens (nome, email, assunto, mensagem, ip_address, user_agent) 
-                                   VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$nome, $email, $assunto, $mensagem, $ip, $user_agent]);
-            
-            $resposta = ['success' => true, 'message' => 'Mensagem enviada com sucesso! Entraremos em contacto em breve.'];
+
+            $stmt_limite = $db->prepare("
+                SELECT id
+                FROM mensagens
+                WHERE email = ?
+                  AND data_envio >= CURDATE()
+                  AND data_envio < (CURDATE() + INTERVAL 1 DAY)
+                LIMIT 1
+            ");
+            $stmt_limite->execute([$email]);
+
+            if ($stmt_limite->fetch()) {
+                $resposta = ['success' => false, 'message' => 'Já enviou uma mensagem nas últimas 24 horas. Aguarde até amanhã.'];
+            } else {
+                $stmt = $db->prepare("INSERT INTO mensagens (nome, email, assunto, mensagem, ip_address, user_agent)
+                                       VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$nome, $email, $assunto, $mensagem, $ip, $user_agent]);
+
+                $resposta = ['success' => true, 'message' => 'Mensagem enviada com sucesso! Entraremos em contacto em breve.'];
+            }
         } catch (PDOException $e) {
             $resposta = ['success' => false, 'message' => 'Erro ao enviar mensagem. Tente novamente mais tarde.'];
             error_log("Erro ao salvar mensagem: " . $e->getMessage());
@@ -56,7 +71,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $resposta = ['success' => false, 'message' => implode(', ', $erros)];
     }
-    
+
     header('Content-Type: application/json');
     echo json_encode($resposta);
     exit;
@@ -69,17 +84,17 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPIKK - Contactos</title>
-    
+
     <!-- Fontes e Ícones -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
+
     <!-- Favicon -->
     <link href="<?= $config['favicon_url'] ?? 'foto/ipikk_new_logo.png' ?>" rel="icon">
-    
+
     <!-- CSS Header/Footer Padrão -->
     <link rel="stylesheet" href="css/header-footer.css">
-    
+
     <style>
         /*======Variáveis==========*/
         :root {
@@ -355,7 +370,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
             .cartao h2 {
                 font-size: 1.5rem;
             }
-            
+
             .notificacao-flutuante {
                 top: 70px;
                 padding: 12px 20px;
@@ -374,7 +389,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="subtitulo-pagina">Estamos aqui para responder às suas questões</p>
         <div class="linha-decorativa-titulo"></div>
         </section>
-        
+
         <section class="container-contatos">
             <article class="cartao">
                 <h2><i class="fas fa-building"></i> Informações</h2>
@@ -414,7 +429,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <article class="cartao">
                 <h2><i class="fas fa-paper-plane"></i> Envie Mensagem</h2>
-                
+
                 <form class="formulario-contato" id="formularioContato" novalidate>
                     <input type="text" id="nome" name="nome" placeholder="Nome completo" required>
                     <input type="email" id="email" name="email" placeholder="Email" required>
@@ -428,7 +443,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="mapa-container">
             <article class="cartao">
                 <h2><i class="fas fa-map-marker-alt"></i> Nossa Localização</h2>
-                <iframe 
+                <iframe
                     class="mapa"
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3941.775737508126!2d13.221684474058835!3d-8.900430191155815!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1a51f585cb9b5811%3A0x339cabe0139f60da!2sInstituto%20M%C3%A9dio%20Polit%C3%A9cnico%20do%20nova%20vida!5e0!3m2!1spt-PT!2sao!4v1770320133365!5m2!1spt-PT!2sao"
                     title="Mapa de localização do IPIKK"
@@ -458,7 +473,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
         function mostrarNotificacao(mensagem, tipo) {
             const notifExistente = document.querySelector('.notificacao-flutuante');
             if (notifExistente) notifExistente.remove();
-            
+
             const notificacao = document.createElement('div');
             notificacao.className = `notificacao-flutuante ${tipo}`;
             const icone = tipo === 'sucesso' ? 'fa-check-circle' : 'fa-exclamation-triangle';
@@ -466,26 +481,26 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
             document.body.appendChild(notificacao);
             setTimeout(() => notificacao.remove(), 5000);
         }
-        
+
         const formulario = document.getElementById('formularioContato');
         const botaoEnviar = document.getElementById('botaoEnviar');
 
         formulario.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             botaoEnviar.disabled = true;
             botaoEnviar.classList.add('enviando');
             botaoEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-            
+
             const formData = new FormData(formulario);
-            
+
             try {
                 const response = await fetch('contatos.php?processar=1', {
                     method: 'POST',
                     body: formData
                 });
                 const resultado = await response.json();
-                
+
                 if (resultado.success) {
                     mostrarNotificacao(resultado.message, 'sucesso');
                     formulario.reset();

@@ -138,18 +138,16 @@ include 'includes/sidebar.php';
                 <table class="tabela-documentos">
                     <thead>
                         <tr>
-                            <th width="60">ID</th>
-                            <th>Título</th>
-                            <th>Descrição</th>
-                            <th>Imagem</th>
-                            <th width="100">Downloads</th>
+                            <th style="width: 24%;">Título</th>
+                            <th style="width: 28%;">Descrição</th>
+                            <th width="130">Imagem</th>
+                            <th width="110">Downloads</th>
                             <th width="120">Data</th>
                             <th width="140">Ações</th>
                         </thead>
                     <tbody>
                         <?php foreach ($documentos as $doc): ?>
                         <tr data-id="<?= $doc['id'] ?>">
-                            <td><?= $doc['id'] ?></td>
                             <td class="titulo-coluna">
                                 <strong><?= htmlspecialchars($doc['titulo']) ?></strong>
                                 <?php if ($doc['tamanho_kb']): ?>

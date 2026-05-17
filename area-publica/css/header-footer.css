@@ -1109,3 +1109,35 @@ body.translated-rtl {
 body.sidebar-open {
     overflow: hidden;
 }
+/* ===== Slider infinito de parceiros ===== */
+.area-slider-parceiros {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1200px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.slider-parceiros {
+    animation: fluxoParceiros 16s linear infinite;
+    display: flex;
+    width: max-content;
+    will-change: transform;
+}
+
+.slider-grupo {
+    display: flex;
+    flex-shrink: 0;
+    gap: 40px;
+    padding-right: 40px;
+}
+
+.area-slider-parceiros:hover .slider-parceiros {
+    animation-play-state: paused;
+}
+
+@keyframes fluxoParceiros {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}

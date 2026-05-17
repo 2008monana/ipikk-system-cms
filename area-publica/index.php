@@ -640,10 +640,10 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         .titulo-parceiros { text-align: center; font-size: 2.5rem; color: var(--azul-principal); margin-bottom: 12px; }
         .linha-parceiros { width: 120px; height: 5px; background: linear-gradient(to right, var(--azul-principal), var(--verde-acento)); margin: 0 auto 60px; border-radius: 50px; }
         .area-slider-parceiros { max-width: 1200px; margin: 0 auto; overflow: hidden; mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%); }
-        .slider-parceiros { display: flex; width: max-content; will-change: transform; animation: fluxoParceiros 26s linear infinite; }
+        .slider-parceiros { display: flex; width: max-content; will-change: transform; animation: fluxoParceiros 16s linear infinite; }
         .slider-grupo { display: flex; gap: 40px; padding-right: 40px; flex-shrink: 0; }
         .area-slider-parceiros:hover .slider-parceiros { animation-play-state: paused; }
-        @keyframes fluxoParceiros { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 20px)); } }
+        @keyframes fluxoParceiros { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         .card-parceiro {
             background: white; border-radius: 12px; padding: 30px;
             display: flex; align-items: center; justify-content: center;

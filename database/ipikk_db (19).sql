@@ -700,6 +700,7 @@ CREATE TABLE `mensagens` (
   `arquivada` tinyint(1) DEFAULT 0,
   `lixeira` tinyint(1) DEFAULT 0,
   `resposta` text DEFAULT NULL,
+  `resposta_texto` text DEFAULT NULL,
   `data_resposta` timestamp NULL DEFAULT NULL,
   `respondido_por` int(11) DEFAULT NULL,
   `ip_address` varchar(45) DEFAULT NULL,
@@ -1247,7 +1248,9 @@ ALTER TABLE `mensagens`
   ADD PRIMARY KEY (`id`),
   ADD KEY `respondido_por` (`respondido_por`),
   ADD KEY `idx_lida` (`lida`),
-  ADD KEY `idx_data` (`data_envio`);
+  ADD KEY `idx_data` (`data_envio`),
+  ADD KEY `idx_email_data` (`email`,`data_envio`),
+  ADD KEY `idx_respondida` (`respondida`);
 
 --
 -- Índices para tabela `noticias`
@@ -1603,6 +1606,12 @@ ALTER TABLE `vagas_curso`
 --
 -- Restrições para despejos de tabelas
 --
+
+--
+-- Limitadores para a tabela `mensagens`
+--
+ALTER TABLE `mensagens`
+  ADD CONSTRAINT `mensagens_respondido_por_fk` FOREIGN KEY (`respondido_por`) REFERENCES `utilizadores` (`id`) ON DELETE SET NULL;
 
 --
 -- Limitadores para a tabela `conteudo_paginas`

@@ -57,3 +57,62 @@ if (window.__ipikkSidebarHeaderInitialized) {
         window.closeSidebar = fecharSidebar;
     });
 }
+
+// Modal global de confirmação usado nas páginas administrativas.
+window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAcao = 'info') {
+    const tipos = {
+        eliminar: { icone: '⚠️', classe: 'eliminar', textoBotao: 'Eliminar' },
+        publicar: { icone: '📧', classe: 'publicar', textoBotao: 'Confirmar' },
+        restaurar: { icone: '↩️', classe: 'restaurar', textoBotao: 'Restaurar' },
+        info: { icone: 'ℹ️', classe: 'info', textoBotao: 'Confirmar' }
+    };
+    const config = tipos[tipoAcao] || tipos.info;
+    const overlay = document.createElement('div');
+    overlay.className = 'ipikk-confirm-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+
+    overlay.innerHTML = `
+        <div class="ipikk-confirm-box">
+            <div class="ipikk-confirm-header">
+                <span class="ipikk-confirm-icon ${config.classe}" aria-hidden="true">${config.icone}</span>
+                <h2 class="ipikk-confirm-title">${escapeHtmlConfirmacao(titulo)}</h2>
+                <button type="button" class="ipikk-confirm-close" aria-label="Fechar">&times;</button>
+            </div>
+            <div class="ipikk-confirm-body">${escapeHtmlConfirmacao(texto)}</div>
+            <div class="ipikk-confirm-actions">
+                <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel">Cancelar</button>
+                <button type="button" class="ipikk-confirm-btn ipikk-confirm-action ${config.classe}">${config.textoBotao}</button>
+            </div>
+        </div>
+    `;
+
+    function fechar() {
+        document.removeEventListener('keydown', aoPressionarTecla);
+        overlay.remove();
+    }
+
+    function aoPressionarTecla(event) {
+        if (event.key === 'Escape') fechar();
+    }
+
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) fechar();
+    });
+    overlay.querySelector('.ipikk-confirm-close').addEventListener('click', fechar);
+    overlay.querySelector('.ipikk-confirm-cancel').addEventListener('click', fechar);
+    overlay.querySelector('.ipikk-confirm-action').addEventListener('click', () => {
+        fechar();
+        if (typeof callbackConfirmar === 'function') callbackConfirmar();
+    });
+
+    document.addEventListener('keydown', aoPressionarTecla);
+    document.body.appendChild(overlay);
+    overlay.querySelector('.ipikk-confirm-cancel').focus();
+};
+
+function escapeHtmlConfirmacao(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto ?? '';
+    return div.innerHTML;
+}
