@@ -142,13 +142,13 @@ unset($curso);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Area Restrita - Cursos</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="../area-publica/foto/ipikk_new_logo.png" rel="icon">
     <link rel="stylesheet" href="css/admin-sidebar-header.css">
     <link rel="stylesheet" href="css/admin-cursos.css">
-    
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -206,7 +206,7 @@ unset($curso);
         .secao-conteudo { background: var(--branco); border-radius: var(--borda-arredondada); padding: 25px; margin-bottom: 25px; box-shadow: var(--sombra); }
         .titulo-secao { font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         .cabecalho-secao { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
+
         .grade-areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 10px; }
         .card-area { background: var(--branco); border-radius: var(--borda-arredondada); padding: 18px; display: flex; align-items: center; gap: 12px; cursor: default; transition: var(--transicao); border: 2px solid var(--cinza-medio); position: relative; overflow: hidden; }
         .card-area:hover { transform: translateY(-3px); box-shadow: var(--sombra-forte); border-color: var(--verde-acento); }
@@ -222,13 +222,13 @@ unset($curso);
         .btn-icone-area { width: 32px; height: 32px; border-radius: 8px; background: var(--cinza-claro); border: 1px solid var(--cinza-medio); color: var(--azul-primario); cursor: pointer; transition: var(--transicao); display: flex; align-items: center; justify-content: center; }
         .btn-icone-area:hover { background: var(--verde-acento); border-color: var(--verde-acento); color: white; transform: scale(1.05); }
         .btn-icone-area.btn-perigo:hover { background: var(--perigo); border-color: var(--perigo); color: white; }
-        
+
         .grade-estatisticas { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
         .item-estatistica { padding: 20px; background: var(--cinza-claro); border-radius: var(--borda-arredondada); border-left: 4px solid var(--verde-acento); display: flex; align-items: center; gap: 15px; }
         .item-estatistica i { font-size: 32px; color: var(--azul-primario); }
         .info-estatistica h3 { font-size: 14px; color: var(--cinza-escuro); margin-bottom: 5px; }
         .info-estatistica p { font-size: 24px; font-weight: 700; color: var(--azul-primario); margin: 0; }
-        
+
         .grade-filtros { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
         .item-filtro.largura-total { grid-column: 1 / -1; }
         .caixa-busca { position: relative; }
@@ -248,7 +248,7 @@ unset($curso);
         }
         .checkbox-curso { width: 18px; height: 18px; cursor: pointer; accent-color: var(--verde-acento); display: block; }
         .card-curso.selecionado { border-color: var(--verde-acento); box-shadow: 0 0 0 2px var(--verde-acento); }
-        
+
         .grade-cursos { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; margin-top: 20px; }
         .card-curso { background: var(--branco); border: 2px solid var(--cinza-medio); border-radius: var(--borda-arredondada); overflow: hidden; transition: var(--transicao); position: relative; }
         .card-curso:hover { transform: translateY(-3px); box-shadow: var(--sombra-forte); border-color: var(--verde-acento); }
@@ -269,12 +269,12 @@ unset($curso);
         .acoes-curso { display: flex; gap: 8px; }
         .btn-icone { width: 36px; height: 36px; border-radius: 50%; background: var(--cinza-claro); border: 2px solid var(--cinza-medio); color: var(--cinza-escuro); cursor: pointer; transition: var(--transicao); display: flex; align-items: center; justify-content: center; }
         .btn-icone:hover { background: var(--verde-acento); border-color: var(--verde-acento); color: var(--branco); transform: scale(1.1); }
-        
+
         .acoes-rapidas { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
         .btn-acao { display: flex; align-items: center; gap: 8px; padding: 10px 18px; background: var(--cinza-claro); border: 2px solid var(--cinza-medio); border-radius: var(--borda-arredondada); cursor: pointer; transition: var(--transicao); font-size: 13px; font-weight: 500; }
         .btn-acao:hover:not(:disabled) { background: var(--azul-primario); border-color: var(--azul-primario); color: var(--branco); }
         .btn-acao:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
-        
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,30,70,0.75); backdrop-filter: blur(6px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
         .conteudo-modal { background: var(--branco); border-radius: 16px; max-width: 1000px; width: 100%; max-height: 92vh; overflow-y: auto; animation: slideInModal 0.35s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 25px 60px rgba(0,30,70,0.35); }
         @keyframes slideInModal { from { opacity: 0; transform: translateY(-60px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -286,14 +286,14 @@ unset($curso);
         .btn-fechar { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: var(--branco); font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; transition: var(--transicao); display: flex; align-items: center; justify-content: center; }
         .btn-fechar:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
         .corpo-modal { padding: 30px; }
-        
+
         .abas-modal { display: flex; gap: 5px; margin-bottom: 25px; border-bottom: 2px solid var(--cinza-medio); padding-bottom: 10px; overflow-x: auto; }
         .aba-modal { padding: 10px 20px; background: var(--cinza-claro); border: 2px solid var(--cinza-medio); border-radius: var(--borda-arredondada) var(--borda-arredondada) 0 0; border-bottom: none; cursor: pointer; font-weight: 600; font-size: 14px; transition: var(--transicao); white-space: nowrap; }
         .aba-modal:hover { background: var(--cinza-medio); }
         .aba-modal.ativo { background: var(--azul-primario); border-color: var(--azul-primario); color: var(--branco); }
         .conteudo-aba { display: none; }
         .conteudo-aba.ativo { display: block; }
-        
+
         .secao-form { background: var(--cinza-claro); border-radius: 12px; padding: 22px 25px; margin-bottom: 20px; border-left: 5px solid var(--verde-acento); }
         .secao-form h3 { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: var(--azul-primario); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--cinza-medio); }
         .linha-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; }
@@ -302,7 +302,7 @@ unset($curso);
         .controle-form { padding: 12px 14px; border: 2px solid var(--cinza-medio); border-radius: 8px; font-size: 14px; font-family: inherit; transition: var(--transicao); background: var(--branco); width: 100%; }
         .controle-form:focus { outline: none; border-color: var(--verde-acento); box-shadow: 0 0 0 4px rgba(10,147,150,0.12); }
         textarea.controle-form { resize: vertical; min-height: 100px; }
-        
+
         .sugestoes-icones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .sugestao-icone { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--cinza-claro); border: 1px solid var(--cinza-medio); border-radius: 20px; font-size: 12px; cursor: pointer; transition: var(--transicao); }
         .sugestao-icone:hover { background: var(--verde-acento); border-color: var(--verde-acento); color: white; transform: translateY(-2px); }
@@ -329,27 +329,27 @@ unset($curso);
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .sem-resultados { text-align: center; padding: 40px; color: #666; }
         @media (max-width: 768px) { .conteudo-principal { margin-left: 0; } .grade-areas, .grade-cursos, .grade-estatisticas { grid-template-columns: 1fr; } .linha-form { grid-template-columns: 1fr; } }
-        
+
         .grade-icones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
         .opcao-icone { width: 45px; height: 45px; border: 2px solid var(--cinza-medio); border-radius: 8px; background: white; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
         .opcao-icone.selecionado { background: var(--verde-acento); color: white; border-color: var(--verde-acento); }
         .item-dinamico { border: 1px solid var(--cinza-medio); border-radius: 8px; padding: 15px; margin-bottom: 15px; position: relative; }
         .item-dinamico .btn-remover { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background: var(--perigo); color: white; border: none; cursor: pointer; }
         .btn-adicionar { display: flex; align-items: center; gap: 8px; padding: 10px 15px; background: var(--branco); border: 2px dashed var(--verde-acento); border-radius: var(--borda-arredondada); color: var(--verde-acento); font-weight: 600; cursor: pointer; width: 100%; justify-content: center; margin-top: 10px; }
-        
+
         .preview-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--cinza-medio); padding-bottom: 10px; }
         .preview-tab { padding: 8px 20px; background: var(--cinza-claro); border: none; border-radius: 20px; cursor: pointer; font-weight: 600; transition: var(--transicao); }
         .preview-tab.ativo { background: var(--azul-primario); color: white; }
         .preview-tab:hover { background: var(--verde-acento); color: white; }
         .preview-conteudo { display: none; }
         .preview-conteudo.ativo { display: block; }
-        
+
         #modalPreviewArea .conteudo-modal,
         #modalPreviewCurso .conteudo-modal { max-width: 900px !important; width: 90% !important; max-height: 85vh !important; }
         #modalPreviewArea .corpo-modal,
         #modalPreviewCurso .corpo-modal { max-height: calc(85vh - 80px); overflow-y: auto; padding: 20px; }
         .preview-conteudo { max-height: 70vh; overflow-y: auto; }
-        
+
         .gradiente-obras { background: linear-gradient(to bottom, rgba(42, 46, 51, 0.25) 0%, rgba(36, 37, 39, 0.78) 100%); }
         .gradiente-desenhador { background: linear-gradient(to bottom, rgba(180, 110, 0, 0.30) 0%, rgba(140, 80, 0, 0.78) 100%); }
         .gradiente-eletricidade { background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(46, 134, 193, 0.6)); }
@@ -357,7 +357,7 @@ unset($curso);
         .gradiente-gestao { background: linear-gradient(to bottom, rgba(46, 134, 193, 0.3), rgba(26, 90, 140, 0.9)); }
         .gradiente-informatica { background: linear-gradient(to bottom, rgba(45, 122, 58, 0.3), rgba(30, 85, 39, 0.9)); }
         .gradiente-moveis { background: linear-gradient(to bottom, rgba(192, 57, 43, 0.3), rgba(150, 45, 34, 0.9)); }
-        
+
         #modalIframeCurso .conteudo-modal { max-width: 1200px; width: 95%; max-height: 90vh; }
         #modalIframeCurso .corpo-modal { padding: 0; height: calc(90vh - 80px); }
         #modalIframeCurso iframe { width: 100%; height: 100%; border: none; border-radius: 0 0 16px 16px; }
@@ -560,7 +560,7 @@ unset($curso);
                     <div class="secao-form">
                         <h3><i class="fas fa-calendar-alt"></i> Plano Curricular</h3>
                         <p style="margin-bottom: 20px; font-size: 13px;">Faça o upload do PDF do plano curricular para cada classe (10ª a 13ª) ou para o resumo geral.</p>
-                        
+
                         <!-- ===== PDF RESUMO GERAL (CLASSE 0) ===== -->
                         <div class="grupo-form" style="margin-bottom: 25px; padding: 20px; border: 1px solid var(--cinza-medio); border-radius: 12px; background: #f8fafc;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -584,7 +584,7 @@ unset($curso);
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- PDF para cada classe (10, 11, 12, 13) -->
                         <?php for ($classe = 10; $classe <= 13; $classe++): ?>
                         <div class="grupo-form" style="margin-bottom: 25px; padding: 20px; border: 1px solid var(--cinza-medio); border-radius: 12px;">
@@ -631,7 +631,7 @@ unset($curso);
                 <div class="conteudo-aba" data-aba="config">
                     <div class="secao-form">
                         <h3><i class="fas fa-cog"></i> Configuracoes</h3>
-                        <div class="linha-form"><div class="grupo-form"><label>Estado</label><select id="cursoEstado" class="controle-form"><option value="ativo">Ativo</option><option value="pausado">Pausado</option><option value="arquivado">Arquivado</option></select></div><div class="grupo-form"><label>Cor</label><input type="color" id="cursoCor" value="#003072" class="controle-form"></div></div>                        
+                        <div class="linha-form"><div class="grupo-form"><label>Estado</label><select id="cursoEstado" class="controle-form"><option value="ativo">Ativo</option><option value="pausado">Pausado</option><option value="arquivado">Arquivado</option></select></div><div class="grupo-form"><label>Cor</label><input type="color" id="cursoCor" value="#003072" class="controle-form"></div></div>
                         <div class="linha-form"><div class="grupo-form"><label>Destaque</label><div class="wrapper-toggle"><label class="toggle-switch"><input type="checkbox" id="cursoDestaque"><span class="toggle-slider"></span></label><span>Destacar na pagina inicial</span></div></div><div class="grupo-form"><label><i class="fas fa-icons"></i> Icone (Font Awesome)</label><div class="icone-input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;"><div class="icone-preview" id="iconePreviewCurso" style="width: 48px; height: 48px; background: var(--cinza-claro); border: 2px solid var(--cinza-medio); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--azul-primario); flex-shrink: 0;"><i class="fas fa-graduation-cap" id="iconePreviewIconCurso"></i></div><input type="text" id="cursoIcone" class="controle-form" placeholder="Ex: fa-graduation-cap, fa-helmet-safety, fa-laptop-code" value="fa-graduation-cap" style="flex: 1;"></div><div class="sugestoes-icones"><span style="font-size: 12px; color: #666; margin-right: 5px;">Sugestoes:</span><button type="button" class="sugestao-icone" data-icone="fa-graduation-cap"><i class="fas fa-graduation-cap"></i> Capelo</button><button type="button" class="sugestao-icone" data-icone="fa-helmet-safety"><i class="fas fa-helmet-safety"></i> Capacete</button><button type="button" class="sugestao-icone" data-icone="fa-laptop-code"><i class="fas fa-laptop-code"></i> Computador</button><button type="button" class="sugestao-icone" data-icone="fa-bolt"><i class="fas fa-bolt"></i> Raio</button><button type="button" class="sugestao-icone" data-icone="fa-gear"><i class="fas fa-gear"></i> Engrenagem</button><button type="button" class="sugestao-icone" data-icone="fa-couch"><i class="fas fa-couch"></i> Sofa</button><button type="button" class="sugestao-icone" data-icone="fa-wrench"><i class="fas fa-wrench"></i> Chave</button><button type="button" class="sugestao-icone" data-icone="fa-hammer"><i class="fas fa-hammer"></i> Martelo</button><button type="button" class="sugestao-icone" data-icone="fa-drafting-compass"><i class="fas fa-drafting-compass"></i> Compasso</button><button type="button" class="sugestao-icone" data-icone="fa-microchip"><i class="fas fa-microchip"></i> Chip</button><button type="button" class="sugestao-icone" data-icone="fa-database"><i class="fas fa-database"></i> Base Dados</button><button type="button" class="sugestao-icone" data-icone="fa-cloud"><i class="fas fa-cloud"></i> Nuvem</button><button type="button" class="sugestao-icone" data-icone="fa-rocket"><i class="fas fa-rocket"></i> Foguete</button><button type="button" class="sugestao-icone" data-icone="fa-paintbrush"><i class="fas fa-paintbrush"></i> Pintura</button></div></div></div>
                         <div class="grupo-form"><label>Imagem de Capa</label><div class="area-upload-arquivo" onclick="document.getElementById('imagemInput').click()"><i class="fas fa-cloud-upload-alt"></i><p>Clique para fazer upload da imagem</p></div><input type="file" id="imagemInput" accept="image/*" style="display: none;"><div class="preview-arquivo" id="previewImagem"><div><img id="miniaturaImagem" style="max-width: 100px;"></div><button type="button" class="btn-icone" onclick="removerImagem()"><i class="fas fa-trash"></i></button></div></div>
                     </div>
@@ -664,6 +664,39 @@ let projetosPorCurso = window.ADMIN_CURSOS_DATA.projetos || {};
 let filtroAreaAtual  = null;
 let urlCursoAtual    = '';
 
+function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    if (typeof window.abrirModalConfirmacao === 'function') {
+        window.abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
+        return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'ipikk-confirm-overlay';
+    overlay.innerHTML = `
+        <div class="ipikk-confirm-box">
+            <div class="ipikk-confirm-header">
+                <span class="ipikk-confirm-icon eliminar" aria-hidden="true">⚠️</span>
+                <h2 class="ipikk-confirm-title">${escapeHtml(titulo)}</h2>
+                <button type="button" class="ipikk-confirm-close" data-confirm-cancel>&times;</button>
+            </div>
+            <div class="ipikk-confirm-body">${escapeHtml(texto)}</div>
+            <div class="ipikk-confirm-actions">
+                <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel" data-confirm-cancel>Cancelar</button>
+                <button type="button" class="ipikk-confirm-btn ipikk-confirm-action ${tipoAcao}">Eliminar</button>
+            </div>
+        </div>
+    `;
+    const fechar = () => overlay.remove();
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
+        if (event.target.closest('.ipikk-confirm-action')) {
+            fechar();
+            if (typeof callbackConfirmar === 'function') callbackConfirmar();
+        }
+    });
+    document.body.appendChild(overlay);
+}
+
 // Objeto para armazenar arquivos PDF selecionados (incluindo classe 0)
 let pdfFiles = {
     0: null, 10: null, 11: null, 12: null, 13: null
@@ -694,10 +727,13 @@ function selecionarTodosCursos() {
 
 function eliminarCursosSelecionados() {
     if (cursosSelecionados.size === 0) { mostrarNotificacao('Nenhum curso selecionado', 'error'); return; }
-    if (!confirm(`Eliminar ${cursosSelecionados.size} curso(s) permanentemente?`)) return;
-    const ids = Array.from(cursosSelecionados);
-    let processados = 0, erros = 0;
-    ids.forEach(id => {
+    confirmarAcao(
+        'Confirmar eliminação',
+        `Eliminar ${cursosSelecionados.size} curso(s) permanentemente?`,
+        () => {
+            const ids = Array.from(cursosSelecionados);
+            let processados = 0, erros = 0;
+            ids.forEach(id => {
         fetch('processos/processar-curso.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `action=delete_curso&curso_id=${id}` })
             .then(r => r.json())
             .then(data => {
@@ -713,7 +749,10 @@ function eliminarCursosSelecionados() {
                 }
             })
             .catch(() => { processados++; erros++; if (processados === ids.length) { mostrarNotificacao(`Erro ao eliminar alguns cursos.`, 'error'); cursosSelecionados.clear(); renderizarCursos(); } });
-    });
+            });
+        },
+        'eliminar'
+    );
 }
 
 function exportarCursosCompleto() {
@@ -911,10 +950,16 @@ function eliminarArea(id) {
     const area = areas.find(a=>a.id==id);
     const tot = cursos.filter(c=>c.area_id==id).length;
     if (tot) { mostrarNotificacao(`Nao pode eliminar "${area.nome}" — tem ${tot} curso(s).`,'error'); return; }
-    if (!confirm(`Eliminar a area "${area.nome}"?`)) return;
-    fetch('processos/processar-curso.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`action=delete_area&area_id=${id}`})
-        .then(r=>r.json()).then(d=>{ if(d.success){mostrarNotificacao(d.message,'success');location.reload();}else mostrarNotificacao(d.message,'error'); })
-        .catch(()=>mostrarNotificacao('Erro ao comunicar','error'));
+    confirmarAcao(
+        'Confirmar eliminação',
+        `Eliminar a area "${area.nome}"?`,
+        () => {
+            fetch('processos/processar-curso.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`action=delete_area&area_id=${id}`})
+                .then(r=>r.json()).then(d=>{ if(d.success){mostrarNotificacao(d.message,'success');location.reload();}else mostrarNotificacao(d.message,'error'); })
+                .catch(()=>mostrarNotificacao('Erro ao comunicar','error'));
+        },
+        'eliminar'
+    );
 }
 
 function salvarArea(e) {
@@ -1117,14 +1162,14 @@ function fecharModalPreviewCurso() { document.getElementById('modalPreviewCurso'
 function carregarPDFsExistentes(cursoId) {
     const planos = planosPorCurso[cursoId] || {};
     const classes = [0, 10, 11, 12, 13];
-    
+
     classes.forEach(classe => {
         const planoExistente = planos[classe];
         const previewDiv = document.getElementById(`pdf${classe}Preview`);
         const nomeSpan = document.getElementById(`pdf${classe}Nome`);
         const existenteSpan = document.getElementById(`pdf${classe}Existente`);
         const btnRemover = document.querySelector(`.btn-remover-pdf[data-classe="${classe}"]`);
-        
+
         if(planoExistente && planoExistente.url) {
             if(previewDiv) {
                 previewDiv.style.display = 'flex';
@@ -1153,27 +1198,27 @@ function handlePDFChange(e) {
     const classe = parseInt(input.dataset.classe);
     const file = input.files[0];
     if(!file) return;
-    
+
     if(file.type !== 'application/pdf') {
         mostrarNotificacao('Formato inválido. Selecione um arquivo PDF.', 'error');
         input.value = '';
         return;
     }
-    
+
     if(file.size > 10 * 1024 * 1024) {
         mostrarNotificacao('Arquivo muito grande. Máximo 10MB', 'error');
         input.value = '';
         return;
     }
-    
+
     pdfFiles[classe] = file;
     pdfParaRemover[classe] = false;
-    
+
     const previewDiv = document.getElementById(`pdf${classe}Preview`);
     const nomeSpan = document.getElementById(`pdf${classe}Nome`);
     const existenteSpan = document.getElementById(`pdf${classe}Existente`);
     const btnRemover = document.querySelector(`.btn-remover-pdf[data-classe="${classe}"]`);
-    
+
     if(previewDiv) {
         previewDiv.style.display = 'flex';
         if(nomeSpan) nomeSpan.textContent = file.name;
@@ -1187,40 +1232,45 @@ function handleRemoverPDF(e) {
     e.stopPropagation();
     const btn = e.currentTarget;
     const classe = parseInt(btn.dataset.classe);
-    
-    if(!confirm(`Tem certeza que deseja remover o PDF da ${classe === 0 ? 'aba Geral' : classe + 'ª Classe'}?`)) return;
-    
-    pdfParaRemover[classe] = true;
-    pdfFiles[classe] = null;
-    
-    const input = document.getElementById(`pdf${classe}Input`);
-    if(input) input.value = '';
-    
-    const previewDiv = document.getElementById(`pdf${classe}Preview`);
-    if(previewDiv) previewDiv.style.display = 'none';
-    
-    btn.style.display = 'none';
-    
-    mostrarNotificacao(`PDF ${classe === 0 ? 'Resumo Geral' : 'da ' + classe + 'ª Classe'} será removido ao salvar.`, 'info');
+
+    confirmarAcao(
+        'Confirmar remoção',
+        `Tem certeza que deseja remover o PDF da ${classe === 0 ? 'aba Geral' : classe + 'ª Classe'}?`,
+        () => {
+            pdfParaRemover[classe] = true;
+            pdfFiles[classe] = null;
+
+            const input = document.getElementById(`pdf${classe}Input`);
+            if(input) input.value = '';
+
+            const previewDiv = document.getElementById(`pdf${classe}Preview`);
+            if(previewDiv) previewDiv.style.display = 'none';
+
+            btn.style.display = 'none';
+
+            mostrarNotificacao(`PDF ${classe === 0 ? 'Resumo Geral' : 'da ' + classe + 'ª Classe'} será removido ao salvar.`, 'info');
+        },
+        'eliminar'
+    );
 }
 
 function setupPDFUploads() {
     const cursoId = document.getElementById('cursoId').value;
     const classes = [0, 10, 11, 12, 13];
-    
+
     classes.forEach(classe => {
         const input = document.getElementById(`pdf${classe}Input`);
         if(input) {
             input.removeEventListener('change', handlePDFChange);
             input.addEventListener('change', handlePDFChange);
         }
-        
+
         const btnRemover = document.querySelector(`.btn-remover-pdf[data-classe="${classe}"]`);
         if(btnRemover) {
             btnRemover.removeEventListener('click', handleRemoverPDF);
             btnRemover.addEventListener('click', handleRemoverPDF);
         }
-        
+
         if(cursoId && planosPorCurso[cursoId] && planosPorCurso[cursoId][classe] && planosPorCurso[cursoId][classe].url) {
             const previewDiv = document.getElementById(`pdf${classe}Preview`);
             const nomeSpan = document.getElementById(`pdf${classe}Nome`);
@@ -1251,7 +1301,7 @@ function abrirModalCurso(id = null) {
     document.getElementById('formularioCurso').reset();
     document.getElementById('cursoId').value = '';
     document.getElementById('tituloModalCurso').innerHTML = 'Novo Curso';
-    
+
     // Resetar PDFs
     const classes = [0, 10, 11, 12, 13];
     classes.forEach(classe => {
@@ -1264,7 +1314,7 @@ function abrirModalCurso(id = null) {
         const btnRemover = document.querySelector(`.btn-remover-pdf[data-classe="${classe}"]`);
         if(btnRemover) btnRemover.style.display = 'none';
     });
-    
+
     document.getElementById('previewImagem').classList.remove('ativo');
     document.getElementById('containerSaidas').innerHTML = '';
     document.getElementById('containerProjectos').innerHTML = '';
@@ -1274,7 +1324,7 @@ function abrirModalCurso(id = null) {
     document.getElementById('cursoCompetencias').value = '';
     document.getElementById('cursoCertificacao').value = '';
     document.getElementById('cursoCompetenciasCard').value = '';
-    
+
     if(id) {
         const curso = cursos.find(c => c.id == id);
         if(curso) {
@@ -1293,16 +1343,16 @@ function abrirModalCurso(id = null) {
             document.getElementById('cursoCompetencias').value = curso.competencias_descricao || '';
             document.getElementById('cursoCertificacao').value = curso.certificacao_descricao || '';
             document.getElementById('cursoCompetenciasCard').value = curso.competencias_card || '';
-            
+
             const icone = curso.icone_classe || 'fa-graduation-cap';
             document.getElementById('cursoIcone').value = icone;
             if(document.getElementById('iconePreviewIconCurso')) {
                 document.getElementById('iconePreviewIconCurso').className = 'fas ' + icone;
             }
-            
+
             // Carregar PDFs existentes
             carregarPDFsExistentes(id);
-            
+
             if(saidasPorCurso[curso.id]?.length) {
                 saidasPorCurso[curso.id].forEach(s => adicionarSaida(s));
             }
@@ -1315,7 +1365,7 @@ function abrirModalCurso(id = null) {
             }
         }
     }
-    
+
     const sel = document.getElementById('cursoAreaId');
     if(sel) {
         const val = sel.value;
@@ -1324,36 +1374,42 @@ function abrirModalCurso(id = null) {
             sel.innerHTML += `<option value="${a.id}" ${val == a.id ? 'selected' : ''}>${escapeHtml(a.nome)}</option>`;
         });
     }
-    
+
     modal.style.display = 'flex';
     setupPDFUploads();
 }
 
-function fecharModalCurso() { 
-    document.getElementById('modalCurso').style.display='none'; 
+function fecharModalCurso() {
+    document.getElementById('modalCurso').style.display='none';
 }
 
-function editarCurso(id) { 
-    abrirModalCurso(id); 
+function editarCurso(id) {
+    abrirModalCurso(id);
 }
 
 function eliminarCurso(id) {
-    if(!confirm('Eliminar este curso?')) return;
-    fetch('processos/processar-curso.php',{
-        method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body:`action=delete_curso&curso_id=${id}`
-    })
-    .then(r=>r.json())
-    .then(d=>{ 
-        if(d.success){
-            mostrarNotificacao(d.message,'success');
-            location.reload();
-        } else {
-            mostrarNotificacao(d.message,'error');
-        }
-    })
-    .catch(()=>mostrarNotificacao('Erro ao comunicar','error'));
+    confirmarAcao(
+        'Confirmar eliminação',
+        'Eliminar este curso?',
+        () => {
+            fetch('processos/processar-curso.php',{
+                method:'POST',
+                headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                body:`action=delete_curso&curso_id=${id}`
+            })
+            .then(r=>r.json())
+            .then(d=>{
+                if(d.success){
+                    mostrarNotificacao(d.message,'success');
+                    location.reload();
+                } else {
+                    mostrarNotificacao(d.message,'error');
+                }
+            })
+            .catch(()=>mostrarNotificacao('Erro ao comunicar','error'));
+        },
+        'eliminar'
+    );
 }
 
 // ============================================
@@ -1361,9 +1417,9 @@ function eliminarCurso(id) {
 // ============================================
 async function salvarCurso(event) {
     if (event) event.preventDefault();
-    
+
     console.log("=== INICIANDO SALVAMENTO DO CURSO ===");
-    
+
     const id = document.getElementById('cursoId').value;
     const nome = document.getElementById('cursoNome').value.trim();
     const area_id = document.getElementById('cursoAreaId').value;
@@ -1378,7 +1434,7 @@ async function salvarCurso(event) {
     const certificacao = document.getElementById('cursoCertificacao').value;
     const destaque = document.getElementById('cursoDestaque').checked ? 1 : 0;
     const icone_classe = document.getElementById('cursoIcone').value;
-    
+
     // Validação básica
     if (!nome) {
         mostrarNotificacao('O nome do curso é obrigatório.', 'error');
@@ -1392,9 +1448,9 @@ async function salvarCurso(event) {
         mostrarNotificacao('A duração é obrigatória.', 'error');
         return false;
     }
-    
+
     console.log("Dados do curso:", { id, nome, area_id, duracao, estado });
-    
+
     const formData = new FormData();
     formData.append('action', id ? 'update_curso' : 'create_curso');
     if (id) formData.append('curso_id', id);
@@ -1411,14 +1467,14 @@ async function salvarCurso(event) {
     formData.append('certificacao_descricao', certificacao);
     formData.append('destaque', destaque);
     formData.append('icone_classe', icone_classe);
-    
+
     // Imagem de capa
     const imgInput = document.getElementById('imagemInput');
     if (imgInput && imgInput.files.length > 0) {
         formData.append('imagem_hero', imgInput.files[0]);
         console.log("Imagem adicionada:", imgInput.files[0].name);
     }
-    
+
     // PDFs (classes 0, 10, 11, 12, 13)
     const classes = [0, 10, 11, 12, 13];
     for(let i of classes) {
@@ -1431,42 +1487,42 @@ async function salvarCurso(event) {
             console.log(`PDF ${i === 0 ? 'Resumo Geral' : i + 'ª classe'} marcado para remoção`);
         }
     }
-    
+
     // Saídas
     const saidas = [];
     document.querySelectorAll('#containerSaidas .item-dinamico').forEach(item => {
         const titulo = item.querySelector('.saida-titulo')?.value || '';
         if(titulo) {
             const comps = (item.querySelector('.saida-competencias')?.value || '').split(',').map(c => c.trim()).filter(c => c);
-            saidas.push({ 
-                id: item.querySelector('.saida-id')?.value || '', 
-                titulo, 
-                descricao: item.querySelector('.saida-descricao')?.value || '', 
-                competencias: comps, 
-                imagem_url: item.querySelector('.saida-imagem-url')?.value || '' 
+            saidas.push({
+                id: item.querySelector('.saida-id')?.value || '',
+                titulo,
+                descricao: item.querySelector('.saida-descricao')?.value || '',
+                competencias: comps,
+                imagem_url: item.querySelector('.saida-imagem-url')?.value || ''
             });
         }
     });
     formData.append('saidas', JSON.stringify(saidas));
-    
+
     // Projetos
     const projetos = [];
     document.querySelectorAll('#containerProjectos .item-dinamico').forEach(item => {
         const titulo = item.querySelector('.projeto-titulo')?.value || '';
         if(titulo) {
-            projetos.push({ 
-                id: item.querySelector('.projeto-id')?.value || '', 
-                titulo, 
-                categoria: item.querySelector('.projeto-categoria')?.value || 'Geral', 
-                descricao: item.querySelector('.projeto-descricao')?.value || '', 
-                imagem_url: item.querySelector('.projeto-imagem-url')?.value || '', 
-                ano: item.querySelector('.projeto-ano')?.value || new Date().getFullYear(), 
-                autor: item.querySelector('.projeto-autor')?.value || 'Aluno IPIKK' 
+            projetos.push({
+                id: item.querySelector('.projeto-id')?.value || '',
+                titulo,
+                categoria: item.querySelector('.projeto-categoria')?.value || 'Geral',
+                descricao: item.querySelector('.projeto-descricao')?.value || '',
+                imagem_url: item.querySelector('.projeto-imagem-url')?.value || '',
+                ano: item.querySelector('.projeto-ano')?.value || new Date().getFullYear(),
+                autor: item.querySelector('.projeto-autor')?.value || 'Aluno IPIKK'
             });
         }
     });
     formData.append('projetos', JSON.stringify(projetos));
-    
+
     // Desabilitar botão para evitar duplo clique
     const btnSalvar = document.getElementById('btnSalvarCurso');
     const textoOriginal = btnSalvar ? btnSalvar.innerHTML : '';
@@ -1474,17 +1530,17 @@ async function salvarCurso(event) {
         btnSalvar.disabled = true;
         btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A processar...';
     }
-    
+
     mostrarNotificacao('A guardar curso...', 'info');
-    
+
     try {
-        const response = await fetch('processos/processar-curso.php', { 
-            method: 'POST', 
-            body: formData 
+        const response = await fetch('processos/processar-curso.php', {
+            method: 'POST',
+            body: formData
         });
         const data = await response.json();
         console.log("Resposta do servidor:", data);
-        
+
         if (data.success) {
             mostrarNotificacao(data.message, 'success');
             setTimeout(() => {
@@ -1505,7 +1561,7 @@ async function salvarCurso(event) {
             btnSalvar.innerHTML = textoOriginal;
         }
     }
-    
+
     return false;
 }
 
@@ -1524,7 +1580,7 @@ function adicionarSaida(dados = null) {
         <input type="hidden" class="saida-imagem-url" value="${escapeHtml(imagemPreview)}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <strong style="color:var(--azul-primario);">Saida Profissional</strong>
-            <button type="button" onclick="this.closest('.item-dinamico').remove()" style="background:#dc3545;color:white;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;"><i class="fas fa-times"></i></button>
+            <button type="button" class="btn-remover-saida" style="background:#dc3545;color:white;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;"><i class="fas fa-times"></i></button>
         </div>
         <div class="linha-form">
             <div class="grupo-form">
@@ -1554,13 +1610,13 @@ function adicionarSaida(dados = null) {
         </div>
     `;
     container.appendChild(div);
-    
+
     const uploadArea = div.querySelector('.area-upload-imagem');
     const fileInput = div.querySelector('.upload-imagem-saida');
     const previewDiv = div.querySelector('.preview-imagem-saida');
     const previewImg = previewDiv.querySelector('img');
     const urlInput = div.querySelector('.saida-imagem-url');
-    
+
     uploadArea.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', async function(e) {
         const file = e.target.files[0]; if(!file) return;
@@ -1578,7 +1634,11 @@ function adicionarSaida(dados = null) {
             }
         } catch(err){ mostrarNotificacao('Erro no upload','error'); }
     });
-    
+
+    div.querySelector('.btn-remover-saida')?.addEventListener('click', () => {
+        confirmarAcao('Confirmar eliminação', 'Eliminar esta saída profissional?', () => div.remove(), 'eliminar');
+    });
+
     div.querySelector('.btn-remover-imagem')?.addEventListener('click', () => {
         previewDiv.style.display='none';
         previewImg.src='';
@@ -1598,7 +1658,7 @@ function adicionarProjecto(dados = null) {
         <input type="hidden" class="projeto-imagem-url" value="${escapeHtml(imagemPreview)}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <strong style="color:var(--azul-primario);">Projecto</strong>
-            <button type="button" onclick="this.closest('.item-dinamico').remove()" style="background:#dc3545;color:white;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;"><i class="fas fa-times"></i></button>
+            <button type="button" class="btn-remover-projeto" style="background:#dc3545;color:white;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;"><i class="fas fa-times"></i></button>
         </div>
         <div class="linha-form">
             <div class="grupo-form">
@@ -1644,13 +1704,13 @@ function adicionarProjecto(dados = null) {
         </div>
     `;
     container.appendChild(div);
-    
+
     const uploadArea = div.querySelector('.area-upload-imagem-projeto');
     const fileInput = div.querySelector('.upload-imagem-projeto');
     const previewDiv = div.querySelector('.preview-imagem-projeto');
     const previewImg = previewDiv.querySelector('img');
     const urlInput = div.querySelector('.projeto-imagem-url');
-    
+
     uploadArea.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', async function(e) {
         const file = e.target.files[0]; if(!file) return;
@@ -1668,7 +1728,11 @@ function adicionarProjecto(dados = null) {
             }
         } catch(err){ mostrarNotificacao('Erro no upload','error'); }
     });
-    
+
+    div.querySelector('.btn-remover-projeto')?.addEventListener('click', () => {
+        confirmarAcao('Confirmar eliminação', 'Eliminar este projecto?', () => div.remove(), 'eliminar');
+    });
+
     div.querySelector('.btn-remover-imagem-projeto')?.addEventListener('click', () => {
         previewDiv.style.display='none';
         previewImg.src='';
@@ -1677,14 +1741,14 @@ function adicionarProjecto(dados = null) {
     });
 }
 
-function removerImagem() { 
-    document.getElementById('imagemInput').value=''; 
-    document.getElementById('previewImagem').classList.remove('ativo'); 
+function removerImagem() {
+    document.getElementById('imagemInput').value='';
+    document.getElementById('previewImagem').classList.remove('ativo');
 }
 
-function removerAreaImagem(){ 
-    document.getElementById('areaImagemInput').value=''; 
-    document.getElementById('previewAreaImagem').classList.remove('ativo'); 
+function removerAreaImagem(){
+    document.getElementById('areaImagemInput').value='';
+    document.getElementById('previewAreaImagem').classList.remove('ativo');
 }
 
 function gerarRelatorio(){ alert(`RELATORIO DE CURSOS\n\nTotal: ${cursos.length} cursos`); }
@@ -1698,7 +1762,7 @@ document.addEventListener('DOMContentLoaded', function () {
     renderizarAreas();
     renderizarCursos();
     setupPDFUploads();
-    
+
     document.getElementById('btnNovoCurso')?.addEventListener('click', ()=>abrirModalCurso());
     document.getElementById('filtroArea')?.addEventListener('change', function(){ filtroAreaAtual=this.value||null; renderizarAreas(); renderizarCursos(); });
     document.getElementById('filtroEstado')?.addEventListener('change', renderizarCursos);
@@ -1706,106 +1770,106 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btnSelecionarTodosCursos')?.addEventListener('click', selecionarTodosCursos);
     document.getElementById('btnEliminarSelecionadosCursos')?.addEventListener('click', eliminarCursosSelecionados);
     document.getElementById('btnImportarCursos')?.addEventListener('click', importarCursos);
-    
+
     document.addEventListener('change', function(e) {
         if(!e.target.classList.contains('checkbox-curso')) return;
         const id = parseInt(e.target.dataset.id);
         const card = e.target.closest('.card-curso');
-        if(e.target.checked) { 
-            cursosSelecionados.add(id); 
-            card?.classList.add('selecionado'); 
-        } else { 
-            cursosSelecionados.delete(id); 
-            card?.classList.remove('selecionado'); 
+        if(e.target.checked) {
+            cursosSelecionados.add(id);
+            card?.classList.add('selecionado');
+        } else {
+            cursosSelecionados.delete(id);
+            card?.classList.remove('selecionado');
         }
         atualizarEstadoBotoesMassaCursos();
     });
-    
+
     document.querySelectorAll('.aba-modal').forEach(btn=>{
-        btn.addEventListener('click',function(){ 
-            const aba=this.dataset.aba; 
-            document.querySelectorAll('.aba-modal').forEach(b=>b.classList.remove('ativo')); 
-            document.querySelectorAll('.conteudo-aba').forEach(c=>c.classList.remove('ativo')); 
-            this.classList.add('ativo'); 
-            document.querySelector(`.conteudo-aba[data-aba="${aba}"]`)?.classList.add('ativo'); 
+        btn.addEventListener('click',function(){
+            const aba=this.dataset.aba;
+            document.querySelectorAll('.aba-modal').forEach(b=>b.classList.remove('ativo'));
+            document.querySelectorAll('.conteudo-aba').forEach(c=>c.classList.remove('ativo'));
+            this.classList.add('ativo');
+            document.querySelector(`.conteudo-aba[data-aba="${aba}"]`)?.classList.add('ativo');
         });
     });
-    
-    document.getElementById('cursoDescricaoCurta')?.addEventListener('input',function(){ 
-        document.getElementById('contadorDescricaoCurta').innerHTML=this.value.length+' / 200'; 
+
+    document.getElementById('cursoDescricaoCurta')?.addEventListener('input',function(){
+        document.getElementById('contadorDescricaoCurta').innerHTML=this.value.length+' / 200';
     });
-    
-    document.getElementById('imagemInput')?.addEventListener('change',e=>{ 
-        const f=e.target.files[0]; if(!f)return; 
-        const r=new FileReader(); 
-        r.onload=ev=>{ 
-            document.getElementById('miniaturaImagem').src=ev.target.result; 
-            document.getElementById('previewImagem').classList.add('ativo'); 
-        }; 
-        r.readAsDataURL(f); 
+
+    document.getElementById('imagemInput')?.addEventListener('change',e=>{
+        const f=e.target.files[0]; if(!f)return;
+        const r=new FileReader();
+        r.onload=ev=>{
+            document.getElementById('miniaturaImagem').src=ev.target.result;
+            document.getElementById('previewImagem').classList.add('ativo');
+        };
+        r.readAsDataURL(f);
     });
-    
-    document.getElementById('areaImagemInput')?.addEventListener('change',e=>{ 
-        const f=e.target.files[0]; if(!f)return; 
-        const r=new FileReader(); 
-        r.onload=ev=>{ 
-            document.getElementById('miniaturaAreaImagem').src=ev.target.result; 
-            document.getElementById('previewAreaImagem').classList.add('ativo'); 
-        }; 
-        r.readAsDataURL(f); 
+
+    document.getElementById('areaImagemInput')?.addEventListener('change',e=>{
+        const f=e.target.files[0]; if(!f)return;
+        const r=new FileReader();
+        r.onload=ev=>{
+            document.getElementById('miniaturaAreaImagem').src=ev.target.result;
+            document.getElementById('previewAreaImagem').classList.add('ativo');
+        };
+        r.readAsDataURL(f);
     });
-    
-    document.getElementById('areaIcone')?.addEventListener('input',function(){ 
-        document.getElementById('iconePreviewIcon').className='fas '+this.value.trim(); 
+
+    document.getElementById('areaIcone')?.addEventListener('input',function(){
+        document.getElementById('iconePreviewIcon').className='fas '+this.value.trim();
     });
-    
-    document.getElementById('areaCor')?.addEventListener('input',function(){ 
-        document.getElementById('previewCor').style.background=this.value; 
+
+    document.getElementById('areaCor')?.addEventListener('input',function(){
+        document.getElementById('previewCor').style.background=this.value;
     });
-    
-    document.querySelectorAll('.sugestao-icone').forEach(btn=>{ 
-        btn.addEventListener('click',function(){ 
-            const ic=this.dataset.icone; 
-            document.getElementById('areaIcone').value=ic; 
-            document.getElementById('iconePreviewIcon').className='fas '+ic; 
-        }); 
+
+    document.querySelectorAll('.sugestao-icone').forEach(btn=>{
+        btn.addEventListener('click',function(){
+            const ic=this.dataset.icone;
+            document.getElementById('areaIcone').value=ic;
+            document.getElementById('iconePreviewIcon').className='fas '+ic;
+        });
     });
-    
+
     const iconeInputCurso = document.getElementById('cursoIcone');
     const iconePreviewCurso = document.getElementById('iconePreviewIconCurso');
     if(iconeInputCurso && iconePreviewCurso) {
-        iconeInputCurso.addEventListener('input', function() { 
-            iconePreviewCurso.className = 'fas ' + (this.value.trim() || 'fa-graduation-cap'); 
+        iconeInputCurso.addEventListener('input', function() {
+            iconePreviewCurso.className = 'fas ' + (this.value.trim() || 'fa-graduation-cap');
         });
-        document.querySelectorAll('.sugestao-icone').forEach(btn => { 
-            btn.addEventListener('click', function() { 
-                iconeInputCurso.value = this.dataset.icone; 
-                iconePreviewCurso.className = 'fas ' + this.dataset.icone; 
-            }); 
+        document.querySelectorAll('.sugestao-icone').forEach(btn => {
+            btn.addEventListener('click', function() {
+                iconeInputCurso.value = this.dataset.icone;
+                iconePreviewCurso.className = 'fas ' + this.dataset.icone;
+            });
         });
     }
-    
-    ['modalArea','modalCurso','modalPreviewArea','modalPreviewCurso','modalIframeCurso'].forEach(id=>{ 
-        const m=document.getElementById(id); 
+
+    ['modalArea','modalCurso','modalPreviewArea','modalPreviewCurso','modalIframeCurso'].forEach(id=>{
+        const m=document.getElementById(id);
         if(m) m.addEventListener('click',e=>{
             if(e.target===m){
-                if(id==='modalIframeCurso') fecharModalIframe(); 
+                if(id==='modalIframeCurso') fecharModalIframe();
                 else m.style.display='none';
             }
-        }); 
+        });
     });
-    
-    document.addEventListener('keydown',e=>{ 
-        if(e.key!=='Escape')return; 
-        ['modalArea','modalCurso','modalPreviewArea','modalPreviewCurso','modalIframeCurso'].forEach(id=>{ 
-            const m=document.getElementById(id); 
-            if(m?.style.display==='flex'){ 
-                if(id==='modalIframeCurso') fecharModalIframe(); 
-                else m.style.display='none'; 
-            } 
-        }); 
+
+    document.addEventListener('keydown',e=>{
+        if(e.key!=='Escape')return;
+        ['modalArea','modalCurso','modalPreviewArea','modalPreviewCurso','modalIframeCurso'].forEach(id=>{
+            const m=document.getElementById(id);
+            if(m?.style.display==='flex'){
+                if(id==='modalIframeCurso') fecharModalIframe();
+                else m.style.display='none';
+            }
+        });
     });
-    
+
     const btnSalvarCurso = document.getElementById('btnSalvarCurso');
     if (btnSalvarCurso) {
         btnSalvarCurso.addEventListener('click', function(e) {
@@ -1813,7 +1877,7 @@ document.addEventListener('DOMContentLoaded', function () {
             salvarCurso(e);
         });
     }
-    
+
     const formCurso = document.getElementById('formularioCurso');
     if (formCurso) {
         formCurso.addEventListener('submit', function(e) {

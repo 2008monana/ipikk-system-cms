@@ -1109,3 +1109,36 @@ body.translated-rtl {
 body.sidebar-open {
     overflow: hidden;
 }
+/* ===== Slider infinito de parceiros ===== */
+.area-slider-parceiros {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1200px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+}
+
+.slider-parceiros {
+    animation: fluxoParceiros var(--fluxo-parceiros-duracao, 16s) linear infinite;
+    display: flex;
+    transform: translate3d(0, 0, 0);
+    width: max-content;
+    will-change: transform;
+}
+
+.slider-grupo {
+    display: flex;
+    flex-shrink: 0;
+    gap: 36px;
+    padding-right: 36px;
+}
+
+.area-slider-parceiros:hover .slider-parceiros {
+    animation-play-state: paused;
+}
+
+@keyframes fluxoParceiros {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(calc(-1 * var(--fluxo-parceiros-distancia, 25%)), 0, 0); }
+}

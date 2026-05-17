@@ -45,16 +45,16 @@ $feedback_tipo = 'success';
 if (isset($_GET['action']) && $_GET['action'] === 'buscar' && isset($_GET['id'])) {
     header('Content-Type: application/json');
     $id = (int)$_GET['id'];
-    
+
     $stmt = $db->prepare("SELECT * FROM mensagens WHERE id = ?");
     $stmt->execute([$id]);
     $msg = $stmt->fetch();
-    
+
     if ($msg) {
         // Marcar como lida automaticamente ao visualizar
         $stmt_upd = $db->prepare("UPDATE mensagens SET lida = 1 WHERE id = ?");
         $stmt_upd->execute([$id]);
-        
+
         echo json_encode(['success' => true, 'mensagem' => $msg]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Mensagem não encontrada']);
@@ -65,7 +65,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'buscar' && isset($_GET['id'])
 // Processar exclusão
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = trim($_POST['acao'] ?? '');
-    
+
     try {
         if ($acao === 'excluir' && isset($_POST['message_id'])) {
             $message_id = (int)$_POST['message_id'];
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$message_id]);
             $feedback = 'Mensagem excluída permanentemente.';
             $feedback_tipo = 'success';
-            
+
         } elseif ($acao === 'excluir_multiplas' && isset($_POST['message_ids'])) {
             $ids = array_map('intval', $_POST['message_ids']);
             $placeholders = implode(',', array_fill(0, count($ids), '?'));
@@ -81,23 +81,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute($ids);
             $feedback = count($ids) . ' mensagem(ns) excluída(s) permanentemente.';
             $feedback_tipo = 'success';
-            
+
         } elseif ($acao === 'marcar_respondida' && isset($_POST['message_id'])) {
             $message_id = (int)$_POST['message_id'];
-            $stmt = $db->prepare("UPDATE mensagens SET respondida = 1, lida = 1 WHERE id = ?");
-            $stmt->execute([$message_id]);
+            $stmt = $db->prepare("UPDATE mensagens SET respondida = 1, lida = 1, data_resposta = COALESCE(data_resposta, NOW()), respondido_por = COALESCE(respondido_por, ?) WHERE id = ?");
+            $stmt->execute([$_SESSION['utilizador_id'], $message_id]);
             $feedback = 'Mensagem marcada como respondida.';
             $feedback_tipo = 'success';
-            
+
         } else {
             throw new Exception('Ação inválida.');
         }
-        
+
     } catch (Exception $e) {
         $feedback = $e->getMessage();
         $feedback_tipo = 'error';
     }
-    
+
     // Se for AJAX, retorna JSON
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         header('Content-Type: application/json');
@@ -144,15 +144,15 @@ $total_paginas = ceil($total_registros / $itens_por_pagina);
 
 // Buscar mensagens
 $sql = "
-    SELECT *, 
-           CASE 
+    SELECT *,
+           CASE
                WHEN respondida = 1 THEN 'respondida'
                WHEN lida = 1 THEN 'lida'
                ELSE 'nao_lida'
            END as estado
     FROM mensagens
     $where_sql
-    ORDER BY 
+    ORDER BY
         CASE WHEN lida = 0 THEN 0 ELSE 1 END,
         data_envio DESC
     LIMIT $itens_por_pagina OFFSET $offset
@@ -193,7 +193,7 @@ include 'includes/sidebar.php';
     </header>
 
     <div class="conteudo-pagina">
-        
+
         <?php if (!empty($feedback)): ?>
         <div class="alert alert-<?= $feedback_tipo === 'error' ? 'danger' : 'success' ?> alert-dismissible">
             <i class="fas fa-<?= $feedback_tipo === 'error' ? 'exclamation-circle' : 'check-circle' ?>"></i>
@@ -205,14 +205,14 @@ include 'includes/sidebar.php';
         <!-- Cards de Resumo -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-envelope"></i></div>
+                <div class="stat-icon"><i class="fas fa-inbox"></i></div>
                 <div class="stat-info">
                     <h3>Total</h3>
                     <p class="stat-number"><?= $resumo['total'] ?></p>
                 </div>
             </div>
             <div class="stat-card warning">
-                <div class="stat-icon"><i class="fas fa-circle" style="color: #f39c12;"></i></div>
+                <div class="stat-icon"><i class="fas fa-envelope"></i></div>
                 <div class="stat-info">
                     <h3>Não Lidas</h3>
                     <p class="stat-number"><?= $resumo['nao_lidas'] ?></p>
@@ -241,7 +241,7 @@ include 'includes/sidebar.php';
                     <i class="fas fa-inbox"></i> Todas
                 </a>
                 <a href="?status=nao_lidas" class="filtro-tab <?= $status === 'nao_lidas' ? 'active' : '' ?>">
-                    <i class="fas fa-circle" style="color: #f39c12;"></i> Não Lidas
+                    <i class="fas fa-envelope"></i> Não Lidas
                     <?php if($resumo['nao_lidas'] > 0): ?>
                     <span class="badge"><?= $resumo['nao_lidas'] ?></span>
                     <?php endif; ?>
@@ -256,7 +256,7 @@ include 'includes/sidebar.php';
                     <i class="fas fa-check-circle"></i> Respondidas
                 </a>
             </div>
-            
+
             <div class="filtros-busca">
                 <form method="GET" class="form-busca">
                     <?php if ($status !== 'todas'): ?>
@@ -289,11 +289,11 @@ include 'includes/sidebar.php';
                     <label class="checkbox-label">
                         <input type="checkbox" id="selecionarTodos"> Selecionar todos
                     </label>
-                    <button class="btn-excluir-massa" id="excluirSelecionados" disabled>
+                    <button type="button" class="btn-excluir-massa" id="excluirSelecionados" disabled>
                         <i class="fas fa-trash-alt"></i> Excluir selecionados
                     </button>
                 </div>
-                
+
                 <?php foreach ($mensagens as $msg): ?>
                 <div class="mensagem-card <?= $msg['estado'] ?>" data-id="<?= $msg['id'] ?>">
                     <div class="mensagem-checkbox">
@@ -327,33 +327,36 @@ include 'includes/sidebar.php';
                                 <?= date('d/m/Y H:i', strtotime($msg['data_envio'])) ?>
                             </div>
                         </div>
-                        
+
                         <div class="mensagem-assunto">
                             <strong>Assunto:</strong> <?= htmlspecialchars($msg['assunto']) ?>
                         </div>
-                        
+
                         <div class="mensagem-preview">
                             <?= htmlspecialchars(substr($msg['mensagem'], 0, 200)) ?>...
                         </div>
-                        
+
                         <div class="mensagem-acoes">
-                            <button class="btn-ver" onclick="verMensagem(<?= $msg['id'] ?>)">
+                            <button type="button" class="btn-ver" onclick="verMensagem(<?= $msg['id'] ?>)">
                                 <i class="fas fa-eye"></i> Ver detalhes
                             </button>
-                        
+
                             <?php if ((int)$msg['respondida'] !== 1): ?>
-                            <button class="btn-ver" onclick="marcarComoRespondida(<?= $msg['id'] ?>)">
+                            <button type="button" class="btn-responder" onclick="abrirModalRespostaPorId(<?= $msg['id'] ?>)">
+                                <i class="fas fa-reply"></i> Responder
+                            </button>
+                            <button type="button" class="btn-ver" onclick="marcarComoRespondida(<?= $msg['id'] ?>)">
                                 <i class="fas fa-check"></i> Marcar respondida
                             </button>
                             <?php endif; ?>
-                            <button class="btn-excluir" onclick="excluirMensagem(<?= $msg['id'] ?>)">
+                            <button type="button" class="btn-excluir" onclick="excluirMensagem(<?= $msg['id'] ?>)">
                                 <i class="fas fa-trash-alt"></i> Excluir
                             </button>
                         </div>
                     </div>
                 </div>
                 <?php endforeach; ?>
-                
+
                 <!-- Paginação -->
                 <?php if ($total_paginas > 1): ?>
                 <div class="paginacao">
@@ -366,7 +369,7 @@ include 'includes/sidebar.php';
                             <i class="fas fa-chevron-left"></i> Anterior
                         </a>
                         <?php endif; ?>
-                        
+
                         <?php
                         $start = max(1, $pagina_atual - 2);
                         $end = min($total_paginas, $pagina_atual + 2);
@@ -376,7 +379,7 @@ include 'includes/sidebar.php';
                             <?= $i ?>
                         </a>
                         <?php endfor; ?>
-                        
+
                         <?php if ($pagina_atual < $total_paginas): ?>
                         <a href="?<?= http_build_query(array_merge($_GET, ['pagina' => $pagina_atual + 1])) ?>" class="pagina-link">
                             Próximo <i class="fas fa-chevron-right"></i>
@@ -408,6 +411,9 @@ include 'includes/sidebar.php';
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn-responder-modal" id="btnAbrirResposta" style="display:none;" onclick="abrirModalRespostaAtual()">
+                    <i class="fas fa-reply"></i> Responder
+                </button>
                 <button type="button" class="btn-secondary" onclick="fecharModalVisualizar()">
                     <i class="fas fa-times"></i> Fechar
                 </button>
@@ -416,12 +422,46 @@ include 'includes/sidebar.php';
     </div>
 </div>
 
+<!-- MODAL RESPONDER MENSAGEM -->
+<div id="modalResposta" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-reply"></i> Responder Mensagem
+                </h5>
+                <button type="button" class="close-modal" onclick="fecharModalResposta()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="formResposta" onsubmit="enviarResposta(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="respostaMensagemId">
+                    <div class="resposta-destino" id="respostaDestino"></div>
+                    <label for="respostaTexto" class="resposta-label">Resposta</label>
+                    <textarea id="respostaTexto" class="resposta-textarea" rows="8" placeholder="Escreva a resposta que será enviada por email..." required></textarea>
+                    <small class="resposta-ajuda">O email incluirá automaticamente a mensagem original citada abaixo da sua resposta.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="fecharModalResposta()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-enviar-resposta" id="btnEnviarResposta">
+                        <i class="fas fa-paper-plane"></i> Enviar Resposta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
 /* ===== ESTILOS COMPLETOS ===== */
 
 .conteudo-pagina {
-    max-width: 1200px;
+    max-width: 1240px;
     margin: 0 auto;
+    padding: 0 6px 30px;
 }
 
 /* Alertas */
@@ -459,72 +499,102 @@ include 'includes/sidebar.php';
 /* Cards de estatísticas */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 22px;
     margin-bottom: 30px;
 }
 
 .stat-card {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid rgba(0, 48, 114, 0.08);
+    border-radius: 18px;
+    padding: 24px;
+    min-height: 122px;
     display: flex;
     align-items: center;
-    gap: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
+    gap: 18px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: linear-gradient(180deg, #003072, #0a9396);
 }
 
 .stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-color: rgba(10, 147, 150, 0.22);
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
 }
 
 .stat-icon {
-    width: 55px;
-    height: 55px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
+    width: 62px;
+    height: 62px;
+    min-width: 62px;
+    background: linear-gradient(135deg, #003072 0%, #0a9396 100%);
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 25px;
     color: white;
+    box-shadow: 0 10px 22px rgba(0, 48, 114, 0.22);
+}
+
+.stat-card.warning::before {
+    background: linear-gradient(180deg, #ffb020, #f97316);
 }
 
 .stat-card.warning .stat-icon {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, #ffb020, #f97316);
+}
+
+.stat-card.info::before {
+    background: linear-gradient(180deg, #3498db, #2563eb);
 }
 
 .stat-card.info .stat-icon {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, #3498db, #2563eb);
+}
+
+.stat-card.success::before {
+    background: linear-gradient(180deg, #28a745, #15803d);
 }
 
 .stat-card.success .stat-icon {
-    background: linear-gradient(135deg, #28a745, #1e7e34);
+    background: linear-gradient(135deg, #28a745, #15803d);
 }
 
 .stat-info h3 {
-    font-size: 13px;
-    color: #666;
-    margin: 0 0 5px 0;
+    font-size: 12px;
+    color: #64748b;
+    letter-spacing: 0.08em;
+    margin: 0 0 8px 0;
     text-transform: uppercase;
 }
 
 .stat-number {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
     margin: 0;
-    color: #2c3e50;
+    color: #0f172a;
 }
 
 /* Filtros */
 .filtros-container {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(0, 48, 114, 0.08);
+    border-radius: 18px;
+    padding: 22px;
     margin-bottom: 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
 }
 
 .filtros-tabs {
@@ -553,8 +623,9 @@ include 'includes/sidebar.php';
 }
 
 .filtro-tab.active {
-    background: #003072;
+    background: linear-gradient(135deg, #003072, #0a9396);
     color: white;
+    box-shadow: 0 10px 22px rgba(0, 48, 114, 0.18);
 }
 
 .filtro-tab .badge {
@@ -632,9 +703,10 @@ include 'includes/sidebar.php';
 
 /* Ações em massa */
 .acoes-em-massa {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8fafc, #eef7ff);
+    border: 1px solid rgba(0, 48, 114, 0.08);
     padding: 15px 20px;
-    border-radius: 12px;
+    border-radius: 14px;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
@@ -678,31 +750,45 @@ include 'includes/sidebar.php';
 }
 
 .mensagem-card {
-    background: white;
-    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 48, 114, 0.08);
+    border-radius: 18px;
     display: flex;
-    gap: 15px;
+    gap: 16px;
+    overflow: hidden;
     padding: 20px;
-    transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border-left: 4px solid transparent;
+    position: relative;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+.mensagem-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: #94a3b8;
 }
 
 .mensagem-card.nao_lida {
-    background: #fffef7;
-    border-left-color: #f39c12;
+    background: linear-gradient(135deg, #fffdf7 0%, #ffffff 62%);
 }
 
-.mensagem-card.lida {
-    border-left-color: #3498db;
+.mensagem-card.nao_lida::before {
+    background: linear-gradient(180deg, #ffb020, #f97316);
 }
 
-.mensagem-card.respondida {
-    border-left-color: #28a745;
+.mensagem-card.lida::before {
+    background: linear-gradient(180deg, #3498db, #2563eb);
+}
+
+.mensagem-card.respondida::before {
+    background: linear-gradient(180deg, #28a745, #15803d);
 }
 
 .mensagem-card:hover {
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-color: rgba(10, 147, 150, 0.18);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.11);
     transform: translateY(-2px);
 }
 
@@ -815,6 +901,35 @@ include 'includes/sidebar.php';
     color: white;
 }
 
+.btn-responder,
+.btn-responder-modal,
+.btn-enviar-resposta {
+    background: #e8f5e9;
+    color: #1e7e34;
+}
+
+.btn-responder:hover,
+.btn-responder-modal:hover,
+.btn-enviar-resposta:hover {
+    background: #28a745;
+    color: white;
+}
+
+.btn-responder-modal,
+.btn-enviar-resposta {
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 10px 20px;
+    transition: all 0.2s;
+}
+
+.btn-enviar-resposta:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
 .btn-excluir {
     background: #fee2e2;
     color: #c62828;
@@ -896,6 +1011,7 @@ include 'includes/sidebar.php';
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
     z-index: 10000;
     align-items: center;
     justify-content: center;
@@ -1049,57 +1165,98 @@ include 'includes/sidebar.php';
     word-wrap: break-word;
 }
 
+.resposta-destino {
+    background: #f8f9fa;
+    border-left: 4px solid #0a9396;
+    border-radius: 12px;
+    color: #2c3e50;
+    line-height: 1.6;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+}
+
+.resposta-label {
+    color: #003072;
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.resposta-textarea {
+    border: 1px solid #d9e2ec;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    outline: none;
+    padding: 14px 16px;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+}
+
+.resposta-textarea:focus {
+    border-color: #0a9396;
+    box-shadow: 0 0 0 3px rgba(10,147,150,0.12);
+}
+
+.resposta-ajuda {
+    color: #64748b;
+    display: block;
+    margin-top: 8px;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .filtros-tabs {
         flex-wrap: wrap;
     }
-    
+
     .filtro-tab {
         flex: 1;
         justify-content: center;
     }
-    
+
     .form-busca {
         flex-direction: column;
     }
-    
+
     .mensagem-header {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .remetente-info {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .mensagem-acoes {
         flex-direction: column;
     }
-    
+
     .mensagem-acoes button {
         width: 100%;
     }
-    
+
     .paginacao {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .modal-dialog {
         margin: 10px;
     }
-    
+
     .modal-header, .modal-footer {
         padding: 15px;
     }
-    
+
     .modal-body {
         padding: 15px;
     }
@@ -1109,12 +1266,12 @@ include 'includes/sidebar.php';
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .acoes-em-massa {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .btn-excluir-massa {
         width: 100%;
     }
@@ -1123,6 +1280,41 @@ include 'includes/sidebar.php';
 
 <script>
 let itensSelecionados = [];
+let mensagemAtual = null;
+
+function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    if (typeof window.abrirModalConfirmacao === 'function') {
+        window.abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
+        return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal active';
+    overlay.innerHTML = `
+        <div class="modal-dialog" style="max-width:450px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-triangle-exclamation"></i> ${escapeHtml(titulo)}</h5>
+                    <button type="button" class="close-modal" data-confirm-cancel><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body"><p style="margin:0;line-height:1.7;color:#475569;">${escapeHtml(texto)}</p></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" data-confirm-cancel>Cancelar</button>
+                    <button type="button" class="btn-excluir" data-confirm-ok>Eliminar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    const fechar = () => overlay.remove();
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
+        if (event.target.closest('[data-confirm-ok]')) {
+            fechar();
+            callbackConfirmar();
+        }
+    });
+    document.body.appendChild(overlay);
+}
 
 // Fechar alertas
 document.querySelectorAll('.close-alert').forEach(btn => {
@@ -1135,17 +1327,20 @@ document.querySelectorAll('.close-alert').forEach(btn => {
 function verMensagem(id) {
     const modal = document.getElementById('modalVisualizar');
     const conteudo = document.getElementById('visualizarConteudo');
-    
+
     conteudo.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
     modal.classList.add('active');
-    
+
     fetch(`admin-contactos.php?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
                 const m = data.mensagem;
+                mensagemAtual = m;
+                const btnAbrirResposta = document.getElementById('btnAbrirResposta');
+                if (btnAbrirResposta) btnAbrirResposta.style.display = Number(m.respondida) === 1 ? 'none' : 'inline-flex';
                 const estadoTexto = m.respondida ? 'Respondida' : (m.lida ? 'Lida' : 'Não lida');
-                
+
                 conteudo.innerHTML = `
                     <div class="visualizar-mensagem">
                         <div class="msg-header">
@@ -1175,10 +1370,70 @@ function fecharModalVisualizar() {
     document.getElementById('modalVisualizar').classList.remove('active');
 }
 
-function responderMensagem(id, email, assunto) {
-    const assuntoResposta = encodeURIComponent(`Re: ${assunto || 'Mensagem de Contacto'}`);
-    const destinatario = encodeURIComponent(email || '');
-    window.location.href = `mailto:${destinatario}?subject=${assuntoResposta}`;
+function preencherModalResposta(mensagem) {
+    if (!mensagem) return;
+    document.getElementById('respostaMensagemId').value = mensagem.id;
+    document.getElementById('respostaTexto').value = '';
+    document.getElementById('respostaDestino').innerHTML = `
+        <strong>Para:</strong> ${escapeHtml(mensagem.nome)} &lt;${escapeHtml(mensagem.email)}&gt;<br>
+        <strong>Assunto:</strong> RE: ${escapeHtml(mensagem.assunto || 'Mensagem de Contacto')}
+    `;
+    document.getElementById('modalResposta').classList.add('active');
+    setTimeout(() => document.getElementById('respostaTexto')?.focus(), 80);
+}
+
+function abrirModalRespostaAtual() {
+    preencherModalResposta(mensagemAtual);
+}
+
+function abrirModalRespostaPorId(id) {
+    fetch(`admin-contactos.php?action=buscar&id=${id}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                mensagemAtual = data.mensagem;
+                preencherModalResposta(data.mensagem);
+            } else {
+                mostrarNotificacao(data.message || 'Erro ao carregar mensagem.', 'error');
+            }
+        })
+        .catch(() => mostrarNotificacao('Erro ao carregar mensagem.', 'error'));
+}
+
+function fecharModalResposta() {
+    document.getElementById('modalResposta').classList.remove('active');
+}
+
+function enviarResposta(event) {
+    event.preventDefault();
+    const btn = document.getElementById('btnEnviarResposta');
+    const formData = new URLSearchParams();
+    formData.append('message_id', document.getElementById('respostaMensagemId').value);
+    formData.append('resposta', document.getElementById('respostaTexto').value.trim());
+
+    btn.disabled = true;
+    const textoOriginal = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+    fetch('processos/processar-resposta.php', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        mostrarNotificacao(data.message, data.success ? 'success' : 'error');
+        if (data.success) {
+            fecharModalResposta();
+            fecharModalVisualizar();
+            setTimeout(() => location.reload(), 1200);
+        }
+    })
+    .catch(() => mostrarNotificacao('Erro ao enviar resposta.', 'error'))
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = textoOriginal;
+    });
 }
 
 function marcarComoRespondida(id) {
@@ -1197,26 +1452,31 @@ function marcarComoRespondida(id) {
 
 // Excluir mensagem individual
 function excluirMensagem(id) {
-    if (confirm('Excluir esta mensagem permanentemente? Esta ação não pode ser desfeita.')) {
-        const formData = new URLSearchParams();
-        formData.append('acao', 'excluir');
-        formData.append('message_id', id);
-        
-        fetch(window.location.href, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: formData
-        })
-        .then(r => r.json())
-        .then(data => {
-            mostrarNotificacao(data.message, data.success ? 'success' : 'error');
-            if (data.success) {
-                setTimeout(() => location.reload(), 1500);
-            }
-        });
-    }
+    confirmarAcao(
+        'Confirmar eliminação',
+        'Excluir esta mensagem permanentemente? Esta ação não pode ser desfeita.',
+        () => {
+            const formData = new URLSearchParams();
+            formData.append('acao', 'excluir');
+            formData.append('message_id', id);
+
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                mostrarNotificacao(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            });
+        },
+        'eliminar'
+    );
 }
 
 // Excluir múltiplas mensagens
@@ -1224,7 +1484,7 @@ function excluirMultiplas(ids) {
     const formData = new URLSearchParams();
     formData.append('acao', 'excluir_multiplas');
     ids.forEach(id => formData.append('message_ids[]', id));
-    
+
     fetch(window.location.href, {
         method: 'POST',
         headers: {
@@ -1250,10 +1510,10 @@ function mostrarNotificacao(mensagem, tipo) {
         ${mensagem}
         <button type="button" class="close-alert">&times;</button>
     `;
-    
+
     const container = document.querySelector('.conteudo-pagina');
     container.insertBefore(alert, container.firstChild);
-    
+
     alert.querySelector('.close-alert').addEventListener('click', () => alert.remove());
     setTimeout(() => alert.remove(), 5000);
 }
@@ -1270,11 +1530,11 @@ function atualizarSelecao() {
             itensSelecionados.push(parseInt(cb.value));
         }
     });
-    
+
     if (excluirSelecionadosBtn) {
         excluirSelecionadosBtn.disabled = itensSelecionados.length === 0;
     }
-    
+
     if (selectAllCheckbox && checkboxes.length > 0) {
         const todosChecked = Array.from(checkboxes).every(cb => cb.checked);
         selectAllCheckbox.checked = todosChecked;
@@ -1298,9 +1558,12 @@ document.querySelectorAll('.selecionar-msg').forEach(cb => {
 if (excluirSelecionadosBtn) {
     excluirSelecionadosBtn.addEventListener('click', () => {
         if (itensSelecionados.length === 0) return;
-        if (confirm(`Excluir ${itensSelecionados.length} mensagem(ns) permanentemente? Esta ação não pode ser desfeita.`)) {
-            excluirMultiplas(itensSelecionados);
-        }
+        confirmarAcao(
+            'Confirmar eliminação em massa',
+            `Excluir ${itensSelecionados.length} mensagem(ns) permanentemente? Esta ação não pode ser desfeita.`,
+            () => excluirMultiplas(itensSelecionados),
+            'eliminar'
+        );
     });
 }
 
@@ -1309,10 +1572,15 @@ document.getElementById('modalVisualizar')?.addEventListener('click', (e) => {
     if (e.target === document.getElementById('modalVisualizar')) fecharModalVisualizar();
 });
 
+document.getElementById('modalResposta')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modalResposta')) fecharModalResposta();
+});
+
 // Escape key fecha modal
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         fecharModalVisualizar();
+        fecharModalResposta();
     }
 });
 
