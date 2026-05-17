@@ -61,21 +61,20 @@ if (window.__ipikkSidebarHeaderInitialized) {
 // Modal global de confirmação usado nas páginas administrativas.
 window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAcao = 'info') {
     const tipos = {
-        eliminar: { icone: '⚠️', classe: 'eliminar', textoBotao: 'Eliminar' },
-        publicar: { icone: '📧', classe: 'publicar', textoBotao: 'Confirmar' },
-        restaurar: { icone: '↩️', classe: 'restaurar', textoBotao: 'Restaurar' },
-        info: { icone: 'ℹ️', classe: 'info', textoBotao: 'Confirmar' }
+        eliminar: { classe: 'eliminar', textoBotao: 'Eliminar', iconeClasse: 'fa-exclamation-triangle' },
+        publicar: { classe: 'publicar', textoBotao: 'Confirmar', iconeClasse: 'fa-paper-plane' },
+        restaurar: { classe: 'restaurar', textoBotao: 'Restaurar', iconeClasse: 'fa-rotate-left' },
+        info: { classe: 'info', textoBotao: 'Confirmar', iconeClasse: 'fa-info' }
     };
     const config = tipos[tipoAcao] || tipos.info;
     const overlay = document.createElement('div');
     overlay.className = 'ipikk-confirm-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
 
     overlay.innerHTML = `
         <div class="ipikk-confirm-box">
-            <div class="ipikk-confirm-icon ${config.classe}" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="ipikk-confirm-icon ${config.classe}" aria-hidden="true"><i class="fas ${config.iconeClasse}"></i></div>
             <h3 class="ipikk-confirm-title">${escapeHtmlConfirmacao(titulo)}</h3>
             <p class="ipikk-confirm-body">${escapeHtmlConfirmacao(texto)}</p>
             <div class="ipikk-confirm-actions">
@@ -103,11 +102,6 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
         fechar();
         if (typeof callbackConfirmar === 'function') callbackConfirmar();
     });
-
-    const caixa = overlay.querySelector('.ipikk-confirm-box');
-    if (caixa) {
-        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
-    }
 
     document.addEventListener('keydown', aoPressionarTecla);
     document.body.appendChild(overlay);
