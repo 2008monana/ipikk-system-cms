@@ -672,7 +672,9 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
 
     const overlay = document.createElement('div');
     overlay.className = 'ipikk-confirm-overlay ativo';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, rgba(5, 19, 43, 0.82), rgba(0, 0, 0, 0.86));backdrop-filter:blur(3px);padding:20px;';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
     overlay.innerHTML = `
         <div class="ipikk-confirm-box">
             <div class="ipikk-confirm-icon eliminar"><i class="fas fa-exclamation-triangle"></i></div>
@@ -686,9 +688,14 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
     `;
     const caixa = overlay.querySelector('.ipikk-confirm-box');
     if (caixa) {
-        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
+        caixa.style.cssText = 'background:#fff;border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,.35);max-width:460px;padding:26px;position:relative;text-align:center;width:100%;';
     }
-    const fechar = () => overlay.remove();
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const fechar = () => {
+        document.body.style.overflow = overflowAnterior;
+        overlay.remove();
+    };
     overlay.addEventListener('click', (event) => {
         if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
         if (event.target.closest('.ipikk-confirm-action')) {
