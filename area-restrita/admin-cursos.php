@@ -422,6 +422,26 @@ unset($curso);
     </div>
 </main>
 
+<!-- MODAL DE CONFIRMAÇÃO -->
+<div id="modalConfirmacao" class="modal-confirmacao">
+    <div class="modal-confirmacao-caixa">
+        <div class="modal-confirmacao-icone" id="modalConfirmacaoIconeWrapper">
+            <i class="fas fa-exclamation-triangle" id="modalConfirmacaoIcone"></i>
+        </div>
+        <h3 id="modalConfirmacaoTitulo">Confirmar ação</h3>
+        <p id="modalConfirmacaoTexto">Tem certeza que deseja continuar?</p>
+        <div class="modal-confirmacao-botoes">
+            <button type="button" class="botao-cancelar botao-cancelar-modal" id="botaoCancelarConfirmacao">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="botao-perigo-confirmacao botao-confirmar-modal" id="botaoConfirmarAcao">
+                <i class="fas fa-exclamation-triangle" id="modalConfirmacaoBotaoIcone"></i> <span id="modalConfirmacaoBotaoTexto">Confirmar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
 <!-- MODAL AREA -->
 <div id="modalArea" class="modal">
     <div class="conteudo-modal" style="max-width: 750px;">
@@ -664,40 +684,163 @@ let projetosPorCurso = window.ADMIN_CURSOS_DATA.projetos || {};
 let filtroAreaAtual  = null;
 let urlCursoAtual    = '';
 
-function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
-    if (typeof window.abrirModalConfirmacao === 'function') {
-        window.abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
-        return;
+let acaoPendenteConfirmacao = null;
+
+function obterConfigModalConfirmacao(tipoAcao = 'eliminar') {
+    const configs = {
+        eliminar: {
+            iconeClasse: 'fa-exclamation-triangle',
+            botaoTexto: 'Eliminar',
+            corPrimaria: '#dc2626',
+            corSecundaria: '#b91c1c',
+            fundoIcone: 'linear-gradient(135deg, #fee2e2, #fff1f2)'
+        },
+        publicar: {
+            iconeClasse: 'fa-paper-plane',
+            botaoTexto: 'Confirmar',
+            corPrimaria: '#16a34a',
+            corSecundaria: '#15803d',
+            fundoIcone: 'linear-gradient(135deg, #dcfce7, #f0fdf4)'
+        },
+        arquivar: {
+            iconeClasse: 'fa-box-archive',
+            botaoTexto: 'Arquivar',
+            corPrimaria: '#d97706',
+            corSecundaria: '#b45309',
+            fundoIcone: 'linear-gradient(135deg, #fef3c7, #fff7ed)'
+        },
+        restaurar: {
+            iconeClasse: 'fa-rotate-left',
+            botaoTexto: 'Restaurar',
+            corPrimaria: '#2563eb',
+            corSecundaria: '#1d4ed8',
+            fundoIcone: 'linear-gradient(135deg, #dbeafe, #eff6ff)'
+        }
+    };
+
+    return configs[tipoAcao] || configs.eliminar;
+}
+
+
+function aplicarEstilosCriticosModalConfirmacao(modal) {
+    Object.assign(modal.style, {
+        alignItems: 'center',
+        backdropFilter: 'blur(4px)',
+        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.84), rgba(0, 0, 0, 0.88))',
+        display: 'flex',
+        inset: '0',
+        justifyContent: 'center',
+        padding: '20px',
+        position: 'fixed',
+        zIndex: '30000'
+    });
+
+    const caixa = modal.querySelector('.modal-confirmacao-caixa');
+    if (caixa) {
+        Object.assign(caixa.style, {
+            background: '#ffffff',
+            border: '1px solid rgba(226, 232, 240, 0.95)',
+            borderRadius: '22px',
+            boxShadow: '0 28px 58px rgba(0, 0, 0, 0.36)',
+            maxWidth: '450px',
+            padding: '30px',
+            position: 'relative',
+            textAlign: 'center',
+            width: 'min(92vw, 450px)'
+        });
     }
 
-    const overlay = document.createElement('div');
-    overlay.className = 'ipikk-confirm-overlay ativo';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
-    overlay.innerHTML = `
-        <div class="ipikk-confirm-box">
-            <div class="ipikk-confirm-icon eliminar"><i class="fas fa-exclamation-triangle"></i></div>
-            <h3 class="ipikk-confirm-title">${escapeHtml(titulo)}</h3>
-            <p class="ipikk-confirm-body">${escapeHtml(texto)}</p>
-            <div class="ipikk-confirm-actions">
-                <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel" data-confirm-cancel>Cancelar</button>
-                <button type="button" class="ipikk-confirm-btn ipikk-confirm-action ${tipoAcao}">Eliminar</button>
-            </div>
-        </div>
-    `;
-    const caixa = overlay.querySelector('.ipikk-confirm-box');
-    if (caixa) {
-        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
+    const icone = modal.querySelector('.modal-confirmacao-icone');
+    if (icone) {
+        Object.assign(icone.style, {
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #fee2e2, #fff1f2)',
+            borderRadius: '50%',
+            boxShadow: '0 10px 24px rgba(220, 38, 38, 0.18)',
+            color: '#dc2626',
+            display: 'flex',
+            fontSize: '1.55rem',
+            height: '66px',
+            justifyContent: 'center',
+            margin: '0 auto 18px',
+            width: '66px'
+        });
     }
-    const fechar = () => overlay.remove();
-    overlay.addEventListener('click', (event) => {
-        if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
-        if (event.target.closest('.ipikk-confirm-action')) {
-            fechar();
-            if (typeof callbackConfirmar === 'function') callbackConfirmar();
+}
+
+function abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    const modal = document.getElementById('modalConfirmacao');
+    const tituloEl = document.getElementById('modalConfirmacaoTitulo');
+    const textoEl = document.getElementById('modalConfirmacaoTexto');
+    const iconeEl = document.getElementById('modalConfirmacaoIcone');
+    const botaoIconeEl = document.getElementById('modalConfirmacaoBotaoIcone');
+    const botaoTextoEl = document.getElementById('modalConfirmacaoBotaoTexto');
+    const iconeWrapper = document.getElementById('modalConfirmacaoIconeWrapper');
+    const botaoConfirmar = document.getElementById('botaoConfirmarAcao');
+    const config = obterConfigModalConfirmacao(tipoAcao);
+
+    if (!modal) return;
+
+    aplicarEstilosCriticosModalConfirmacao(modal);
+
+    if (tituloEl) tituloEl.textContent = titulo;
+    if (textoEl) textoEl.textContent = texto;
+    if (iconeEl) iconeEl.className = `fas ${config.iconeClasse}`;
+    if (botaoIconeEl) botaoIconeEl.className = `fas ${config.iconeClasse}`;
+    if (botaoTextoEl) botaoTextoEl.textContent = config.botaoTexto;
+    if (iconeWrapper) {
+        iconeWrapper.style.background = config.fundoIcone;
+        iconeWrapper.style.color = config.corPrimaria;
+    }
+    if (botaoConfirmar) {
+        botaoConfirmar.style.background = `linear-gradient(135deg, ${config.corPrimaria}, ${config.corSecundaria})`;
+        botaoConfirmar.style.boxShadow = `0 8px 18px ${config.corPrimaria}55`;
+    }
+
+    acaoPendenteConfirmacao = callbackConfirmar;
+    modal.classList.add('ativo');
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharModalConfirmacao() {
+    const modal = document.getElementById('modalConfirmacao');
+    if (modal) {
+        modal.classList.remove('ativo');
+        modal.style.display = 'none';
+    }
+    acaoPendenteConfirmacao = null;
+    document.body.style.overflow = '';
+}
+
+function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
+}
+
+function inicializarModalConfirmacao() {
+    document.getElementById('botaoCancelarConfirmacao')?.addEventListener('click', fecharModalConfirmacao);
+    document.getElementById('botaoConfirmarAcao')?.addEventListener('click', function() {
+        if (typeof acaoPendenteConfirmacao === 'function') {
+            acaoPendenteConfirmacao();
+        }
+        fecharModalConfirmacao();
+    });
+    document.getElementById('modalConfirmacao')?.addEventListener('click', function(e) {
+        if (e.target === this) fecharModalConfirmacao();
+    });
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('modalConfirmacao');
+        if (e.key === 'Escape' && modal?.classList.contains('ativo')) {
+            fecharModalConfirmacao();
         }
     });
-    document.body.appendChild(overlay);
 }
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarModalConfirmacao);
+} else {
+    inicializarModalConfirmacao();
+}
+
 
 // Objeto para armazenar arquivos PDF selecionados (incluindo classe 0)
 let pdfFiles = {

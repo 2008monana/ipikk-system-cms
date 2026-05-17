@@ -46,7 +46,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'buscar' && isset($_GET['id'])
     header('Content-Type: application/json');
     $id = (int)$_GET['id'];
 
-    $stmt = $db->prepare("SELECT * FROM mensagens WHERE id = ?");
+    $stmt = $db->prepare("
+        SELECT m.*, u.nome AS respondido_por_nome
+        FROM mensagens m
+        LEFT JOIN utilizadores u ON u.id = m.respondido_por
+        WHERE m.id = ?
+    ");
     $stmt->execute([$id]);
     $msg = $stmt->fetch();
 
@@ -120,23 +125,23 @@ $where = [];
 $params = [];
 
 if (!empty($filtro_busca)) {
-    $where[] = '(nome LIKE ? OR email LIKE ? OR assunto LIKE ? OR mensagem LIKE ?)';
+    $where[] = '(m.nome LIKE ? OR m.email LIKE ? OR m.assunto LIKE ? OR m.mensagem LIKE ? OR m.resposta_texto LIKE ?)';
     $like = '%' . $filtro_busca . '%';
-    array_push($params, $like, $like, $like, $like);
+    array_push($params, $like, $like, $like, $like, $like);
 }
 
 if ($status === 'nao_lidas') {
-    $where[] = 'lida = 0';
+    $where[] = 'm.lida = 0';
 } elseif ($status === 'respondidas') {
-    $where[] = 'respondida = 1';
+    $where[] = 'm.respondida = 1';
 } elseif ($status === 'nao_respondidas') {
-    $where[] = 'respondida = 0';
+    $where[] = 'm.respondida = 0';
 }
 
 $where_sql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
 // Contar total
-$count_sql = "SELECT COUNT(*) as total FROM mensagens $where_sql";
+$count_sql = "SELECT COUNT(*) as total FROM mensagens m $where_sql";
 $stmt = $db->prepare($count_sql);
 $stmt->execute($params);
 $total_registros = $stmt->fetch()['total'];
@@ -144,17 +149,19 @@ $total_paginas = ceil($total_registros / $itens_por_pagina);
 
 // Buscar mensagens
 $sql = "
-    SELECT *,
+    SELECT m.*,
+           u.nome AS respondido_por_nome,
            CASE
                WHEN respondida = 1 THEN 'respondida'
                WHEN lida = 1 THEN 'lida'
                ELSE 'nao_lida'
            END as estado
-    FROM mensagens
+    FROM mensagens m
+    LEFT JOIN utilizadores u ON u.id = m.respondido_por
     $where_sql
     ORDER BY
-        CASE WHEN lida = 0 THEN 0 ELSE 1 END,
-        data_envio DESC
+        CASE WHEN m.lida = 0 THEN 0 ELSE 1 END,
+        m.data_envio DESC
     LIMIT $itens_por_pagina OFFSET $offset
 ";
 $stmt = $db->prepare($sql);
@@ -336,6 +343,27 @@ include 'includes/sidebar.php';
                             <?= htmlspecialchars(substr($msg['mensagem'], 0, 200)) ?>...
                         </div>
 
+                        <?php if ((int)$msg['respondida'] === 1): ?>
+                        <div class="resposta-registo-card <?= empty($msg['resposta_texto']) ? 'sem-texto' : '' ?>">
+                            <div class="resposta-registo-card-topo">
+                                <span><i class="fas fa-paper-plane"></i> Resposta <?= empty($msg['resposta_texto']) ? 'registada' : 'enviada por email' ?></span>
+                                <?php if (!empty($msg['data_resposta'])): ?>
+                                <time><i class="far fa-clock"></i> <?= date('d/m/Y H:i', strtotime($msg['data_resposta'])) ?></time>
+                                <?php endif; ?>
+                            </div>
+                            <?php if (!empty($msg['respondido_por_nome'])): ?>
+                            <div class="resposta-registo-autor">Por <?= htmlspecialchars($msg['respondido_por_nome']) ?></div>
+                            <?php endif; ?>
+                            <div class="resposta-registo-preview">
+                                <?php if (!empty($msg['resposta_texto'])): ?>
+                                    <?= htmlspecialchars(substr($msg['resposta_texto'], 0, 180)) ?><?= strlen($msg['resposta_texto']) > 180 ? '...' : '' ?>
+                                <?php else: ?>
+                                    Esta mensagem foi marcada como respondida, mas não existe texto de resposta enviado por email registado.
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
                         <div class="mensagem-acoes">
                             <button type="button" class="btn-ver" onclick="verMensagem(<?= $msg['id'] ?>)">
                                 <i class="fas fa-eye"></i> Ver detalhes
@@ -392,6 +420,26 @@ include 'includes/sidebar.php';
         </div>
     </div>
 </main>
+
+<!-- MODAL DE CONFIRMAÇÃO -->
+<div id="modalConfirmacao" class="modal-confirmacao">
+    <div class="modal-confirmacao-caixa">
+        <div class="modal-confirmacao-icone" id="modalConfirmacaoIconeWrapper">
+            <i class="fas fa-exclamation-triangle" id="modalConfirmacaoIcone"></i>
+        </div>
+        <h3 id="modalConfirmacaoTitulo">Confirmar ação</h3>
+        <p id="modalConfirmacaoTexto">Tem certeza que deseja continuar?</p>
+        <div class="modal-confirmacao-botoes">
+            <button type="button" class="botao-cancelar botao-cancelar-modal" id="botaoCancelarConfirmacao">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="botao-perigo-confirmacao botao-confirmar-modal" id="botaoConfirmarAcao">
+                <i class="fas fa-exclamation-triangle" id="modalConfirmacaoBotaoIcone"></i> <span id="modalConfirmacaoBotaoTexto">Confirmar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 
 <!-- MODAL VISUALIZAR MENSAGEM -->
 <div id="modalVisualizar" class="modal">
@@ -876,6 +924,52 @@ include 'includes/sidebar.php';
     line-height: 1.5;
 }
 
+.resposta-registo-card {
+    background: linear-gradient(135deg, #f0fdf4, #ecfeff);
+    border: 1px solid #bbf7d0;
+    border-left: 4px solid #16a34a;
+    border-radius: 14px;
+    color: #14532d;
+    margin: 12px 0 14px;
+    padding: 12px 14px;
+}
+
+.resposta-registo-card.sem-texto {
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    border-color: #cbd5e1;
+    border-left-color: #64748b;
+    color: #475569;
+}
+
+.resposta-registo-card-topo {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.resposta-registo-card-topo span {
+    align-items: center;
+    display: inline-flex;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.resposta-registo-card-topo time,
+.resposta-registo-autor {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.resposta-registo-preview {
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
 .mensagem-acoes {
     display: flex;
     gap: 10px;
@@ -1166,6 +1260,68 @@ include 'includes/sidebar.php';
     word-wrap: break-word;
 }
 
+.registo-resposta-modal {
+    background: linear-gradient(135deg, #f0fdf4, #ecfeff);
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    margin-top: 18px;
+    overflow: hidden;
+}
+
+.registo-resposta-modal.sem-texto {
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    border-color: #cbd5e1;
+}
+
+.registo-resposta-cabecalho {
+    align-items: center;
+    background: rgba(255,255,255,0.7);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+}
+
+.registo-resposta-icone {
+    align-items: center;
+    background: #dcfce7;
+    border-radius: 12px;
+    color: #16a34a;
+    display: flex;
+    flex-shrink: 0;
+    height: 42px;
+    justify-content: center;
+    width: 42px;
+}
+
+.registo-resposta-modal.sem-texto .registo-resposta-icone {
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.registo-resposta-titulo {
+    color: #14532d;
+    font-weight: 800;
+    margin-bottom: 3px;
+}
+
+.registo-resposta-modal.sem-texto .registo-resposta-titulo {
+    color: #334155;
+}
+
+.registo-resposta-meta {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.registo-resposta-texto {
+    color: #334155;
+    line-height: 1.65;
+    padding: 16px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
 .resposta-destino {
     background: #f8f9fa;
     border-left: 4px solid #0a9396;
@@ -1287,40 +1443,163 @@ include 'includes/sidebar.php';
 let itensSelecionados = [];
 let mensagemAtual = null;
 
-function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
-    if (typeof window.abrirModalConfirmacao === 'function') {
-        window.abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
-        return;
+let acaoPendenteConfirmacao = null;
+
+function obterConfigModalConfirmacao(tipoAcao = 'eliminar') {
+    const configs = {
+        eliminar: {
+            iconeClasse: 'fa-exclamation-triangle',
+            botaoTexto: 'Eliminar',
+            corPrimaria: '#dc2626',
+            corSecundaria: '#b91c1c',
+            fundoIcone: 'linear-gradient(135deg, #fee2e2, #fff1f2)'
+        },
+        publicar: {
+            iconeClasse: 'fa-paper-plane',
+            botaoTexto: 'Confirmar',
+            corPrimaria: '#16a34a',
+            corSecundaria: '#15803d',
+            fundoIcone: 'linear-gradient(135deg, #dcfce7, #f0fdf4)'
+        },
+        arquivar: {
+            iconeClasse: 'fa-box-archive',
+            botaoTexto: 'Arquivar',
+            corPrimaria: '#d97706',
+            corSecundaria: '#b45309',
+            fundoIcone: 'linear-gradient(135deg, #fef3c7, #fff7ed)'
+        },
+        restaurar: {
+            iconeClasse: 'fa-rotate-left',
+            botaoTexto: 'Restaurar',
+            corPrimaria: '#2563eb',
+            corSecundaria: '#1d4ed8',
+            fundoIcone: 'linear-gradient(135deg, #dbeafe, #eff6ff)'
+        }
+    };
+
+    return configs[tipoAcao] || configs.eliminar;
+}
+
+
+function aplicarEstilosCriticosModalConfirmacao(modal) {
+    Object.assign(modal.style, {
+        alignItems: 'center',
+        backdropFilter: 'blur(4px)',
+        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.84), rgba(0, 0, 0, 0.88))',
+        display: 'flex',
+        inset: '0',
+        justifyContent: 'center',
+        padding: '20px',
+        position: 'fixed',
+        zIndex: '30000'
+    });
+
+    const caixa = modal.querySelector('.modal-confirmacao-caixa');
+    if (caixa) {
+        Object.assign(caixa.style, {
+            background: '#ffffff',
+            border: '1px solid rgba(226, 232, 240, 0.95)',
+            borderRadius: '22px',
+            boxShadow: '0 28px 58px rgba(0, 0, 0, 0.36)',
+            maxWidth: '450px',
+            padding: '30px',
+            position: 'relative',
+            textAlign: 'center',
+            width: 'min(92vw, 450px)'
+        });
     }
 
-    const overlay = document.createElement('div');
-    overlay.className = 'ipikk-confirm-overlay ativo';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
-    overlay.innerHTML = `
-        <div class="ipikk-confirm-box">
-            <div class="ipikk-confirm-icon eliminar"><i class="fas fa-exclamation-triangle"></i></div>
-            <h3 class="ipikk-confirm-title">${escapeHtml(titulo)}</h3>
-            <p class="ipikk-confirm-body">${escapeHtml(texto)}</p>
-            <div class="ipikk-confirm-actions">
-                <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel" data-confirm-cancel>Cancelar</button>
-                <button type="button" class="ipikk-confirm-btn ipikk-confirm-action eliminar" data-confirm-ok>Eliminar</button>
-            </div>
-        </div>
-    `;
-    const caixa = overlay.querySelector('.ipikk-confirm-box');
-    if (caixa) {
-        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
+    const icone = modal.querySelector('.modal-confirmacao-icone');
+    if (icone) {
+        Object.assign(icone.style, {
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #fee2e2, #fff1f2)',
+            borderRadius: '50%',
+            boxShadow: '0 10px 24px rgba(220, 38, 38, 0.18)',
+            color: '#dc2626',
+            display: 'flex',
+            fontSize: '1.55rem',
+            height: '66px',
+            justifyContent: 'center',
+            margin: '0 auto 18px',
+            width: '66px'
+        });
     }
-    const fechar = () => overlay.remove();
-    overlay.addEventListener('click', (event) => {
-        if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
-        if (event.target.closest('[data-confirm-ok]')) {
-            fechar();
-            callbackConfirmar();
+}
+
+function abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    const modal = document.getElementById('modalConfirmacao');
+    const tituloEl = document.getElementById('modalConfirmacaoTitulo');
+    const textoEl = document.getElementById('modalConfirmacaoTexto');
+    const iconeEl = document.getElementById('modalConfirmacaoIcone');
+    const botaoIconeEl = document.getElementById('modalConfirmacaoBotaoIcone');
+    const botaoTextoEl = document.getElementById('modalConfirmacaoBotaoTexto');
+    const iconeWrapper = document.getElementById('modalConfirmacaoIconeWrapper');
+    const botaoConfirmar = document.getElementById('botaoConfirmarAcao');
+    const config = obterConfigModalConfirmacao(tipoAcao);
+
+    if (!modal) return;
+
+    aplicarEstilosCriticosModalConfirmacao(modal);
+
+    if (tituloEl) tituloEl.textContent = titulo;
+    if (textoEl) textoEl.textContent = texto;
+    if (iconeEl) iconeEl.className = `fas ${config.iconeClasse}`;
+    if (botaoIconeEl) botaoIconeEl.className = `fas ${config.iconeClasse}`;
+    if (botaoTextoEl) botaoTextoEl.textContent = config.botaoTexto;
+    if (iconeWrapper) {
+        iconeWrapper.style.background = config.fundoIcone;
+        iconeWrapper.style.color = config.corPrimaria;
+    }
+    if (botaoConfirmar) {
+        botaoConfirmar.style.background = `linear-gradient(135deg, ${config.corPrimaria}, ${config.corSecundaria})`;
+        botaoConfirmar.style.boxShadow = `0 8px 18px ${config.corPrimaria}55`;
+    }
+
+    acaoPendenteConfirmacao = callbackConfirmar;
+    modal.classList.add('ativo');
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharModalConfirmacao() {
+    const modal = document.getElementById('modalConfirmacao');
+    if (modal) {
+        modal.classList.remove('ativo');
+        modal.style.display = 'none';
+    }
+    acaoPendenteConfirmacao = null;
+    document.body.style.overflow = '';
+}
+
+function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
+}
+
+function inicializarModalConfirmacao() {
+    document.getElementById('botaoCancelarConfirmacao')?.addEventListener('click', fecharModalConfirmacao);
+    document.getElementById('botaoConfirmarAcao')?.addEventListener('click', function() {
+        if (typeof acaoPendenteConfirmacao === 'function') {
+            acaoPendenteConfirmacao();
+        }
+        fecharModalConfirmacao();
+    });
+    document.getElementById('modalConfirmacao')?.addEventListener('click', function(e) {
+        if (e.target === this) fecharModalConfirmacao();
+    });
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('modalConfirmacao');
+        if (e.key === 'Escape' && modal?.classList.contains('ativo')) {
+            fecharModalConfirmacao();
         }
     });
-    document.body.appendChild(overlay);
 }
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarModalConfirmacao);
+} else {
+    inicializarModalConfirmacao();
+}
+
 
 // Fechar alertas
 document.querySelectorAll('.close-alert').forEach(btn => {
@@ -1361,6 +1640,7 @@ function verMensagem(id) {
                             <h4>Mensagem:</h4>
                             <div class="conteudo-texto">${escapeHtml(m.mensagem).replace(/\n/g, '<br>')}</div>
                         </div>
+                        ${montarRegistoResposta(m)}
                     </div>
                 `;
             } else {
@@ -1370,6 +1650,39 @@ function verMensagem(id) {
         .catch(() => {
             conteudo.innerHTML = `<div class="loading-spinner">Erro ao carregar mensagem.</div>`;
         });
+}
+
+
+function formatarDataHora(valor) {
+    if (!valor) return '';
+    const data = new Date(valor.replace(' ', 'T'));
+    if (Number.isNaN(data.getTime())) return escapeHtml(valor);
+    return data.toLocaleString('pt-PT');
+}
+
+function montarRegistoResposta(mensagem) {
+    if (Number(mensagem.respondida) !== 1) return '';
+
+    const respostaTexto = (mensagem.resposta_texto || mensagem.resposta || '').trim();
+    const temTexto = respostaTexto.length > 0;
+    const dataResposta = formatarDataHora(mensagem.data_resposta);
+    const autor = mensagem.respondido_por_nome ? ` por ${escapeHtml(mensagem.respondido_por_nome)}` : '';
+    const meta = [dataResposta ? `Enviada em ${dataResposta}` : '', autor ? `Registada${autor}` : '']
+        .filter(Boolean)
+        .join(' · ');
+
+    return `
+        <section class="registo-resposta-modal ${temTexto ? '' : 'sem-texto'}">
+            <div class="registo-resposta-cabecalho">
+                <div class="registo-resposta-icone"><i class="fas ${temTexto ? 'fa-paper-plane' : 'fa-check'}"></i></div>
+                <div>
+                    <div class="registo-resposta-titulo">${temTexto ? 'Resposta enviada por email' : 'Mensagem marcada como respondida'}</div>
+                    ${meta ? `<div class="registo-resposta-meta">${meta}</div>` : ''}
+                </div>
+            </div>
+            <div class="registo-resposta-texto">${temTexto ? escapeHtml(respostaTexto).replace(/\n/g, '<br>') : 'Não há texto de resposta enviado por email registado para esta mensagem.'}</div>
+        </section>
+    `;
 }
 
 function fecharModalVisualizar() {
