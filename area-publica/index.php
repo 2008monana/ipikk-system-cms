@@ -639,11 +639,11 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         .secao-parceiros { padding: 80px 20px; background: var(--cinza-claro); overflow: hidden; position: relative; z-index: 10; }
         .titulo-parceiros { text-align: center; font-size: 2.5rem; color: var(--azul-principal); margin-bottom: 12px; }
         .linha-parceiros { width: 120px; height: 5px; background: linear-gradient(to right, var(--azul-principal), var(--verde-acento)); margin: 0 auto 60px; border-radius: 50px; }
-        .area-slider-parceiros { max-width: 1200px; margin: 0 auto; overflow: hidden; mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%); }
-        .slider-parceiros { display: flex; width: max-content; will-change: transform; animation: fluxoParceiros 16s linear infinite; }
-        .slider-grupo { display: flex; gap: 40px; padding-right: 40px; flex-shrink: 0; }
+        .area-slider-parceiros { max-width: 1200px; margin: 0 auto; overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%); }
+        .slider-parceiros { display: flex; width: max-content; will-change: transform; animation: fluxoParceiros var(--fluxo-parceiros-duracao, 16s) linear infinite; transform: translate3d(0,0,0); }
+        .slider-grupo { display: flex; gap: 36px; padding-right: 36px; flex-shrink: 0; }
         .area-slider-parceiros:hover .slider-parceiros { animation-play-state: paused; }
-        @keyframes fluxoParceiros { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @keyframes fluxoParceiros { from { transform: translate3d(0,0,0); } to { transform: translate3d(calc(-1 * var(--fluxo-parceiros-distancia, 25%)),0,0); } }
         .card-parceiro {
             background: white; border-radius: 12px; padding: 30px;
             display: flex; align-items: center; justify-content: center;
@@ -907,20 +907,15 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         <div class="area-slider-parceiros">
             <div class="slider-parceiros" id="sliderParceiros">
                 <?php if (!empty($parceiros)): ?>
-                    <div class="slider-grupo">
+                    <?php for ($grupoParceiros = 0; $grupoParceiros < 8; $grupoParceiros++): ?>
+                    <div class="slider-grupo" <?= $grupoParceiros > 0 ? 'aria-hidden="true"' : '' ?>>
                         <?php foreach($parceiros as $parceiro): ?>
                         <div class="card-parceiro">
-                            <img src="<?= htmlspecialchars($parceiro['logo'] ?? 'foto/ipikk_new_logo.png') ?>" alt="<?= htmlspecialchars($parceiro['nome'] ?? 'Parceiro') ?>">
+                            <img src="<?= htmlspecialchars($parceiro['logo'] ?? 'foto/ipikk_new_logo.png') ?>" alt="<?= $grupoParceiros === 0 ? htmlspecialchars($parceiro['nome'] ?? 'Parceiro') : '' ?>">
                         </div>
                         <?php endforeach; ?>
                     </div>
-                    <div class="slider-grupo" aria-hidden="true">
-                        <?php foreach($parceiros as $parceiro): ?>
-                        <div class="card-parceiro">
-                            <img src="<?= htmlspecialchars($parceiro['logo'] ?? 'foto/ipikk_new_logo.png') ?>" alt="">
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
+                    <?php endfor; ?>
                 <?php else: ?>
                     <div style="text-align:center; width:100%; background:#fff; border-radius:14px; padding:40px 20px;">
                         <i class="fas fa-handshake-slash" style="font-size:2.5rem; color:var(--cinza);"></i>
@@ -1122,8 +1117,22 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         areaSlider?.addEventListener('mouseleave', () => { if (!pausado) intervalo = setInterval(proximoDepoimento, 5000); pausado = false; });
     }
     
-    // Slider de parceiros agora usa animação CSS contínua (fluxo infinito).
-    
+    // Slider de parceiros com fluxo infinito calibrado pela largura real do primeiro grupo.
+    const sliderParceiros = document.getElementById('sliderParceiros');
+    const primeiroGrupoParceiros = sliderParceiros?.querySelector('.slider-grupo');
+
+    function calibrarSliderParceiros() {
+        if (!sliderParceiros || !primeiroGrupoParceiros) return;
+        const larguraGrupo = primeiroGrupoParceiros.scrollWidth;
+        if (!larguraGrupo) return;
+        const duracao = Math.max(8, Math.round(larguraGrupo / 70));
+        sliderParceiros.style.setProperty('--fluxo-parceiros-distancia', `${larguraGrupo}px`);
+        sliderParceiros.style.setProperty('--fluxo-parceiros-duracao', `${duracao}s`);
+    }
+
+    calibrarSliderParceiros();
+    window.addEventListener('resize', calibrarSliderParceiros);
+
     // Slider hero com animação de digitação
     const slides = document.querySelectorAll('.slide');
     const pontos = document.querySelectorAll('.ponto');

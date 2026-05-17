@@ -664,6 +664,39 @@ let projetosPorCurso = window.ADMIN_CURSOS_DATA.projetos || {};
 let filtroAreaAtual  = null;
 let urlCursoAtual    = '';
 
+function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    if (typeof window.abrirModalConfirmacao === 'function') {
+        window.abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
+        return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'ipikk-confirm-overlay';
+    overlay.innerHTML = `
+        <div class="ipikk-confirm-box">
+            <div class="ipikk-confirm-header">
+                <span class="ipikk-confirm-icon eliminar" aria-hidden="true">⚠️</span>
+                <h2 class="ipikk-confirm-title">${escapeHtml(titulo)}</h2>
+                <button type="button" class="ipikk-confirm-close" data-confirm-cancel>&times;</button>
+            </div>
+            <div class="ipikk-confirm-body">${escapeHtml(texto)}</div>
+            <div class="ipikk-confirm-actions">
+                <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel" data-confirm-cancel>Cancelar</button>
+                <button type="button" class="ipikk-confirm-btn ipikk-confirm-action ${tipoAcao}">Eliminar</button>
+            </div>
+        </div>
+    `;
+    const fechar = () => overlay.remove();
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
+        if (event.target.closest('.ipikk-confirm-action')) {
+            fechar();
+            if (typeof callbackConfirmar === 'function') callbackConfirmar();
+        }
+    });
+    document.body.appendChild(overlay);
+}
+
 // Objeto para armazenar arquivos PDF selecionados (incluindo classe 0)
 let pdfFiles = {
     0: null, 10: null, 11: null, 12: null, 13: null
@@ -694,7 +727,7 @@ function selecionarTodosCursos() {
 
 function eliminarCursosSelecionados() {
     if (cursosSelecionados.size === 0) { mostrarNotificacao('Nenhum curso selecionado', 'error'); return; }
-    abrirModalConfirmacao(
+    confirmarAcao(
         'Confirmar eliminação',
         `Eliminar ${cursosSelecionados.size} curso(s) permanentemente?`,
         () => {
@@ -917,7 +950,7 @@ function eliminarArea(id) {
     const area = areas.find(a=>a.id==id);
     const tot = cursos.filter(c=>c.area_id==id).length;
     if (tot) { mostrarNotificacao(`Nao pode eliminar "${area.nome}" — tem ${tot} curso(s).`,'error'); return; }
-    abrirModalConfirmacao(
+    confirmarAcao(
         'Confirmar eliminação',
         `Eliminar a area "${area.nome}"?`,
         () => {
@@ -1200,7 +1233,7 @@ function handleRemoverPDF(e) {
     const btn = e.currentTarget;
     const classe = parseInt(btn.dataset.classe);
 
-    abrirModalConfirmacao(
+    confirmarAcao(
         'Confirmar remoção',
         `Tem certeza que deseja remover o PDF da ${classe === 0 ? 'aba Geral' : classe + 'ª Classe'}?`,
         () => {
@@ -1355,7 +1388,7 @@ function editarCurso(id) {
 }
 
 function eliminarCurso(id) {
-    abrirModalConfirmacao(
+    confirmarAcao(
         'Confirmar eliminação',
         'Eliminar este curso?',
         () => {
@@ -1603,7 +1636,7 @@ function adicionarSaida(dados = null) {
     });
 
     div.querySelector('.btn-remover-saida')?.addEventListener('click', () => {
-        abrirModalConfirmacao('Confirmar eliminação', 'Eliminar esta saída profissional?', () => div.remove(), 'eliminar');
+        confirmarAcao('Confirmar eliminação', 'Eliminar esta saída profissional?', () => div.remove(), 'eliminar');
     });
 
     div.querySelector('.btn-remover-imagem')?.addEventListener('click', () => {
@@ -1697,7 +1730,7 @@ function adicionarProjecto(dados = null) {
     });
 
     div.querySelector('.btn-remover-projeto')?.addEventListener('click', () => {
-        abrirModalConfirmacao('Confirmar eliminação', 'Eliminar este projecto?', () => div.remove(), 'eliminar');
+        confirmarAcao('Confirmar eliminação', 'Eliminar este projecto?', () => div.remove(), 'eliminar');
     });
 
     div.querySelector('.btn-remover-imagem-projeto')?.addEventListener('click', () => {

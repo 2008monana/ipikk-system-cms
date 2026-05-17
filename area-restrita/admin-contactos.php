@@ -205,14 +205,14 @@ include 'includes/sidebar.php';
         <!-- Cards de Resumo -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-envelope"></i></div>
+                <div class="stat-icon"><i class="fas fa-inbox"></i></div>
                 <div class="stat-info">
                     <h3>Total</h3>
                     <p class="stat-number"><?= $resumo['total'] ?></p>
                 </div>
             </div>
             <div class="stat-card warning">
-                <div class="stat-icon"><i class="fas fa-circle" style="color: #f39c12;"></i></div>
+                <div class="stat-icon"><i class="fas fa-envelope"></i></div>
                 <div class="stat-info">
                     <h3>Não Lidas</h3>
                     <p class="stat-number"><?= $resumo['nao_lidas'] ?></p>
@@ -241,7 +241,7 @@ include 'includes/sidebar.php';
                     <i class="fas fa-inbox"></i> Todas
                 </a>
                 <a href="?status=nao_lidas" class="filtro-tab <?= $status === 'nao_lidas' ? 'active' : '' ?>">
-                    <i class="fas fa-circle" style="color: #f39c12;"></i> Não Lidas
+                    <i class="fas fa-envelope"></i> Não Lidas
                     <?php if($resumo['nao_lidas'] > 0): ?>
                     <span class="badge"><?= $resumo['nao_lidas'] ?></span>
                     <?php endif; ?>
@@ -289,7 +289,7 @@ include 'includes/sidebar.php';
                     <label class="checkbox-label">
                         <input type="checkbox" id="selecionarTodos"> Selecionar todos
                     </label>
-                    <button class="btn-excluir-massa" id="excluirSelecionados" disabled>
+                    <button type="button" class="btn-excluir-massa" id="excluirSelecionados" disabled>
                         <i class="fas fa-trash-alt"></i> Excluir selecionados
                     </button>
                 </div>
@@ -337,19 +337,19 @@ include 'includes/sidebar.php';
                         </div>
 
                         <div class="mensagem-acoes">
-                            <button class="btn-ver" onclick="verMensagem(<?= $msg['id'] ?>)">
+                            <button type="button" class="btn-ver" onclick="verMensagem(<?= $msg['id'] ?>)">
                                 <i class="fas fa-eye"></i> Ver detalhes
                             </button>
 
                             <?php if ((int)$msg['respondida'] !== 1): ?>
-                            <button class="btn-responder" onclick="abrirModalRespostaPorId(<?= $msg['id'] ?>)">
+                            <button type="button" class="btn-responder" onclick="abrirModalRespostaPorId(<?= $msg['id'] ?>)">
                                 <i class="fas fa-reply"></i> Responder
                             </button>
-                            <button class="btn-ver" onclick="marcarComoRespondida(<?= $msg['id'] ?>)">
+                            <button type="button" class="btn-ver" onclick="marcarComoRespondida(<?= $msg['id'] ?>)">
                                 <i class="fas fa-check"></i> Marcar respondida
                             </button>
                             <?php endif; ?>
-                            <button class="btn-excluir" onclick="excluirMensagem(<?= $msg['id'] ?>)">
+                            <button type="button" class="btn-excluir" onclick="excluirMensagem(<?= $msg['id'] ?>)">
                                 <i class="fas fa-trash-alt"></i> Excluir
                             </button>
                         </div>
@@ -459,8 +459,9 @@ include 'includes/sidebar.php';
 /* ===== ESTILOS COMPLETOS ===== */
 
 .conteudo-pagina {
-    max-width: 1200px;
+    max-width: 1240px;
     margin: 0 auto;
+    padding: 0 6px 30px;
 }
 
 /* Alertas */
@@ -498,74 +499,102 @@ include 'includes/sidebar.php';
 /* Cards de estatísticas */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 22px;
     margin-bottom: 30px;
 }
 
 .stat-card {
-    background: white;
-    border-radius: 16px;
-    padding: 25px;
-    min-height: 112px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid rgba(0, 48, 114, 0.08);
+    border-radius: 18px;
+    padding: 24px;
+    min-height: 122px;
     display: flex;
     align-items: center;
-    gap: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
+    gap: 18px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: linear-gradient(180deg, #003072, #0a9396);
 }
 
 .stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-color: rgba(10, 147, 150, 0.22);
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
 }
 
 .stat-icon {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
+    width: 62px;
+    height: 62px;
+    min-width: 62px;
+    background: linear-gradient(135deg, #003072 0%, #0a9396 100%);
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 25px;
     color: white;
+    box-shadow: 0 10px 22px rgba(0, 48, 114, 0.22);
+}
+
+.stat-card.warning::before {
+    background: linear-gradient(180deg, #ffb020, #f97316);
 }
 
 .stat-card.warning .stat-icon {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, #ffb020, #f97316);
+}
+
+.stat-card.info::before {
+    background: linear-gradient(180deg, #3498db, #2563eb);
 }
 
 .stat-card.info .stat-icon {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, #3498db, #2563eb);
+}
+
+.stat-card.success::before {
+    background: linear-gradient(180deg, #28a745, #15803d);
 }
 
 .stat-card.success .stat-icon {
-    background: linear-gradient(135deg, #28a745, #1e7e34);
+    background: linear-gradient(135deg, #28a745, #15803d);
 }
 
 .stat-info h3 {
-    font-size: 13px;
-    color: #666;
-    margin: 0 0 5px 0;
+    font-size: 12px;
+    color: #64748b;
+    letter-spacing: 0.08em;
+    margin: 0 0 8px 0;
     text-transform: uppercase;
 }
 
 .stat-number {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
     margin: 0;
-    color: #2c3e50;
+    color: #0f172a;
 }
 
 /* Filtros */
 .filtros-container {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(0, 48, 114, 0.08);
+    border-radius: 18px;
+    padding: 22px;
     margin-bottom: 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
 }
 
 .filtros-tabs {
@@ -594,8 +623,9 @@ include 'includes/sidebar.php';
 }
 
 .filtro-tab.active {
-    background: #003072;
+    background: linear-gradient(135deg, #003072, #0a9396);
     color: white;
+    box-shadow: 0 10px 22px rgba(0, 48, 114, 0.18);
 }
 
 .filtro-tab .badge {
@@ -673,9 +703,10 @@ include 'includes/sidebar.php';
 
 /* Ações em massa */
 .acoes-em-massa {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8fafc, #eef7ff);
+    border: 1px solid rgba(0, 48, 114, 0.08);
     padding: 15px 20px;
-    border-radius: 12px;
+    border-radius: 14px;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
@@ -719,31 +750,45 @@ include 'includes/sidebar.php';
 }
 
 .mensagem-card {
-    background: white;
-    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 48, 114, 0.08);
+    border-radius: 18px;
     display: flex;
-    gap: 15px;
+    gap: 16px;
+    overflow: hidden;
     padding: 20px;
-    transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border-left: 4px solid transparent;
+    position: relative;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+.mensagem-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: #94a3b8;
 }
 
 .mensagem-card.nao_lida {
-    background: #fffef7;
-    border-left-color: #f39c12;
+    background: linear-gradient(135deg, #fffdf7 0%, #ffffff 62%);
 }
 
-.mensagem-card.lida {
-    border-left-color: #3498db;
+.mensagem-card.nao_lida::before {
+    background: linear-gradient(180deg, #ffb020, #f97316);
 }
 
-.mensagem-card.respondida {
-    border-left-color: #28a745;
+.mensagem-card.lida::before {
+    background: linear-gradient(180deg, #3498db, #2563eb);
+}
+
+.mensagem-card.respondida::before {
+    background: linear-gradient(180deg, #28a745, #15803d);
 }
 
 .mensagem-card:hover {
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-color: rgba(10, 147, 150, 0.18);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.11);
     transform: translateY(-2px);
 }
 
@@ -1237,6 +1282,40 @@ include 'includes/sidebar.php';
 let itensSelecionados = [];
 let mensagemAtual = null;
 
+function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    if (typeof window.abrirModalConfirmacao === 'function') {
+        window.abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
+        return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal active';
+    overlay.innerHTML = `
+        <div class="modal-dialog" style="max-width:450px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-triangle-exclamation"></i> ${escapeHtml(titulo)}</h5>
+                    <button type="button" class="close-modal" data-confirm-cancel><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body"><p style="margin:0;line-height:1.7;color:#475569;">${escapeHtml(texto)}</p></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" data-confirm-cancel>Cancelar</button>
+                    <button type="button" class="btn-excluir" data-confirm-ok>Eliminar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    const fechar = () => overlay.remove();
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
+        if (event.target.closest('[data-confirm-ok]')) {
+            fechar();
+            callbackConfirmar();
+        }
+    });
+    document.body.appendChild(overlay);
+}
+
 // Fechar alertas
 document.querySelectorAll('.close-alert').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -1373,7 +1452,7 @@ function marcarComoRespondida(id) {
 
 // Excluir mensagem individual
 function excluirMensagem(id) {
-    abrirModalConfirmacao(
+    confirmarAcao(
         'Confirmar eliminação',
         'Excluir esta mensagem permanentemente? Esta ação não pode ser desfeita.',
         () => {
@@ -1479,7 +1558,7 @@ document.querySelectorAll('.selecionar-msg').forEach(cb => {
 if (excluirSelecionadosBtn) {
     excluirSelecionadosBtn.addEventListener('click', () => {
         if (itensSelecionados.length === 0) return;
-        abrirModalConfirmacao(
+        confirmarAcao(
             'Confirmar eliminação em massa',
             `Excluir ${itensSelecionados.length} mensagem(ns) permanentemente? Esta ação não pode ser desfeita.`,
             () => excluirMultiplas(itensSelecionados),

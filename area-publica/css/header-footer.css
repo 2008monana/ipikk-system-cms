@@ -1115,13 +1115,14 @@ body.sidebar-open {
     margin-right: auto;
     max-width: 1200px;
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
 }
 
 .slider-parceiros {
-    animation: fluxoParceiros 16s linear infinite;
+    animation: fluxoParceiros var(--fluxo-parceiros-duracao, 16s) linear infinite;
     display: flex;
+    transform: translate3d(0, 0, 0);
     width: max-content;
     will-change: transform;
 }
@@ -1129,8 +1130,8 @@ body.sidebar-open {
 .slider-grupo {
     display: flex;
     flex-shrink: 0;
-    gap: 40px;
-    padding-right: 40px;
+    gap: 36px;
+    padding-right: 36px;
 }
 
 .area-slider-parceiros:hover .slider-parceiros {
@@ -1138,6 +1139,6 @@ body.sidebar-open {
 }
 
 @keyframes fluxoParceiros {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(calc(-1 * var(--fluxo-parceiros-distancia, 25%)), 0, 0); }
 }
