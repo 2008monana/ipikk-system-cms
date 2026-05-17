@@ -132,9 +132,41 @@ function garantirModalConfirmacaoGlobal() {
     return modal;
 }
 
+
+function aplicarEstilosCriticosModalConfirmacao(modal) {
+    Object.assign(modal.style, {
+        alignItems: 'center',
+        backdropFilter: 'blur(3px)',
+        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.82), rgba(0, 0, 0, 0.86))',
+        display: 'flex',
+        inset: '0',
+        justifyContent: 'center',
+        padding: '20px',
+        position: 'fixed',
+        zIndex: '30000'
+    });
+
+    const caixa = modal.querySelector('.modal-confirmacao-caixa');
+    if (caixa) {
+        Object.assign(caixa.style, {
+            background: '#ffffff',
+            borderRadius: '28px',
+            boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.2)',
+            maxWidth: '430px',
+            padding: '32px',
+            position: 'relative',
+            textAlign: 'center',
+            width: '90%'
+        });
+    }
+}
+
 function fecharModalConfirmacaoGlobal() {
     const modal = document.getElementById('modalConfirmacao');
-    modal?.classList.remove('ativo');
+    if (modal) {
+        modal.classList.remove('ativo');
+        modal.style.display = 'none';
+    }
     acaoPendenteConfirmacaoGlobal = null;
     document.body.style.overflow = '';
 }
@@ -150,6 +182,8 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
     const botaoConfirmar = document.getElementById('botaoConfirmarAcao');
     const botaoCancelar = document.getElementById('botaoCancelarConfirmacao');
     const config = obterConfigConfirmacaoGlobal(tipoAcao);
+
+    aplicarEstilosCriticosModalConfirmacao(modal);
 
     if (tituloEl) tituloEl.textContent = titulo;
     if (textoEl) textoEl.textContent = texto;
