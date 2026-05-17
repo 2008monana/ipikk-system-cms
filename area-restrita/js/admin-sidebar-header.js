@@ -59,60 +59,169 @@ if (window.__ipikkSidebarHeaderInitialized) {
 }
 
 // Modal global de confirmação usado nas páginas administrativas.
-window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAcao = 'info') {
-    const tipos = {
-        eliminar: { icone: '⚠️', classe: 'eliminar', textoBotao: 'Eliminar' },
-        publicar: { icone: '📧', classe: 'publicar', textoBotao: 'Confirmar' },
-        restaurar: { icone: '↩️', classe: 'restaurar', textoBotao: 'Restaurar' },
-        info: { icone: 'ℹ️', classe: 'info', textoBotao: 'Confirmar' }
-    };
-    const config = tipos[tipoAcao] || tipos.info;
-    const overlay = document.createElement('div');
-    overlay.className = 'ipikk-confirm-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
-    overlay.setAttribute('role', 'dialog');
-    overlay.setAttribute('aria-modal', 'true');
+// Mantém o mesmo padrão visual/HTML do modal de confirmação do módulo Notícias.
+let acaoPendenteConfirmacaoGlobal = null;
 
-    overlay.innerHTML = `
-        <div class="ipikk-confirm-box">
-            <div class="ipikk-confirm-icon ${config.classe}" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></div>
-            <h3 class="ipikk-confirm-title">${escapeHtmlConfirmacao(titulo)}</h3>
-            <p class="ipikk-confirm-body">${escapeHtmlConfirmacao(texto)}</p>
-            <div class="ipikk-confirm-actions">
-                <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel">Cancelar</button>
-                <button type="button" class="ipikk-confirm-btn ipikk-confirm-action ${config.classe}">${config.textoBotao}</button>
+function obterConfigConfirmacaoGlobal(tipoAcao = 'eliminar') {
+    const configs = {
+        eliminar: {
+            iconeClasse: 'fa-exclamation-triangle',
+            botaoTexto: 'Eliminar',
+            corPrimaria: '#dc2626',
+            corSecundaria: '#b91c1c',
+            fundoIcone: 'linear-gradient(135deg, #fee2e2, #fff1f2)'
+        },
+        publicar: {
+            iconeClasse: 'fa-paper-plane',
+            botaoTexto: 'Confirmar',
+            corPrimaria: '#16a34a',
+            corSecundaria: '#15803d',
+            fundoIcone: 'linear-gradient(135deg, #dcfce7, #f0fdf4)'
+        },
+        arquivar: {
+            iconeClasse: 'fa-box-archive',
+            botaoTexto: 'Arquivar',
+            corPrimaria: '#d97706',
+            corSecundaria: '#b45309',
+            fundoIcone: 'linear-gradient(135deg, #fef3c7, #fff7ed)'
+        },
+        restaurar: {
+            iconeClasse: 'fa-rotate-left',
+            botaoTexto: 'Restaurar',
+            corPrimaria: '#2563eb',
+            corSecundaria: '#1d4ed8',
+            fundoIcone: 'linear-gradient(135deg, #dbeafe, #eff6ff)'
+        },
+        info: {
+            iconeClasse: 'fa-info',
+            botaoTexto: 'Confirmar',
+            corPrimaria: '#0a9396',
+            corSecundaria: '#087f82',
+            fundoIcone: 'linear-gradient(135deg, #dff7f8, #f0fdfa)'
+        }
+    };
+
+    return configs[tipoAcao] || configs.eliminar;
+}
+
+function garantirModalConfirmacaoGlobal() {
+    let modal = document.getElementById('modalConfirmacao');
+    if (modal) return modal;
+
+    modal = document.createElement('div');
+    modal.id = 'modalConfirmacao';
+    modal.className = 'modal-confirmacao';
+    modal.innerHTML = `
+        <div class="modal-confirmacao-caixa">
+            <div class="modal-confirmacao-icone" id="modalConfirmacaoIconeWrapper">
+                <i class="fas fa-exclamation-triangle" id="modalConfirmacaoIcone"></i>
+            </div>
+            <h3 id="modalConfirmacaoTitulo">Confirmar ação</h3>
+            <p id="modalConfirmacaoTexto">Tem certeza que deseja continuar?</p>
+            <div class="modal-confirmacao-botoes">
+                <button type="button" class="botao-cancelar botao-cancelar-modal" id="botaoCancelarConfirmacao">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="botao-perigo-confirmacao botao-confirmar-modal" id="botaoConfirmarAcao">
+                    <i class="fas fa-exclamation-triangle" id="modalConfirmacaoBotaoIcone"></i> <span id="modalConfirmacaoBotaoTexto">Confirmar</span>
+                </button>
             </div>
         </div>
     `;
+    document.body.appendChild(modal);
+    return modal;
+}
 
-    function fechar() {
-        document.removeEventListener('keydown', aoPressionarTecla);
-        overlay.remove();
-    }
 
-    function aoPressionarTecla(event) {
-        if (event.key === 'Escape') fechar();
-    }
-
-    overlay.addEventListener('click', (event) => {
-        if (event.target === overlay) fechar();
-    });
-    overlay.querySelector('.ipikk-confirm-close')?.addEventListener('click', fechar);
-    overlay.querySelector('.ipikk-confirm-cancel').addEventListener('click', fechar);
-    overlay.querySelector('.ipikk-confirm-action').addEventListener('click', () => {
-        fechar();
-        if (typeof callbackConfirmar === 'function') callbackConfirmar();
+function aplicarEstilosCriticosModalConfirmacao(modal) {
+    Object.assign(modal.style, {
+        alignItems: 'center',
+        backdropFilter: 'blur(6px) saturate(120%)',
+        background: 'radial-gradient(circle at 50% 18%, rgba(220, 38, 38, 0.18), transparent 32%), radial-gradient(circle at 12% 85%, rgba(10, 147, 150, 0.16), transparent 28%), linear-gradient(135deg, rgba(5, 19, 43, 0.9), rgba(0, 0, 0, 0.92))',
+        display: 'flex',
+        inset: '0',
+        justifyContent: 'center',
+        padding: '20px',
+        position: 'fixed',
+        zIndex: '30000'
     });
 
-    const caixa = overlay.querySelector('.ipikk-confirm-box');
+    const caixa = modal.querySelector('.modal-confirmacao-caixa');
     if (caixa) {
-        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
+        Object.assign(caixa.style, {
+            background: 'linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(220, 38, 38, 0.42), rgba(10, 147, 150, 0.22), rgba(0, 48, 114, 0.22)) border-box',
+            border: '1px solid transparent',
+            borderRadius: '30px',
+            boxShadow: '0 34px 80px rgba(2, 8, 23, 0.45), 0 1px 0 rgba(255, 255, 255, 0.88) inset',
+            maxWidth: '450px',
+            overflow: 'hidden',
+            padding: '38px 34px 32px',
+            position: 'relative',
+            textAlign: 'center',
+            width: 'min(92vw, 450px)'
+        });
     }
+}
 
-    document.addEventListener('keydown', aoPressionarTecla);
-    document.body.appendChild(overlay);
-    overlay.querySelector('.ipikk-confirm-cancel').focus();
+function fecharModalConfirmacaoGlobal() {
+    const modal = document.getElementById('modalConfirmacao');
+    if (modal) {
+        modal.classList.remove('ativo');
+        modal.style.display = 'none';
+    }
+    acaoPendenteConfirmacaoGlobal = null;
+    document.body.style.overflow = '';
+}
+
+window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    const modal = garantirModalConfirmacaoGlobal();
+    const tituloEl = document.getElementById('modalConfirmacaoTitulo');
+    const textoEl = document.getElementById('modalConfirmacaoTexto');
+    const iconeEl = document.getElementById('modalConfirmacaoIcone');
+    const botaoIconeEl = document.getElementById('modalConfirmacaoBotaoIcone');
+    const botaoTextoEl = document.getElementById('modalConfirmacaoBotaoTexto');
+    const iconeWrapper = document.getElementById('modalConfirmacaoIconeWrapper');
+    const botaoConfirmar = document.getElementById('botaoConfirmarAcao');
+    const botaoCancelar = document.getElementById('botaoCancelarConfirmacao');
+    const config = obterConfigConfirmacaoGlobal(tipoAcao);
+
+    aplicarEstilosCriticosModalConfirmacao(modal);
+
+    if (tituloEl) tituloEl.textContent = titulo;
+    if (textoEl) textoEl.textContent = texto;
+    if (iconeEl) iconeEl.className = `fas ${config.iconeClasse}`;
+    if (botaoIconeEl) botaoIconeEl.className = `fas ${config.iconeClasse}`;
+    if (botaoTextoEl) botaoTextoEl.textContent = config.botaoTexto;
+    if (iconeWrapper) {
+        iconeWrapper.style.background = config.fundoIcone;
+        iconeWrapper.style.color = config.corPrimaria;
+    }
+    if (botaoConfirmar) {
+        botaoConfirmar.style.background = `linear-gradient(135deg, ${config.corPrimaria}, ${config.corSecundaria})`;
+        botaoConfirmar.style.boxShadow = `0 8px 18px ${config.corPrimaria}55`;
+        botaoConfirmar.onclick = function() {
+            if (typeof acaoPendenteConfirmacaoGlobal === 'function') {
+                acaoPendenteConfirmacaoGlobal();
+            }
+            fecharModalConfirmacaoGlobal();
+        };
+    }
+    if (botaoCancelar) botaoCancelar.onclick = fecharModalConfirmacaoGlobal;
+    modal.onclick = function(event) {
+        if (event.target === modal) fecharModalConfirmacaoGlobal();
+    };
+
+    acaoPendenteConfirmacaoGlobal = callbackConfirmar;
+    modal.classList.add('ativo');
+    document.body.style.overflow = 'hidden';
 };
+
+document.addEventListener('keydown', function(event) {
+    const modal = document.getElementById('modalConfirmacao');
+    if (event.key === 'Escape' && modal?.classList.contains('ativo')) {
+        fecharModalConfirmacaoGlobal();
+    }
+});
 
 function escapeHtmlConfirmacao(texto) {
     const div = document.createElement('div');
