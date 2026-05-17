@@ -1,0 +1,527 @@
+/* ===== VARIÁVEIS (compatíveis com o header) ===== */
+:root {
+    --primary-blue: #003072;
+    --accent-teal: #0a9396;
+    --light-gray: #f5f7fa;
+    --medium-gray: #e0e4e8;
+    --dark-gray: #2c3e50;
+    --text-color: #333333;
+    --white: #ffffff;
+    
+    /* Cores dos cursos */
+    --curso-construcao: #6c757d;
+    --curso-informatica: #ffc107;
+    --curso-energia: #28a745;
+    --curso-mecanica: #dc3545;
+    
+    /* Cores de estado */
+    --success: #28a745;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --info: #17a2b8;
+    
+    /* Sombras */
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 5px 20px rgba(0, 0, 0, 0.15);
+    
+    /* Transições */
+    --transition: all 0.3s ease;
+    
+    /* Border Radius */
+    --border-radius: 8px;
+}
+
+/* ===== CONTEÚDO DO DASHBOARD ===== */
+.conteudo-dashboard {
+    padding: 30px;
+    flex: 1;
+}
+
+/* ===== SEÇÕES ===== */
+.secao-estatisticas,
+.secao-conteudo {
+    margin-bottom: 40px;
+    animation: fadeInUp 0.5s ease;
+}
+
+.titulo-secao {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.titulo-secao i {
+    color: var(--accent-teal);
+}
+
+.cabecalho-secao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.link-ver-todos {
+    color: var(--accent-teal);
+    font-weight: 500;
+    font-size: 14px;
+    transition: var(--transition);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.link-ver-todos:hover {
+    color: var(--primary-blue);
+    gap: 8px;
+}
+
+/* ===== ESTATÍSTICAS ===== */
+.grade-estatisticas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.cartao-estatistica {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.cartao-estatistica:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-5px);
+}
+
+.icone-estatistica {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--white);
+}
+
+.icone-estatistica.azul {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.icone-estatistica.laranja {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.icone-estatistica.verde {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.icone-estatistica.roxo {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.info-estatistica h3 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 5px;
+}
+
+.info-estatistica p {
+    font-size: 14px;
+    color: var(--dark-gray);
+}
+
+/* ===== TABELAS ===== */
+.tabela-responsiva {
+    overflow-x: auto;
+    border-radius: var(--border-radius);
+    background: var(--white);
+    box-shadow: var(--shadow);
+}
+
+.tabela-dados {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-dados th {
+    background: var(--light-gray);
+    color: var(--primary-blue);
+    font-weight: 600;
+    text-align: left;
+    padding: 15px;
+    font-size: 14px;
+}
+
+.tabela-dados td {
+    padding: 15px;
+    border-bottom: 1px solid var(--medium-gray);
+    font-size: 14px;
+}
+
+.tabela-dados tbody tr {
+    transition: var(--transition);
+}
+
+.tabela-dados tbody tr:hover {
+    background: var(--light-gray);
+}
+
+.tabela-dados tbody tr.nao-lida {
+    background: rgba(10, 147, 150, 0.05);
+    font-weight: 500;
+}
+
+.tabela-dados tbody tr.selecionada {
+    background: rgba(0, 48, 114, 0.05);
+}
+
+/* Indicadores */
+.indicador-novo {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--danger);
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.indicador-lido {
+    color: var(--success);
+    font-size: 16px;
+    margin-left: 7px;
+}
+
+.indicador-publicado {
+    color: var(--success);
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+.indicador-rascunho {
+    color: var(--warning);
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+/* ===== BOTÕES ===== */
+.botao-icone {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--light-gray);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+}
+
+.botao-icone:hover {
+    background: var(--accent-teal);
+    color: var(--white);
+    transform: scale(1.1);
+}
+
+/* ===== CURSOS ===== */
+.grade-cursos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.cartao-curso {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.cartao-curso:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateX(5px);
+}
+
+.cartao-curso.azul {
+    border-left-color: var(--curso-construcao);
+}
+
+.cartao-curso.verde {
+    border-left-color: var(--success);
+}
+
+.cartao-curso.laranja {
+    border-left-color: var(--warning);
+}
+
+.cartao-curso.vermelho {
+    border-left-color: var(--danger);
+}
+
+.numero-curso {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--primary-blue);
+}
+
+.info-curso h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.info-curso p {
+    font-size: 13px;
+    color: var(--dark-gray);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ===== ATIVIDADE RECENTE ===== */
+.lista-atividades {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.item-atividade {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background: var(--light-gray);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.item-atividade:hover {
+    background: var(--medium-gray);
+}
+
+.hora-atividade {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-teal);
+    min-width: 60px;
+}
+
+.item-atividade i {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-blue);
+    font-size: 14px;
+}
+
+.item-atividade span:last-child {
+    font-size: 14px;
+    color: var(--text-color);
+    flex: 1;
+}
+
+/* ===== MODAIS ===== */
+.modal-fundo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-conteudo {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.modal-cabecalho h3 {
+    color: var(--primary-blue);
+}
+
+.modal-fechar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+}
+
+.modal-fechar:hover {
+    background: var(--danger);
+    color: var(--white);
+    transform: rotate(90deg);
+}
+
+.modal-corpo {
+    padding: 20px;
+}
+
+.modal-rodape {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid var(--medium-gray);
+}
+
+/* ===== BOTÕES DO MODAL ===== */
+.botao-primario {
+    padding: 10px 20px;
+    background: var(--accent-teal);
+    color: var(--white);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.botao-primario:hover {
+    background: var(--primary-blue);
+    transform: translateY(-2px);
+}
+
+.botao-secundario {
+    padding: 10px 20px;
+    background: var(--light-gray);
+    color: var(--text-color);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.botao-secundario:hover {
+    background: var(--medium-gray);
+}
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 992px) {
+    .grade-estatisticas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .conteudo-dashboard {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .grade-estatisticas {
+        grid-template-columns: 1fr;
+    }
+    
+    .grade-cursos {
+        grid-template-columns: 1fr;
+    }
+    
+    .cabecalho-secao {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .item-atividade {
+        flex-wrap: wrap;
+    }
+    
+    .hora-atividade {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .conteudo-dashboard {
+        padding: 15px;
+    }
+    
+    .cartao-estatistica {
+        padding: 20px;
+    }
+    
+    .info-estatistica h3 {
+        font-size: 28px;
+    }
+}
