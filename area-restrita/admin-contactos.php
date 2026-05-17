@@ -46,7 +46,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'buscar' && isset($_GET['id'])
     header('Content-Type: application/json');
     $id = (int)$_GET['id'];
 
-    $stmt = $db->prepare("SELECT * FROM mensagens WHERE id = ?");
+    $stmt = $db->prepare("
+        SELECT m.*, u.nome AS respondido_por_nome
+        FROM mensagens m
+        LEFT JOIN utilizadores u ON u.id = m.respondido_por
+        WHERE m.id = ?
+    ");
     $stmt->execute([$id]);
     $msg = $stmt->fetch();
 
@@ -120,23 +125,23 @@ $where = [];
 $params = [];
 
 if (!empty($filtro_busca)) {
-    $where[] = '(nome LIKE ? OR email LIKE ? OR assunto LIKE ? OR mensagem LIKE ?)';
+    $where[] = '(m.nome LIKE ? OR m.email LIKE ? OR m.assunto LIKE ? OR m.mensagem LIKE ? OR m.resposta_texto LIKE ?)';
     $like = '%' . $filtro_busca . '%';
-    array_push($params, $like, $like, $like, $like);
+    array_push($params, $like, $like, $like, $like, $like);
 }
 
 if ($status === 'nao_lidas') {
-    $where[] = 'lida = 0';
+    $where[] = 'm.lida = 0';
 } elseif ($status === 'respondidas') {
-    $where[] = 'respondida = 1';
+    $where[] = 'm.respondida = 1';
 } elseif ($status === 'nao_respondidas') {
-    $where[] = 'respondida = 0';
+    $where[] = 'm.respondida = 0';
 }
 
 $where_sql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
 // Contar total
-$count_sql = "SELECT COUNT(*) as total FROM mensagens $where_sql";
+$count_sql = "SELECT COUNT(*) as total FROM mensagens m $where_sql";
 $stmt = $db->prepare($count_sql);
 $stmt->execute($params);
 $total_registros = $stmt->fetch()['total'];
@@ -144,17 +149,19 @@ $total_paginas = ceil($total_registros / $itens_por_pagina);
 
 // Buscar mensagens
 $sql = "
-    SELECT *,
+    SELECT m.*,
+           u.nome AS respondido_por_nome,
            CASE
                WHEN respondida = 1 THEN 'respondida'
                WHEN lida = 1 THEN 'lida'
                ELSE 'nao_lida'
            END as estado
-    FROM mensagens
+    FROM mensagens m
+    LEFT JOIN utilizadores u ON u.id = m.respondido_por
     $where_sql
     ORDER BY
-        CASE WHEN lida = 0 THEN 0 ELSE 1 END,
-        data_envio DESC
+        CASE WHEN m.lida = 0 THEN 0 ELSE 1 END,
+        m.data_envio DESC
     LIMIT $itens_por_pagina OFFSET $offset
 ";
 $stmt = $db->prepare($sql);
@@ -335,6 +342,27 @@ include 'includes/sidebar.php';
                         <div class="mensagem-preview">
                             <?= htmlspecialchars(substr($msg['mensagem'], 0, 200)) ?>...
                         </div>
+
+                        <?php if ((int)$msg['respondida'] === 1): ?>
+                        <div class="resposta-registo-card <?= empty($msg['resposta_texto']) ? 'sem-texto' : '' ?>">
+                            <div class="resposta-registo-card-topo">
+                                <span><i class="fas fa-paper-plane"></i> Resposta <?= empty($msg['resposta_texto']) ? 'registada' : 'enviada por email' ?></span>
+                                <?php if (!empty($msg['data_resposta'])): ?>
+                                <time><i class="far fa-clock"></i> <?= date('d/m/Y H:i', strtotime($msg['data_resposta'])) ?></time>
+                                <?php endif; ?>
+                            </div>
+                            <?php if (!empty($msg['respondido_por_nome'])): ?>
+                            <div class="resposta-registo-autor">Por <?= htmlspecialchars($msg['respondido_por_nome']) ?></div>
+                            <?php endif; ?>
+                            <div class="resposta-registo-preview">
+                                <?php if (!empty($msg['resposta_texto'])): ?>
+                                    <?= htmlspecialchars(substr($msg['resposta_texto'], 0, 180)) ?><?= strlen($msg['resposta_texto']) > 180 ? '...' : '' ?>
+                                <?php else: ?>
+                                    Esta mensagem foi marcada como respondida, mas não existe texto de resposta enviado por email registado.
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
 
                         <div class="mensagem-acoes">
                             <button type="button" class="btn-ver" onclick="verMensagem(<?= $msg['id'] ?>)">
@@ -876,6 +904,52 @@ include 'includes/sidebar.php';
     line-height: 1.5;
 }
 
+.resposta-registo-card {
+    background: linear-gradient(135deg, #f0fdf4, #ecfeff);
+    border: 1px solid #bbf7d0;
+    border-left: 4px solid #16a34a;
+    border-radius: 14px;
+    color: #14532d;
+    margin: 12px 0 14px;
+    padding: 12px 14px;
+}
+
+.resposta-registo-card.sem-texto {
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    border-color: #cbd5e1;
+    border-left-color: #64748b;
+    color: #475569;
+}
+
+.resposta-registo-card-topo {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.resposta-registo-card-topo span {
+    align-items: center;
+    display: inline-flex;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.resposta-registo-card-topo time,
+.resposta-registo-autor {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.resposta-registo-preview {
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
 .mensagem-acoes {
     display: flex;
     gap: 10px;
@@ -1166,6 +1240,68 @@ include 'includes/sidebar.php';
     word-wrap: break-word;
 }
 
+.registo-resposta-modal {
+    background: linear-gradient(135deg, #f0fdf4, #ecfeff);
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    margin-top: 18px;
+    overflow: hidden;
+}
+
+.registo-resposta-modal.sem-texto {
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    border-color: #cbd5e1;
+}
+
+.registo-resposta-cabecalho {
+    align-items: center;
+    background: rgba(255,255,255,0.7);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+}
+
+.registo-resposta-icone {
+    align-items: center;
+    background: #dcfce7;
+    border-radius: 12px;
+    color: #16a34a;
+    display: flex;
+    flex-shrink: 0;
+    height: 42px;
+    justify-content: center;
+    width: 42px;
+}
+
+.registo-resposta-modal.sem-texto .registo-resposta-icone {
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.registo-resposta-titulo {
+    color: #14532d;
+    font-weight: 800;
+    margin-bottom: 3px;
+}
+
+.registo-resposta-modal.sem-texto .registo-resposta-titulo {
+    color: #334155;
+}
+
+.registo-resposta-meta {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.registo-resposta-texto {
+    color: #334155;
+    line-height: 1.65;
+    padding: 16px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
 .resposta-destino {
     background: #f8f9fa;
     border-left: 4px solid #0a9396;
@@ -1295,7 +1431,9 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
 
     const overlay = document.createElement('div');
     overlay.className = 'ipikk-confirm-overlay ativo';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 18%, rgba(10,147,150,.24), transparent 34%), linear-gradient(135deg, rgba(5,19,43,.88), rgba(0,0,0,.9));backdrop-filter:blur(5px) saturate(115%);padding:20px;';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
     overlay.innerHTML = `
         <div class="ipikk-confirm-box">
             <div class="ipikk-confirm-icon eliminar"><i class="fas fa-exclamation-triangle"></i></div>
@@ -1309,9 +1447,14 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
     `;
     const caixa = overlay.querySelector('.ipikk-confirm-box');
     if (caixa) {
-        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
+        caixa.style.cssText = 'background:linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg, rgba(10,147,150,.55), rgba(0,48,114,.18), rgba(220,38,38,.3)) border-box;border:1px solid transparent;border-radius:24px;box-shadow:0 30px 70px rgba(2,8,23,.42), 0 2px 8px rgba(255,255,255,.18) inset;max-width:470px;overflow:hidden;padding:34px 32px 30px;position:relative;text-align:center;width:min(100%,470px);';
     }
-    const fechar = () => overlay.remove();
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const fechar = () => {
+        document.body.style.overflow = overflowAnterior;
+        overlay.remove();
+    };
     overlay.addEventListener('click', (event) => {
         if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
         if (event.target.closest('[data-confirm-ok]')) {
@@ -1361,6 +1504,7 @@ function verMensagem(id) {
                             <h4>Mensagem:</h4>
                             <div class="conteudo-texto">${escapeHtml(m.mensagem).replace(/\n/g, '<br>')}</div>
                         </div>
+                        ${montarRegistoResposta(m)}
                     </div>
                 `;
             } else {
@@ -1370,6 +1514,39 @@ function verMensagem(id) {
         .catch(() => {
             conteudo.innerHTML = `<div class="loading-spinner">Erro ao carregar mensagem.</div>`;
         });
+}
+
+
+function formatarDataHora(valor) {
+    if (!valor) return '';
+    const data = new Date(valor.replace(' ', 'T'));
+    if (Number.isNaN(data.getTime())) return escapeHtml(valor);
+    return data.toLocaleString('pt-PT');
+}
+
+function montarRegistoResposta(mensagem) {
+    if (Number(mensagem.respondida) !== 1) return '';
+
+    const respostaTexto = (mensagem.resposta_texto || mensagem.resposta || '').trim();
+    const temTexto = respostaTexto.length > 0;
+    const dataResposta = formatarDataHora(mensagem.data_resposta);
+    const autor = mensagem.respondido_por_nome ? ` por ${escapeHtml(mensagem.respondido_por_nome)}` : '';
+    const meta = [dataResposta ? `Enviada em ${dataResposta}` : '', autor ? `Registada${autor}` : '']
+        .filter(Boolean)
+        .join(' · ');
+
+    return `
+        <section class="registo-resposta-modal ${temTexto ? '' : 'sem-texto'}">
+            <div class="registo-resposta-cabecalho">
+                <div class="registo-resposta-icone"><i class="fas ${temTexto ? 'fa-paper-plane' : 'fa-check'}"></i></div>
+                <div>
+                    <div class="registo-resposta-titulo">${temTexto ? 'Resposta enviada por email' : 'Mensagem marcada como respondida'}</div>
+                    ${meta ? `<div class="registo-resposta-meta">${meta}</div>` : ''}
+                </div>
+            </div>
+            <div class="registo-resposta-texto">${temTexto ? escapeHtml(respostaTexto).replace(/\n/g, '<br>') : 'Não há texto de resposta enviado por email registado para esta mensagem.'}</div>
+        </section>
+    `;
 }
 
 function fecharModalVisualizar() {
