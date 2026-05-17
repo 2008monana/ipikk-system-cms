@@ -69,6 +69,7 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
     const config = tipos[tipoAcao] || tipos.info;
     const overlay = document.createElement('div');
     overlay.className = 'ipikk-confirm-overlay';
+    aplicarEstilosOverlayConfirmacao(overlay);
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
 
@@ -84,8 +85,11 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
         </div>
     `;
 
+    const overflowAnterior = document.body.style.overflow;
+
     function fechar() {
         document.removeEventListener('keydown', aoPressionarTecla);
+        document.body.style.overflow = overflowAnterior;
         overlay.remove();
     }
 
@@ -104,9 +108,43 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
     });
 
     document.addEventListener('keydown', aoPressionarTecla);
+    document.body.style.overflow = 'hidden';
     document.body.appendChild(overlay);
+    aplicarEstilosCaixaConfirmacao(overlay.querySelector('.ipikk-confirm-box'));
     overlay.querySelector('.ipikk-confirm-cancel').focus();
 };
+
+
+function aplicarEstilosOverlayConfirmacao(overlay) {
+    Object.assign(overlay.style, {
+        alignItems: 'center',
+        background: 'radial-gradient(circle at 50% 18%, rgba(10, 147, 150, 0.24), transparent 34%), linear-gradient(135deg, rgba(5, 19, 43, 0.88), rgba(0, 0, 0, 0.9))',
+        backdropFilter: 'blur(5px) saturate(115%)',
+        display: 'flex',
+        inset: '0',
+        justifyContent: 'center',
+        padding: '20px',
+        position: 'fixed',
+        zIndex: '30000'
+    });
+}
+
+function aplicarEstilosCaixaConfirmacao(caixa) {
+    if (!caixa) return;
+
+    Object.assign(caixa.style, {
+        background: 'linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(10, 147, 150, 0.55), rgba(0, 48, 114, 0.18), rgba(220, 38, 38, 0.3)) border-box',
+        border: '1px solid transparent',
+        borderRadius: '24px',
+        boxShadow: '0 30px 70px rgba(2, 8, 23, 0.42), 0 2px 8px rgba(255, 255, 255, 0.18) inset',
+        maxWidth: '470px',
+        overflow: 'hidden',
+        padding: '34px 32px 30px',
+        position: 'relative',
+        textAlign: 'center',
+        width: 'min(100%, 470px)'
+    });
+}
 
 function escapeHtmlConfirmacao(texto) {
     const div = document.createElement('div');
