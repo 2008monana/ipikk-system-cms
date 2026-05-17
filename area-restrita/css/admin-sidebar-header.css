@@ -803,7 +803,28 @@ table th, table td {
     padding: 32px;
     position: relative;
     text-align: center;
-    width: 90%;
+    width: min(100%, 470px);
+}
+
+.ipikk-confirm-box::before {
+    background: linear-gradient(90deg, #0a9396, #003072, #dc2626);
+    content: '';
+    height: 5px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.ipikk-confirm-box::after {
+    background: radial-gradient(circle, rgba(10, 147, 150, 0.12), transparent 62%);
+    content: '';
+    height: 190px;
+    pointer-events: none;
+    position: absolute;
+    right: -90px;
+    top: -95px;
+    width: 190px;
 }
 
 .modal-confirmacao-icone {
