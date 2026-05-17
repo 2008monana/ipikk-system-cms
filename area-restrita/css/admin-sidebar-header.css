@@ -779,8 +779,8 @@ table th, table td {
 /* ========== MODAL GLOBAL DE CONFIRMAÇÃO ========== */
 .ipikk-confirm-overlay {
     align-items: center;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
+    background: linear-gradient(135deg, rgba(5, 19, 43, 0.82), rgba(0, 0, 0, 0.86));
+    backdrop-filter: blur(3px);
     display: flex !important;
     inset: 0 !important;
     justify-content: center;
@@ -790,15 +790,15 @@ table th, table td {
 }
 
 .ipikk-confirm-box {
-    animation: ipikkConfirmZoomIn 0.2s ease;
+    animation: ipikkConfirmZoomIn 0.25s ease;
     background: #ffffff;
-    border-radius: 28px;
-    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    max-width: 460px;
+    padding: 26px;
     position: relative;
     text-align: center;
-    width: 90%;
+    width: 100%;
 }
 
 .ipikk-confirm-close {
@@ -825,45 +825,48 @@ table th, table td {
     border-radius: 50%;
     color: #dc2626;
     display: flex;
-    font-size: 1.5rem;
-    height: 60px;
+    font-size: 1.4rem;
+    height: 62px;
     justify-content: center;
-    margin: 0 auto 16px;
-    width: 60px;
+    margin: 0 auto 14px;
+    width: 62px;
 }
 
+.ipikk-confirm-icon.eliminar { background: #fee2e2; color: #dc2626; }
 .ipikk-confirm-icon.publicar { background: #dcfce7; color: #16a34a; }
 .ipikk-confirm-icon.restaurar { background: #dbeafe; color: #2563eb; }
 .ipikk-confirm-icon.info { background: #dff7f8; color: #0a9396; }
 
 .ipikk-confirm-title {
-    color: #1e293b;
-    font-size: 1.2rem;
+    color: #1f2937;
+    font-size: 1.3rem;
     font-weight: 700;
-    margin: 0 0 8px 0;
+    margin: 0 0 10px 0;
 }
 
 .ipikk-confirm-body {
-    color: #64748b;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    margin: 0 0 24px 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    margin: 0;
 }
 
 .ipikk-confirm-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     justify-content: center;
+    margin-top: 22px;
 }
 
 .ipikk-confirm-btn {
     border: none;
-    border-radius: 40px;
+    border-radius: 8px;
     cursor: pointer;
     font-family: inherit;
-    font-size: 0.8rem;
+    font-size: 0.92rem;
     font-weight: 600;
-    padding: 10px 24px;
+    padding: 12px 22px;
     transition: all 0.2s ease;
 }
 
@@ -874,28 +877,28 @@ table th, table td {
 
 .ipikk-confirm-cancel:hover {
     background: #e2e8f0;
+    transform: translateY(-1px);
 }
 
 .ipikk-confirm-action {
-    background: #dc2626;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    box-shadow: 0 8px 18px rgba(220, 38, 38, 0.25);
     color: #ffffff;
 }
 
 .ipikk-confirm-action:hover {
-    background: #b91c1c;
-    transform: scale(1.02);
+    filter: brightness(0.95);
+    transform: translateY(-1px);
 }
 
-.ipikk-confirm-action.publicar { background: #16a34a; }
-.ipikk-confirm-action.publicar:hover { background: #15803d; }
-.ipikk-confirm-action.restaurar { background: #2563eb; }
-.ipikk-confirm-action.restaurar:hover { background: #1d4ed8; }
-.ipikk-confirm-action.info { background: #0a9396; }
-.ipikk-confirm-action.info:hover { background: #087f82; }
+.ipikk-confirm-action.eliminar { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+.ipikk-confirm-action.publicar { background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25); }
+.ipikk-confirm-action.restaurar { background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25); }
+.ipikk-confirm-action.info { background: linear-gradient(135deg, #0a9396, #087f82); box-shadow: 0 8px 18px rgba(10, 147, 150, 0.25); }
 
 @keyframes ipikkConfirmZoomIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from { opacity: 0; transform: translateY(10px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @media (max-width: 520px) {
