@@ -923,6 +923,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
                         <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
+                    <?php endfor; ?>
                 <?php else: ?>
                     <div style="text-align:center; width:100%; background:#fff; border-radius:14px; padding:40px 20px;">
                         <i class="fas fa-handshake-slash" style="font-size:2.5rem; color:var(--cinza);"></i>
