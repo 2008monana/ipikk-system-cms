@@ -1295,7 +1295,9 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
 
     const overlay = document.createElement('div');
     overlay.className = 'ipikk-confirm-overlay ativo';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 18%, rgba(10,147,150,.24), transparent 34%), linear-gradient(135deg, rgba(5,19,43,.88), rgba(0,0,0,.9));backdrop-filter:blur(5px) saturate(115%);padding:20px;';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
     overlay.innerHTML = `
         <div class="ipikk-confirm-box">
             <div class="ipikk-confirm-icon eliminar"><i class="fas fa-exclamation-triangle"></i></div>
@@ -1309,9 +1311,14 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
     `;
     const caixa = overlay.querySelector('.ipikk-confirm-box');
     if (caixa) {
-        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
+        caixa.style.cssText = 'background:linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg, rgba(10,147,150,.55), rgba(0,48,114,.18), rgba(220,38,38,.3)) border-box;border:1px solid transparent;border-radius:24px;box-shadow:0 30px 70px rgba(2,8,23,.42), 0 2px 8px rgba(255,255,255,.18) inset;max-width:470px;overflow:hidden;padding:34px 32px 30px;position:relative;text-align:center;width:min(100%,470px);';
     }
-    const fechar = () => overlay.remove();
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const fechar = () => {
+        document.body.style.overflow = overflowAnterior;
+        overlay.remove();
+    };
     overlay.addEventListener('click', (event) => {
         if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
         if (event.target.closest('[data-confirm-ok]')) {

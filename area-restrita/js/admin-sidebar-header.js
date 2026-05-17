@@ -61,21 +61,21 @@ if (window.__ipikkSidebarHeaderInitialized) {
 // Modal global de confirmação usado nas páginas administrativas.
 window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAcao = 'info') {
     const tipos = {
-        eliminar: { icone: '⚠️', classe: 'eliminar', textoBotao: 'Eliminar' },
-        publicar: { icone: '📧', classe: 'publicar', textoBotao: 'Confirmar' },
-        restaurar: { icone: '↩️', classe: 'restaurar', textoBotao: 'Restaurar' },
-        info: { icone: 'ℹ️', classe: 'info', textoBotao: 'Confirmar' }
+        eliminar: { classe: 'eliminar', textoBotao: 'Eliminar', iconeClasse: 'fa-exclamation-triangle' },
+        publicar: { classe: 'publicar', textoBotao: 'Confirmar', iconeClasse: 'fa-paper-plane' },
+        restaurar: { classe: 'restaurar', textoBotao: 'Restaurar', iconeClasse: 'fa-rotate-left' },
+        info: { classe: 'info', textoBotao: 'Confirmar', iconeClasse: 'fa-info' }
     };
     const config = tipos[tipoAcao] || tipos.info;
     const overlay = document.createElement('div');
     overlay.className = 'ipikk-confirm-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
+    aplicarEstilosOverlayConfirmacao(overlay);
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
 
     overlay.innerHTML = `
         <div class="ipikk-confirm-box">
-            <div class="ipikk-confirm-icon ${config.classe}" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="ipikk-confirm-icon ${config.classe}" aria-hidden="true"><i class="fas ${config.iconeClasse}"></i></div>
             <h3 class="ipikk-confirm-title">${escapeHtmlConfirmacao(titulo)}</h3>
             <p class="ipikk-confirm-body">${escapeHtmlConfirmacao(texto)}</p>
             <div class="ipikk-confirm-actions">
@@ -85,8 +85,11 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
         </div>
     `;
 
+    const overflowAnterior = document.body.style.overflow;
+
     function fechar() {
         document.removeEventListener('keydown', aoPressionarTecla);
+        document.body.style.overflow = overflowAnterior;
         overlay.remove();
     }
 
@@ -104,15 +107,44 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
         if (typeof callbackConfirmar === 'function') callbackConfirmar();
     });
 
-    const caixa = overlay.querySelector('.ipikk-confirm-box');
-    if (caixa) {
-        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
-    }
-
     document.addEventListener('keydown', aoPressionarTecla);
+    document.body.style.overflow = 'hidden';
     document.body.appendChild(overlay);
+    aplicarEstilosCaixaConfirmacao(overlay.querySelector('.ipikk-confirm-box'));
     overlay.querySelector('.ipikk-confirm-cancel').focus();
 };
+
+
+function aplicarEstilosOverlayConfirmacao(overlay) {
+    Object.assign(overlay.style, {
+        alignItems: 'center',
+        background: 'radial-gradient(circle at 50% 18%, rgba(10, 147, 150, 0.24), transparent 34%), linear-gradient(135deg, rgba(5, 19, 43, 0.88), rgba(0, 0, 0, 0.9))',
+        backdropFilter: 'blur(5px) saturate(115%)',
+        display: 'flex',
+        inset: '0',
+        justifyContent: 'center',
+        padding: '20px',
+        position: 'fixed',
+        zIndex: '30000'
+    });
+}
+
+function aplicarEstilosCaixaConfirmacao(caixa) {
+    if (!caixa) return;
+
+    Object.assign(caixa.style, {
+        background: 'linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(10, 147, 150, 0.55), rgba(0, 48, 114, 0.18), rgba(220, 38, 38, 0.3)) border-box',
+        border: '1px solid transparent',
+        borderRadius: '24px',
+        boxShadow: '0 30px 70px rgba(2, 8, 23, 0.42), 0 2px 8px rgba(255, 255, 255, 0.18) inset',
+        maxWidth: '470px',
+        overflow: 'hidden',
+        padding: '34px 32px 30px',
+        position: 'relative',
+        textAlign: 'center',
+        width: 'min(100%, 470px)'
+    });
+}
 
 function escapeHtmlConfirmacao(texto) {
     const div = document.createElement('div');
