@@ -982,7 +982,7 @@ table th, table td {
     transform: rotate(90deg);
 }
 
-.ipikk-confirm-icon {
+.modal-confirmacao-icone {
     align-items: center;
     background: linear-gradient(135deg, #fee2e2, #fff1f2);
     border: 6px solid #fff;
@@ -1015,7 +1015,7 @@ table th, table td {
     z-index: 1;
 }
 
-.ipikk-confirm-body {
+.modal-confirmacao-caixa p {
     color: #64748b;
     font-size: 0.98rem;
     line-height: 1.65;
@@ -1025,7 +1025,7 @@ table th, table td {
     z-index: 1;
 }
 
-.ipikk-confirm-actions {
+.modal-confirmacao-botoes {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;

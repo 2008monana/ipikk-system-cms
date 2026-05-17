@@ -1591,6 +1591,10 @@ function inicializarModalConfirmacao() {
         if (e.key === 'Escape' && modal?.classList.contains('ativo')) {
             fecharModalConfirmacao();
         }
+        fecharModalConfirmacao();
+    });
+    document.getElementById('modalConfirmacao')?.addEventListener('click', function(e) {
+        if (e.target === this) fecharModalConfirmacao();
     });
 }
 
