@@ -780,8 +780,11 @@ table th, table td {
 /* ========== MODAL PADRÃO DE CONFIRMAÇÃO (igual ao módulo Notícias) ========== */
 .modal-confirmacao {
     align-items: center;
-    backdrop-filter: blur(3px);
-    background: linear-gradient(135deg, rgba(5, 19, 43, 0.82), rgba(0, 0, 0, 0.86));
+    backdrop-filter: blur(6px) saturate(120%);
+    background:
+        radial-gradient(circle at 50% 18%, rgba(220, 38, 38, 0.18), transparent 32%),
+        radial-gradient(circle at 12% 85%, rgba(10, 147, 150, 0.16), transparent 28%),
+        linear-gradient(135deg, rgba(5, 19, 43, 0.9), rgba(0, 0, 0, 0.92));
     display: none;
     inset: 0 !important;
     justify-content: center;
@@ -795,63 +798,78 @@ table th, table td {
 }
 
 .modal-confirmacao-caixa {
-    animation: ipikkConfirmZoomIn 0.25s ease;
-    background: #ffffff;
-    border-radius: 28px;
-    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
-    max-width: 430px;
-    padding: 32px;
+    animation: ipikkConfirmZoomIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background:
+        linear-gradient(#ffffff, #ffffff) padding-box,
+        linear-gradient(135deg, rgba(220, 38, 38, 0.42), rgba(10, 147, 150, 0.22), rgba(0, 48, 114, 0.22)) border-box;
+    border: 1px solid transparent;
+    border-radius: 30px;
+    box-shadow: 0 34px 80px rgba(2, 8, 23, 0.45), 0 1px 0 rgba(255, 255, 255, 0.88) inset;
+    max-width: 450px;
+    overflow: hidden;
+    padding: 38px 34px 32px;
     position: relative;
     text-align: center;
-    width: min(100%, 470px);
+    width: min(92vw, 450px);
 }
 
-.ipikk-confirm-box::before {
-    background: linear-gradient(90deg, #0a9396, #003072, #dc2626);
+.modal-confirmacao-caixa::before {
+    background: linear-gradient(90deg, #dc2626, #ef4444, #0a9396);
     content: '';
-    height: 5px;
+    height: 6px;
     left: 0;
     position: absolute;
     right: 0;
     top: 0;
 }
 
-.ipikk-confirm-box::after {
-    background: radial-gradient(circle, rgba(10, 147, 150, 0.12), transparent 62%);
+.modal-confirmacao-caixa::after {
+    background: radial-gradient(circle, rgba(220, 38, 38, 0.1), transparent 62%);
     content: '';
-    height: 190px;
+    height: 180px;
     pointer-events: none;
     position: absolute;
-    right: -90px;
+    right: -80px;
     top: -95px;
-    width: 190px;
+    width: 180px;
 }
 
 .modal-confirmacao-icone {
     align-items: center;
-    background: #fee2e2;
+    background: linear-gradient(135deg, #fee2e2, #fff1f2);
+    border: 7px solid #ffffff;
     border-radius: 50%;
+    box-shadow: 0 16px 34px rgba(220, 38, 38, 0.2), 0 0 0 9px rgba(254, 226, 226, 0.72);
     color: #dc2626;
     display: flex;
-    font-size: 1.5rem;
-    height: 60px;
+    font-size: 1.65rem;
+    height: 74px;
     justify-content: center;
-    margin: 0 auto 16px;
-    width: 60px;
+    margin: 2px auto 24px;
+    position: relative;
+    width: 74px;
+    z-index: 1;
 }
 
 .modal-confirmacao-caixa h3 {
-    color: #1e293b;
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin: 0 0 8px 0;
+    color: #0f172a;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.22;
+    margin: 0 0 10px 0;
+    position: relative;
+    z-index: 1;
 }
 
 .modal-confirmacao-caixa p {
     color: #64748b;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    margin: 0;
+    font-size: 0.94rem;
+    line-height: 1.65;
+    margin: 0 auto;
+    max-width: 340px;
+    position: relative;
+    z-index: 1;
 }
 
 .modal-confirmacao-botoes {
@@ -859,47 +877,63 @@ table th, table td {
     flex-wrap: wrap;
     gap: 12px;
     justify-content: center;
-    margin-top: 24px;
+    margin-top: 28px;
+    position: relative;
+    z-index: 1;
 }
 
 .modal-confirmacao .botao-cancelar,
 .botao-cancelar-modal,
 .modal-confirmacao .botao-perigo-confirmacao,
 .botao-confirmar-modal {
+    align-items: center;
     border: none;
-    border-radius: 40px;
+    border-radius: 999px;
     cursor: pointer;
+    display: inline-flex;
     font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 10px 24px;
-    transition: all 0.2s ease;
+    font-size: 0.86rem;
+    font-weight: 700;
+    gap: 8px;
+    justify-content: center;
+    min-width: 128px;
+    padding: 12px 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .modal-confirmacao .botao-cancelar,
 .botao-cancelar-modal {
-    background: #f1f5f9;
-    color: #64748b;
+    background: #f8fafc;
+    box-shadow: 0 0 0 1px #e2e8f0 inset;
+    color: #475569;
 }
 
 .modal-confirmacao .botao-cancelar:hover,
 .botao-cancelar-modal:hover {
-    background: #e2e8f0;
+    background: #eef2f7;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08), 0 0 0 1px #cbd5e1 inset;
+    transform: translateY(-2px);
 }
 
 .modal-confirmacao .botao-perigo-confirmacao,
 .botao-confirmar-modal {
-    background: #dc2626;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    box-shadow: 0 12px 26px rgba(220, 38, 38, 0.3);
     color: #ffffff;
 }
 
 .modal-confirmacao .botao-perigo-confirmacao:hover,
 .botao-confirmar-modal:hover {
-    background: #b91c1c;
-    transform: scale(1.02);
+    background: linear-gradient(135deg, #f87171, #991b1b);
+    box-shadow: 0 16px 32px rgba(220, 38, 38, 0.36);
+    transform: translateY(-2px);
 }
 
 @media (max-width: 520px) {
+    .modal-confirmacao-caixa {
+        padding: 34px 24px 26px;
+    }
+
     .modal-confirmacao-botoes {
         flex-direction: column-reverse;
     }
@@ -987,7 +1021,7 @@ table th, table td {
     transform: rotate(90deg);
 }
 
-.ipikk-confirm-icon {
+.modal-confirmacao-icone {
     align-items: center;
     background: linear-gradient(135deg, #fee2e2, #fff1f2);
     border: 6px solid #fff;
@@ -1020,7 +1054,7 @@ table th, table td {
     z-index: 1;
 }
 
-.ipikk-confirm-body {
+.modal-confirmacao-caixa p {
     color: #64748b;
     font-size: 0.98rem;
     line-height: 1.65;
@@ -1030,7 +1064,7 @@ table th, table td {
     z-index: 1;
 }
 
-.ipikk-confirm-actions {
+.modal-confirmacao-botoes {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;

@@ -1484,8 +1484,8 @@ function obterConfigModalConfirmacao(tipoAcao = 'eliminar') {
 function aplicarEstilosCriticosModalConfirmacao(modal) {
     Object.assign(modal.style, {
         alignItems: 'center',
-        backdropFilter: 'blur(3px)',
-        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.82), rgba(0, 0, 0, 0.86))',
+        backdropFilter: 'blur(6px) saturate(120%)',
+        background: 'radial-gradient(circle at 50% 18%, rgba(220, 38, 38, 0.18), transparent 32%), radial-gradient(circle at 12% 85%, rgba(10, 147, 150, 0.16), transparent 28%), linear-gradient(135deg, rgba(5, 19, 43, 0.9), rgba(0, 0, 0, 0.92))',
         display: 'flex',
         inset: '0',
         justifyContent: 'center',
@@ -1497,14 +1497,16 @@ function aplicarEstilosCriticosModalConfirmacao(modal) {
     const caixa = modal.querySelector('.modal-confirmacao-caixa');
     if (caixa) {
         Object.assign(caixa.style, {
-            background: '#ffffff',
-            borderRadius: '28px',
-            boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.2)',
-            maxWidth: '430px',
-            padding: '32px',
+            background: 'linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(220, 38, 38, 0.42), rgba(10, 147, 150, 0.22), rgba(0, 48, 114, 0.22)) border-box',
+            border: '1px solid transparent',
+            borderRadius: '30px',
+            boxShadow: '0 34px 80px rgba(2, 8, 23, 0.45), 0 1px 0 rgba(255, 255, 255, 0.88) inset',
+            maxWidth: '450px',
+            overflow: 'hidden',
+            padding: '38px 34px 32px',
             position: 'relative',
             textAlign: 'center',
-            width: '90%'
+            width: 'min(92vw, 450px)'
         });
     }
 }
