@@ -459,9 +459,10 @@ include 'includes/sidebar.php';
 /* ===== ESTILOS COMPLETOS ===== */
 
 .conteudo-pagina {
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 0 6px 30px;
+    margin: 0;
+    max-width: none;
+    padding: 0 24px 30px;
+    width: 100%;
 }
 
 /* Alertas */
@@ -1208,6 +1209,10 @@ include 'includes/sidebar.php';
 
 /* Responsividade */
 @media (max-width: 768px) {
+    .conteudo-pagina {
+        padding: 0 14px 24px;
+    }
+
     .stats-grid {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -1289,19 +1294,15 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
     }
 
     const overlay = document.createElement('div');
-    overlay.className = 'modal active';
+    overlay.className = 'ipikk-confirm-overlay ativo';
     overlay.innerHTML = `
-        <div class="modal-dialog" style="max-width:450px;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-triangle-exclamation"></i> ${escapeHtml(titulo)}</h5>
-                    <button type="button" class="close-modal" data-confirm-cancel><i class="fas fa-times"></i></button>
-                </div>
-                <div class="modal-body"><p style="margin:0;line-height:1.7;color:#475569;">${escapeHtml(texto)}</p></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" data-confirm-cancel>Cancelar</button>
-                    <button type="button" class="btn-excluir" data-confirm-ok>Eliminar</button>
-                </div>
+        <div class="ipikk-confirm-box">
+            <div class="ipikk-confirm-icon eliminar"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3 class="ipikk-confirm-title">${escapeHtml(titulo)}</h3>
+            <p class="ipikk-confirm-body">${escapeHtml(texto)}</p>
+            <div class="ipikk-confirm-actions">
+                <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel" data-confirm-cancel>Cancelar</button>
+                <button type="button" class="ipikk-confirm-btn ipikk-confirm-action eliminar" data-confirm-ok>Eliminar</button>
             </div>
         </div>
     `;

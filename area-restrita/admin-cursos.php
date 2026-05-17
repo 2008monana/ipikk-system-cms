@@ -671,15 +671,12 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
     }
 
     const overlay = document.createElement('div');
-    overlay.className = 'ipikk-confirm-overlay';
+    overlay.className = 'ipikk-confirm-overlay ativo';
     overlay.innerHTML = `
         <div class="ipikk-confirm-box">
-            <div class="ipikk-confirm-header">
-                <span class="ipikk-confirm-icon eliminar" aria-hidden="true">⚠️</span>
-                <h2 class="ipikk-confirm-title">${escapeHtml(titulo)}</h2>
-                <button type="button" class="ipikk-confirm-close" data-confirm-cancel>&times;</button>
-            </div>
-            <div class="ipikk-confirm-body">${escapeHtml(texto)}</div>
+            <div class="ipikk-confirm-icon eliminar"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3 class="ipikk-confirm-title">${escapeHtml(titulo)}</h3>
+            <p class="ipikk-confirm-body">${escapeHtml(texto)}</p>
             <div class="ipikk-confirm-actions">
                 <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel" data-confirm-cancel>Cancelar</button>
                 <button type="button" class="ipikk-confirm-btn ipikk-confirm-action ${tipoAcao}">Eliminar</button>

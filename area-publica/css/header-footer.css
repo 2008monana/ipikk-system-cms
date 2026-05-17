@@ -1120,17 +1120,27 @@ body.sidebar-open {
 }
 
 .slider-parceiros {
-    animation: fluxoParceiros var(--fluxo-parceiros-duracao, 16s) linear infinite;
     display: flex;
+    justify-content: center;
     transform: translate3d(0, 0, 0);
-    width: max-content;
+    width: 100%;
     will-change: transform;
+}
+
+.slider-parceiros.animado {
+    animation: fluxoParceiros var(--fluxo-parceiros-duracao, 16s) linear infinite;
+    justify-content: flex-start;
+    width: max-content;
 }
 
 .slider-grupo {
     display: flex;
     flex-shrink: 0;
     gap: 36px;
+    padding-right: 0;
+}
+
+.slider-parceiros.animado .slider-grupo {
     padding-right: 36px;
 }
 
@@ -1140,5 +1150,5 @@ body.sidebar-open {
 
 @keyframes fluxoParceiros {
     from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(calc(-1 * var(--fluxo-parceiros-distancia, 25%)), 0, 0); }
+    to { transform: translate3d(calc(-1 * var(--fluxo-parceiros-distancia, 0px)), 0, 0); }
 }

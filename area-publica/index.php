@@ -81,13 +81,17 @@ $tem_parceiros_validos = isset($pagina_inicial['parceiros'])
     && count($pagina_inicial['parceiros']) > 0;
 
 if ($tem_parceiros_validos) {
-    $parceiros = $pagina_inicial['parceiros'];
+    $parceiros = array_values(array_filter($pagina_inicial['parceiros'], function($parceiro) {
+        return !empty(trim($parceiro['logo'] ?? ''));
+    }));
 } else {
-    // Fallback da tabela escolas_afiliadas
+    // Fallback da tabela escolas_afiliadas: exibir apenas parceiros com logo registado.
     $parceiros = getDB()->query("
-        SELECT nome, logo_url as logo, site_url as link 
-        FROM escolas_afiliadas 
-        WHERE ativo = 1 
+        SELECT nome, logo_url as logo, site_url as link
+        FROM escolas_afiliadas
+        WHERE ativo = 1
+          AND logo_url IS NOT NULL
+          AND TRIM(logo_url) <> ''
         ORDER BY ordem
         LIMIT 10
     ")->fetchAll();
@@ -640,10 +644,12 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         .titulo-parceiros { text-align: center; font-size: 2.5rem; color: var(--azul-principal); margin-bottom: 12px; }
         .linha-parceiros { width: 120px; height: 5px; background: linear-gradient(to right, var(--azul-principal), var(--verde-acento)); margin: 0 auto 60px; border-radius: 50px; }
         .area-slider-parceiros { max-width: 1200px; margin: 0 auto; overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%); }
-        .slider-parceiros { display: flex; width: max-content; will-change: transform; animation: fluxoParceiros var(--fluxo-parceiros-duracao, 16s) linear infinite; transform: translate3d(0,0,0); }
-        .slider-grupo { display: flex; gap: 36px; padding-right: 36px; flex-shrink: 0; }
+        .slider-parceiros { display: flex; width: 100%; justify-content: center; will-change: transform; transform: translate3d(0,0,0); }
+        .slider-parceiros.animado { justify-content: flex-start; width: max-content; animation: fluxoParceiros var(--fluxo-parceiros-duracao, 16s) linear infinite; }
+        .slider-grupo { display: flex; gap: 36px; padding-right: 0; flex-shrink: 0; }
+        .slider-parceiros.animado .slider-grupo { padding-right: 36px; }
         .area-slider-parceiros:hover .slider-parceiros { animation-play-state: paused; }
-        @keyframes fluxoParceiros { from { transform: translate3d(0,0,0); } to { transform: translate3d(calc(-1 * var(--fluxo-parceiros-distancia, 25%)),0,0); } }
+        @keyframes fluxoParceiros { from { transform: translate3d(0,0,0); } to { transform: translate3d(calc(-1 * var(--fluxo-parceiros-distancia, 0px)),0,0); } }
         .card-parceiro {
             background: white; border-radius: 12px; padding: 30px;
             display: flex; align-items: center; justify-content: center;
@@ -907,11 +913,10 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         <div class="area-slider-parceiros">
             <div class="slider-parceiros" id="sliderParceiros">
                 <?php if (!empty($parceiros)): ?>
-                    <?php for ($grupoParceiros = 0; $grupoParceiros < 8; $grupoParceiros++): ?>
-                    <div class="slider-grupo" <?= $grupoParceiros > 0 ? 'aria-hidden="true"' : '' ?>>
+                    <div class="slider-grupo" id="grupoParceirosOriginal">
                         <?php foreach($parceiros as $parceiro): ?>
                         <div class="card-parceiro">
-                            <img src="<?= htmlspecialchars($parceiro['logo'] ?? 'foto/ipikk_new_logo.png') ?>" alt="<?= $grupoParceiros === 0 ? htmlspecialchars($parceiro['nome'] ?? 'Parceiro') : '' ?>">
+                            <img src="<?= htmlspecialchars($parceiro['logo']) ?>" alt="<?= htmlspecialchars($parceiro['nome'] ?? 'Parceiro') ?>">
                         </div>
                         <?php endforeach; ?>
                     </div>
@@ -1117,17 +1122,36 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         areaSlider?.addEventListener('mouseleave', () => { if (!pausado) intervalo = setInterval(proximoDepoimento, 5000); pausado = false; });
     }
     
-    // Slider de parceiros com fluxo infinito calibrado pela largura real do primeiro grupo.
+    // Slider de parceiros: mostra apenas parceiros reais e só duplica tecnicamente quando há overflow.
+    const areaParceiros = document.querySelector('.area-slider-parceiros');
     const sliderParceiros = document.getElementById('sliderParceiros');
-    const primeiroGrupoParceiros = sliderParceiros?.querySelector('.slider-grupo');
+    const grupoParceirosOriginal = document.getElementById('grupoParceirosOriginal');
+
+    function limparClonesParceiros() {
+        sliderParceiros?.querySelectorAll('.slider-grupo-clone').forEach(clone => clone.remove());
+    }
 
     function calibrarSliderParceiros() {
-        if (!sliderParceiros || !primeiroGrupoParceiros) return;
-        const larguraGrupo = primeiroGrupoParceiros.scrollWidth;
-        if (!larguraGrupo) return;
-        const duracao = Math.max(8, Math.round(larguraGrupo / 70));
-        sliderParceiros.style.setProperty('--fluxo-parceiros-distancia', `${larguraGrupo}px`);
+        if (!areaParceiros || !sliderParceiros || !grupoParceirosOriginal) return;
+        limparClonesParceiros();
+        sliderParceiros.classList.remove('animado');
+        sliderParceiros.style.removeProperty('--fluxo-parceiros-distancia');
+        sliderParceiros.style.removeProperty('--fluxo-parceiros-duracao');
+
+        const larguraGrupo = grupoParceirosOriginal.scrollWidth;
+        const larguraArea = areaParceiros.clientWidth;
+        if (!larguraGrupo || larguraGrupo <= larguraArea) return;
+
+        const clone = grupoParceirosOriginal.cloneNode(true);
+        clone.id = '';
+        clone.classList.add('slider-grupo-clone');
+        clone.setAttribute('aria-hidden', 'true');
+        sliderParceiros.appendChild(clone);
+
+        const duracao = Math.max(10, Math.round(larguraGrupo / 65));
+        sliderParceiros.style.setProperty('--fluxo-parceiros-distancia', `${larguraGrupo + 36}px`);
         sliderParceiros.style.setProperty('--fluxo-parceiros-duracao', `${duracao}s`);
+        sliderParceiros.classList.add('animado');
     }
 
     calibrarSliderParceiros();

@@ -790,40 +790,15 @@ table th, table td {
 }
 
 .ipikk-confirm-box {
-    animation: ipikkConfirmIn 0.22s ease;
+    animation: ipikkConfirmZoomIn 0.2s ease;
     background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
-    max-width: 450px;
-    overflow: hidden;
-    width: 100%;
-}
-
-.ipikk-confirm-header {
-    align-items: center;
-    border-bottom: 1px solid #eef2f6;
-    display: flex;
-    gap: 14px;
-    padding: 22px 24px 14px;
-}
-
-.ipikk-confirm-icon {
-    align-items: center;
-    border-radius: 50%;
-    display: inline-flex;
-    flex: 0 0 48px;
-    font-size: 24px;
-    height: 48px;
-    justify-content: center;
-    width: 48px;
-}
-
-.ipikk-confirm-title {
-    color: #003072;
-    flex: 1;
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin: 0;
+    border-radius: 28px;
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    padding: 32px;
+    position: relative;
+    text-align: center;
+    width: 90%;
 }
 
 .ipikk-confirm-close {
@@ -834,64 +809,93 @@ table th, table td {
     font-size: 24px;
     line-height: 1;
     padding: 0;
-    transition: color 0.2s;
+    position: absolute;
+    right: 20px;
+    top: 18px;
+    transition: color 0.2s ease;
 }
 
 .ipikk-confirm-close:hover {
-    color: #dc3545;
+    color: #dc2626;
+}
+
+.ipikk-confirm-icon {
+    align-items: center;
+    background: #fee2e2;
+    border-radius: 50%;
+    color: #dc2626;
+    display: flex;
+    font-size: 1.5rem;
+    height: 60px;
+    justify-content: center;
+    margin: 0 auto 16px;
+    width: 60px;
+}
+
+.ipikk-confirm-icon.publicar { background: #dcfce7; color: #16a34a; }
+.ipikk-confirm-icon.restaurar { background: #dbeafe; color: #2563eb; }
+.ipikk-confirm-icon.info { background: #dff7f8; color: #0a9396; }
+
+.ipikk-confirm-title {
+    color: #1e293b;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
 }
 
 .ipikk-confirm-body {
-    color: #475569;
-    font-size: 0.98rem;
-    line-height: 1.65;
-    padding: 20px 24px 8px;
+    color: #64748b;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0 0 24px 0;
 }
 
 .ipikk-confirm-actions {
     display: flex;
     gap: 12px;
-    justify-content: flex-end;
-    padding: 18px 24px 24px;
+    justify-content: center;
 }
 
 .ipikk-confirm-btn {
-    border: 0;
-    border-radius: 10px;
+    border: none;
+    border-radius: 40px;
     cursor: pointer;
     font-family: inherit;
+    font-size: 0.8rem;
     font-weight: 600;
-    padding: 11px 18px;
-    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-}
-
-.ipikk-confirm-btn:hover {
-    transform: translateY(-1px);
+    padding: 10px 24px;
+    transition: all 0.2s ease;
 }
 
 .ipikk-confirm-cancel {
-    background: #eef2f6;
-    color: #334155;
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.ipikk-confirm-cancel:hover {
+    background: #e2e8f0;
 }
 
 .ipikk-confirm-action {
+    background: #dc2626;
     color: #ffffff;
-    box-shadow: 0 8px 18px rgba(0, 48, 114, 0.18);
 }
 
-.ipikk-confirm-action.eliminar { background: #dc3545; }
-.ipikk-confirm-action.publicar { background: #28a745; }
-.ipikk-confirm-action.restaurar { background: #0d6efd; }
+.ipikk-confirm-action:hover {
+    background: #b91c1c;
+    transform: scale(1.02);
+}
+
+.ipikk-confirm-action.publicar { background: #16a34a; }
+.ipikk-confirm-action.publicar:hover { background: #15803d; }
+.ipikk-confirm-action.restaurar { background: #2563eb; }
+.ipikk-confirm-action.restaurar:hover { background: #1d4ed8; }
 .ipikk-confirm-action.info { background: #0a9396; }
+.ipikk-confirm-action.info:hover { background: #087f82; }
 
-.ipikk-confirm-icon.eliminar { background: #fee2e2; color: #b91c1c; }
-.ipikk-confirm-icon.publicar { background: #dcfce7; color: #166534; }
-.ipikk-confirm-icon.restaurar { background: #dbeafe; color: #1d4ed8; }
-.ipikk-confirm-icon.info { background: #dff7f8; color: #0a9396; }
-
-@keyframes ipikkConfirmIn {
-    from { opacity: 0; transform: translateY(18px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes ipikkConfirmZoomIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 @media (max-width: 520px) {

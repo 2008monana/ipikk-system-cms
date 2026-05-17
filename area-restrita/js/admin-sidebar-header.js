@@ -74,12 +74,9 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
 
     overlay.innerHTML = `
         <div class="ipikk-confirm-box">
-            <div class="ipikk-confirm-header">
-                <span class="ipikk-confirm-icon ${config.classe}" aria-hidden="true">${config.icone}</span>
-                <h2 class="ipikk-confirm-title">${escapeHtmlConfirmacao(titulo)}</h2>
-                <button type="button" class="ipikk-confirm-close" aria-label="Fechar">&times;</button>
-            </div>
-            <div class="ipikk-confirm-body">${escapeHtmlConfirmacao(texto)}</div>
+            <div class="ipikk-confirm-icon ${config.classe}" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3 class="ipikk-confirm-title">${escapeHtmlConfirmacao(titulo)}</h3>
+            <p class="ipikk-confirm-body">${escapeHtmlConfirmacao(texto)}</p>
             <div class="ipikk-confirm-actions">
                 <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel">Cancelar</button>
                 <button type="button" class="ipikk-confirm-btn ipikk-confirm-action ${config.classe}">${config.textoBotao}</button>
@@ -99,7 +96,7 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
     overlay.addEventListener('click', (event) => {
         if (event.target === overlay) fechar();
     });
-    overlay.querySelector('.ipikk-confirm-close').addEventListener('click', fechar);
+    overlay.querySelector('.ipikk-confirm-close')?.addEventListener('click', fechar);
     overlay.querySelector('.ipikk-confirm-cancel').addEventListener('click', fechar);
     overlay.querySelector('.ipikk-confirm-action').addEventListener('click', () => {
         fechar();
