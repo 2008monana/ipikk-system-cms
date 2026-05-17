@@ -1484,8 +1484,8 @@ function obterConfigModalConfirmacao(tipoAcao = 'eliminar') {
 function aplicarEstilosCriticosModalConfirmacao(modal) {
     Object.assign(modal.style, {
         alignItems: 'center',
-        backdropFilter: 'blur(3px)',
-        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.82), rgba(0, 0, 0, 0.86))',
+        backdropFilter: 'blur(4px)',
+        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.84), rgba(0, 0, 0, 0.88))',
         display: 'flex',
         inset: '0',
         justifyContent: 'center',
@@ -1498,13 +1498,72 @@ function aplicarEstilosCriticosModalConfirmacao(modal) {
     if (caixa) {
         Object.assign(caixa.style, {
             background: '#ffffff',
-            borderRadius: '28px',
-            boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.2)',
-            maxWidth: '430px',
-            padding: '32px',
+            border: '1px solid rgba(226, 232, 240, 0.95)',
+            borderRadius: '22px',
+            boxShadow: '0 28px 58px rgba(0, 0, 0, 0.36)',
+            maxWidth: '450px',
+            padding: '30px',
             position: 'relative',
             textAlign: 'center',
-            width: '90%'
+            width: 'min(92vw, 450px)'
+        });
+    }
+
+    const icone = modal.querySelector('.modal-confirmacao-icone');
+    if (icone) {
+        Object.assign(icone.style, {
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #fee2e2, #fff1f2)',
+            borderRadius: '50%',
+            boxShadow: '0 10px 24px rgba(220, 38, 38, 0.18)',
+            color: '#dc2626',
+            display: 'flex',
+            fontSize: '1.55rem',
+            height: '66px',
+            justifyContent: 'center',
+            margin: '0 auto 18px',
+            width: '66px'
+        });
+    }
+
+
+    const botaoCancelar = modal.querySelector('#botaoCancelarConfirmacao');
+    if (botaoCancelar) {
+        Object.assign(botaoCancelar.style, {
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #ffffff, #f1f5f9)',
+            border: '1px solid #dbe3ee',
+            borderRadius: '40px',
+            boxShadow: '0 6px 16px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+            color: '#334155',
+            display: 'inline-flex',
+            fontSize: '0.9rem',
+            fontWeight: '800',
+            gap: '9px',
+            justifyContent: 'center',
+            minHeight: '46px',
+            minWidth: '138px',
+            padding: '13px 26px'
+        });
+    }
+
+    const botaoConfirmar = modal.querySelector('#botaoConfirmarAcao');
+    if (botaoConfirmar) {
+        Object.assign(botaoConfirmar.style, {
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 48%, #991b1b 100%)',
+            border: '1px solid rgba(185, 28, 28, 0.35)',
+            borderRadius: '40px',
+            boxShadow: '0 10px 22px rgba(220, 38, 38, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.24)',
+            color: '#ffffff',
+            display: 'inline-flex',
+            fontSize: '0.9rem',
+            fontWeight: '800',
+            gap: '9px',
+            justifyContent: 'center',
+            minHeight: '46px',
+            minWidth: '138px',
+            padding: '13px 26px'
         });
     }
 }
@@ -1534,8 +1593,13 @@ function abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao = 'eli
         iconeWrapper.style.color = config.corPrimaria;
     }
     if (botaoConfirmar) {
-        botaoConfirmar.style.background = `linear-gradient(135deg, ${config.corPrimaria}, ${config.corSecundaria})`;
-        botaoConfirmar.style.boxShadow = `0 8px 18px ${config.corPrimaria}55`;
+        const gradienteConfirmar = tipoAcao === 'eliminar'
+            ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 48%, #991b1b 100%)'
+            : `linear-gradient(135deg, ${config.corPrimaria}, ${config.corSecundaria})`;
+        botaoConfirmar.style.background = gradienteConfirmar;
+        botaoConfirmar.style.boxShadow = tipoAcao === 'eliminar'
+            ? '0 10px 22px rgba(220, 38, 38, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.24)'
+            : `0 8px 18px ${config.corPrimaria}55`;
     }
 
     acaoPendenteConfirmacao = callbackConfirmar;
