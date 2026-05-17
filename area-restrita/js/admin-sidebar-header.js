@@ -69,6 +69,7 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
     const config = tipos[tipoAcao] || tipos.info;
     const overlay = document.createElement('div');
     overlay.className = 'ipikk-confirm-overlay';
+    aplicarEstilosOverlayConfirmacao(overlay);
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
 
@@ -84,8 +85,11 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
         </div>
     `;
 
+    const overflowAnterior = document.body.style.overflow;
+
     function fechar() {
         document.removeEventListener('keydown', aoPressionarTecla);
+        document.body.style.overflow = overflowAnterior;
         overlay.remove();
     }
 
@@ -104,9 +108,41 @@ window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAc
     });
 
     document.addEventListener('keydown', aoPressionarTecla);
+    document.body.style.overflow = 'hidden';
     document.body.appendChild(overlay);
+    aplicarEstilosCaixaConfirmacao(overlay.querySelector('.ipikk-confirm-box'));
     overlay.querySelector('.ipikk-confirm-cancel').focus();
 };
+
+
+function aplicarEstilosOverlayConfirmacao(overlay) {
+    Object.assign(overlay.style, {
+        alignItems: 'center',
+        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.82), rgba(0, 0, 0, 0.86))',
+        backdropFilter: 'blur(3px)',
+        display: 'flex',
+        inset: '0',
+        justifyContent: 'center',
+        padding: '20px',
+        position: 'fixed',
+        zIndex: '30000'
+    });
+}
+
+function aplicarEstilosCaixaConfirmacao(caixa) {
+    if (!caixa) return;
+
+    Object.assign(caixa.style, {
+        background: '#ffffff',
+        borderRadius: '16px',
+        boxShadow: '0 24px 48px rgba(0, 0, 0, 0.35)',
+        maxWidth: '460px',
+        padding: '26px',
+        position: 'relative',
+        textAlign: 'center',
+        width: '100%'
+    });
+}
 
 function escapeHtmlConfirmacao(texto) {
     const div = document.createElement('div');
