@@ -780,8 +780,8 @@ table th, table td {
 /* ========== MODAL PADRÃO DE CONFIRMAÇÃO (igual ao módulo Notícias) ========== */
 .modal-confirmacao {
     align-items: center;
-    backdrop-filter: blur(3px);
-    background: linear-gradient(135deg, rgba(5, 19, 43, 0.82), rgba(0, 0, 0, 0.86));
+    backdrop-filter: blur(4px);
+    background: linear-gradient(135deg, rgba(5, 19, 43, 0.84), rgba(0, 0, 0, 0.88));
     display: none;
     inset: 0 !important;
     justify-content: center;
@@ -797,61 +797,44 @@ table th, table td {
 .modal-confirmacao-caixa {
     animation: ipikkConfirmZoomIn 0.25s ease;
     background: #ffffff;
-    border-radius: 28px;
-    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
-    max-width: 430px;
-    padding: 32px;
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    border-radius: 22px;
+    box-shadow: 0 28px 58px rgba(0, 0, 0, 0.36);
+    max-width: 450px;
+    padding: 30px;
     position: relative;
     text-align: center;
-    width: min(100%, 470px);
-}
-
-.ipikk-confirm-box::before {
-    background: linear-gradient(90deg, #0a9396, #003072, #dc2626);
-    content: '';
-    height: 5px;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-
-.ipikk-confirm-box::after {
-    background: radial-gradient(circle, rgba(10, 147, 150, 0.12), transparent 62%);
-    content: '';
-    height: 190px;
-    pointer-events: none;
-    position: absolute;
-    right: -90px;
-    top: -95px;
-    width: 190px;
+    width: min(92vw, 450px);
 }
 
 .modal-confirmacao-icone {
     align-items: center;
-    background: #fee2e2;
+    background: linear-gradient(135deg, #fee2e2, #fff1f2);
     border-radius: 50%;
+    box-shadow: 0 10px 24px rgba(220, 38, 38, 0.18);
     color: #dc2626;
     display: flex;
-    font-size: 1.5rem;
-    height: 60px;
+    font-size: 1.55rem;
+    height: 66px;
     justify-content: center;
-    margin: 0 auto 16px;
-    width: 60px;
+    margin: 0 auto 18px;
+    width: 66px;
 }
 
 .modal-confirmacao-caixa h3 {
-    color: #1e293b;
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin: 0 0 8px 0;
+    color: #1f2937;
+    font-size: 1.3rem;
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0 0 10px;
 }
 
 .modal-confirmacao-caixa p {
-    color: #64748b;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    margin: 0;
+    color: #6b7280;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    margin: 0 auto;
+    max-width: 350px;
 }
 
 .modal-confirmacao-botoes {
@@ -866,40 +849,52 @@ table th, table td {
 .botao-cancelar-modal,
 .modal-confirmacao .botao-perigo-confirmacao,
 .botao-confirmar-modal {
+    align-items: center;
     border: none;
     border-radius: 40px;
     cursor: pointer;
+    display: inline-flex;
     font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 10px 24px;
-    transition: all 0.2s ease;
+    font-size: 0.86rem;
+    font-weight: 700;
+    gap: 8px;
+    justify-content: center;
+    min-width: 128px;
+    padding: 12px 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .modal-confirmacao .botao-cancelar,
 .botao-cancelar-modal {
     background: #f1f5f9;
-    color: #64748b;
+    color: #475569;
 }
 
 .modal-confirmacao .botao-cancelar:hover,
 .botao-cancelar-modal:hover {
     background: #e2e8f0;
+    transform: translateY(-1px);
 }
 
 .modal-confirmacao .botao-perigo-confirmacao,
 .botao-confirmar-modal {
-    background: #dc2626;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    box-shadow: 0 8px 18px rgba(220, 38, 38, 0.28);
     color: #ffffff;
 }
 
 .modal-confirmacao .botao-perigo-confirmacao:hover,
 .botao-confirmar-modal:hover {
-    background: #b91c1c;
-    transform: scale(1.02);
+    background: linear-gradient(135deg, #ef4444, #991b1b);
+    box-shadow: 0 12px 24px rgba(220, 38, 38, 0.34);
+    transform: translateY(-1px);
 }
 
 @media (max-width: 520px) {
+    .modal-confirmacao-caixa {
+        padding: 28px 22px;
+    }
+
     .modal-confirmacao-botoes {
         flex-direction: column-reverse;
     }
@@ -987,7 +982,7 @@ table th, table td {
     transform: rotate(90deg);
 }
 
-.ipikk-confirm-icon {
+.modal-confirmacao-icone {
     align-items: center;
     background: linear-gradient(135deg, #fee2e2, #fff1f2);
     border: 6px solid #fff;
@@ -1020,7 +1015,7 @@ table th, table td {
     z-index: 1;
 }
 
-.ipikk-confirm-body {
+.modal-confirmacao-caixa p {
     color: #64748b;
     font-size: 0.98rem;
     line-height: 1.65;
@@ -1030,7 +1025,7 @@ table th, table td {
     z-index: 1;
 }
 
-.ipikk-confirm-actions {
+.modal-confirmacao-botoes {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;

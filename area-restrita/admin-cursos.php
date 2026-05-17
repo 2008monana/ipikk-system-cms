@@ -725,8 +725,8 @@ function obterConfigModalConfirmacao(tipoAcao = 'eliminar') {
 function aplicarEstilosCriticosModalConfirmacao(modal) {
     Object.assign(modal.style, {
         alignItems: 'center',
-        backdropFilter: 'blur(3px)',
-        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.82), rgba(0, 0, 0, 0.86))',
+        backdropFilter: 'blur(4px)',
+        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.84), rgba(0, 0, 0, 0.88))',
         display: 'flex',
         inset: '0',
         justifyContent: 'center',
@@ -739,13 +739,31 @@ function aplicarEstilosCriticosModalConfirmacao(modal) {
     if (caixa) {
         Object.assign(caixa.style, {
             background: '#ffffff',
-            borderRadius: '28px',
-            boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.2)',
-            maxWidth: '430px',
-            padding: '32px',
+            border: '1px solid rgba(226, 232, 240, 0.95)',
+            borderRadius: '22px',
+            boxShadow: '0 28px 58px rgba(0, 0, 0, 0.36)',
+            maxWidth: '450px',
+            padding: '30px',
             position: 'relative',
             textAlign: 'center',
-            width: '90%'
+            width: 'min(92vw, 450px)'
+        });
+    }
+
+    const icone = modal.querySelector('.modal-confirmacao-icone');
+    if (icone) {
+        Object.assign(icone.style, {
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #fee2e2, #fff1f2)',
+            borderRadius: '50%',
+            boxShadow: '0 10px 24px rgba(220, 38, 38, 0.18)',
+            color: '#dc2626',
+            display: 'flex',
+            fontSize: '1.55rem',
+            height: '66px',
+            justifyContent: 'center',
+            margin: '0 auto 18px',
+            width: '66px'
         });
     }
 }
