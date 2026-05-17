@@ -82,7 +82,7 @@ $tem_parceiros_validos = isset($pagina_inicial['parceiros'])
 
 if ($tem_parceiros_validos) {
     $parceiros = array_values(array_filter($pagina_inicial['parceiros'], function($parceiro) {
-        return !empty(trim($parceiro['logo'] ?? ''));
+        return !empty(trim($parceiro['logo'] ?? $parceiro['logo_url'] ?? ''));
     }));
 } else {
     // Fallback da tabela escolas_afiliadas: exibir apenas parceiros com logo registado.
@@ -915,9 +915,12 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
                 <?php if (!empty($parceiros)): ?>
                     <div class="slider-grupo" id="grupoParceirosOriginal">
                         <?php foreach($parceiros as $parceiro): ?>
+                        <?php $logoParceiro = trim($parceiro['logo'] ?? $parceiro['logo_url'] ?? ''); ?>
+                        <?php if ($logoParceiro !== ''): ?>
                         <div class="card-parceiro">
-                            <img src="<?= htmlspecialchars($parceiro['logo']) ?>" alt="<?= htmlspecialchars($parceiro['nome'] ?? 'Parceiro') ?>">
+                            <img src="<?= htmlspecialchars($logoParceiro) ?>" alt="<?= htmlspecialchars($parceiro['nome'] ?? 'Parceiro') ?>">
                         </div>
+                        <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                     <?php endfor; ?>

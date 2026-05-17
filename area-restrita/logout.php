@@ -22,23 +22,22 @@ $usuario_id = $_SESSION['utilizador_id'];
 $usuario_email = $_SESSION['utilizador_email'] ?? '';
 
 // Buscar a foto do perfil do utilizador na base de dados
-$foto_url = 'foto/sem_foto.png';
+$foto_url = '../area-publica/foto/sem_foto.png';
+$tem_foto_perfil = false;
 try {
     $db = getDB();
     $stmt = $db->prepare("SELECT foto_url FROM utilizadores WHERE id = ?");
     $stmt->execute([$usuario_id]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($usuario && !empty($usuario['foto_url']) && $usuario['foto_url'] != 'foto/sem_foto.png') {
-        $foto_url = $usuario['foto_url'];
-        // Garantir o caminho correto
-        if (strpos($foto_url, '../') !== 0 && strpos($foto_url, 'area-publica/') !== 0) {
-            $foto_url = '../area-publica/' . $foto_url;
-        }
-    } else {
-        $foto_url = '../area-publica/foto/sem_foto.png';
+    $foto_bd = trim($usuario['foto_url'] ?? '');
+
+    if ($foto_bd !== '' && $foto_bd !== 'foto/sem_foto.png') {
+        $foto_url = normalizarUrlMidia($foto_bd, '..');
+        $tem_foto_perfil = true;
     }
 } catch (PDOException $e) {
     $foto_url = '../area-publica/foto/sem_foto.png';
+    $tem_foto_perfil = false;
 }
 
 // Processar logout via POST (confirmação)
@@ -421,8 +420,9 @@ if ($confirmado) {
 <div class="card-logout">
     <div class="cabecalho-logout">
         <div class="foto-perfil">
-            <?php if ($foto_url && $foto_url != '../area-publica/foto/sem_foto.png' && file_exists($foto_url)): ?>
-                <img src="<?= htmlspecialchars($foto_url) ?>" alt="<?= htmlspecialchars($usuario_nome) ?>">
+            <?php if ($tem_foto_perfil): ?>
+                <img src="<?= htmlspecialchars($foto_url) ?>" alt="<?= htmlspecialchars($usuario_nome) ?>" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <i class="fas fa-user-circle" style="display:none;"></i>
             <?php else: ?>
                 <i class="fas fa-user-circle"></i>
             <?php endif; ?>

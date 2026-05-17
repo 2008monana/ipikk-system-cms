@@ -781,12 +781,12 @@ table th, table td {
     align-items: center;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
-    display: flex;
-    inset: 0;
+    display: flex !important;
+    inset: 0 !important;
     justify-content: center;
     padding: 20px;
-    position: fixed;
-    z-index: 30000;
+    position: fixed !important;
+    z-index: 30000 !important;
 }
 
 .ipikk-confirm-box {

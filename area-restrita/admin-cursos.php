@@ -672,6 +672,7 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
 
     const overlay = document.createElement('div');
     overlay.className = 'ipikk-confirm-overlay ativo';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
     overlay.innerHTML = `
         <div class="ipikk-confirm-box">
             <div class="ipikk-confirm-icon eliminar"><i class="fas fa-exclamation-triangle"></i></div>
@@ -683,6 +684,10 @@ function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') 
             </div>
         </div>
     `;
+    const caixa = overlay.querySelector('.ipikk-confirm-box');
+    if (caixa) {
+        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
+    }
     const fechar = () => overlay.remove();
     overlay.addEventListener('click', (event) => {
         if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
