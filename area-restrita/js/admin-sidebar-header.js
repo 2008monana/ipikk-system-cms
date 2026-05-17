@@ -198,6 +198,17 @@ function aplicarEstilosCriticosModalConfirmacao(modal) {
             padding: '13px 26px'
         });
     }
+}
+
+function fecharModalConfirmacaoGlobal() {
+    const modal = document.getElementById('modalConfirmacao');
+    if (modal) {
+        modal.classList.remove('ativo');
+        modal.style.display = 'none';
+    }
+    acaoPendenteConfirmacaoGlobal = null;
+    document.body.style.overflow = '';
+}
 
     const botaoConfirmar = modal.querySelector('#botaoConfirmarAcao');
     if (botaoConfirmar) {
