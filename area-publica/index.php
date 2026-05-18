@@ -923,6 +923,66 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     <script>
     // Dados das notícias para o modal
     const noticiasData = <?= json_encode($noticias) ?>;
+
+
+    function incrementarVisualizacaoNoticia(id) {
+        const noticiaId = Number(id || 0);
+        if (!noticiaId) return;
+        const chaveSessao = `noticia_vista_${noticiaId}`;
+        if (sessionStorage.getItem(chaveSessao)) return;
+        sessionStorage.setItem(chaveSessao, '1');
+
+        fetch(`../incrementar-visualizacao.php?tipo=noticia&id=${noticiaId}`)
+            .then(() => {
+                const noticia = noticiasData.find(n => Number(n.id) === noticiaId);
+                if (noticia) {
+                    noticia.visualizacoes = Number(noticia.visualizacoes || 0) + 1;
+                    const campo = document.getElementById('modalVisualizacoes');
+                    if (campo) campo.textContent = `${noticia.visualizacoes} visualizações`;
+                }
+            })
+            .catch(() => {});
+    }
+
+    function initNotificacoesNoticias() {
+        if (!noticiasData.length) return;
+        const noticiaRecente = [...noticiasData].sort((a,b)=>Number(b.id)-Number(a.id))[0];
+        if (!noticiaRecente) return;
+
+        const prefKey = 'ipikk_news_notif_enabled';
+        const seenKey = 'ipikk_news_last_seen_id';
+        let pref = localStorage.getItem(prefKey);
+
+        const criarModalBase = (titulo, corpoHtml, botoesHtml) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-fundo visivel';
+            overlay.style.zIndex = '100000';
+            overlay.innerHTML = `<div class="modal-conteudo" style="max-width:560px;"><button class="modal-botao-fechar" data-close="1"><i class="fas fa-times"></i></button><div class="modal-corpo"><h2 class="modal-titulo" style="font-size:1.6rem;">${titulo}</h2><div class="modal-descricao">${corpoHtml}</div><div style="display:flex;gap:10px;flex-wrap:wrap;">${botoesHtml}</div></div></div>`;
+            document.body.appendChild(overlay);
+            document.body.style.overflow = 'hidden';
+            const close = ()=>{ overlay.remove(); document.body.style.overflow = ''; };
+            overlay.addEventListener('click', e => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
+            return {overlay, close};
+        };
+
+        if (pref === null) {
+            const m = criarModalBase('🔔 Receber notificações?', 'Deseja ser notificado sobre novas notícias do IPIKK?', '<button id="notifSim" class="botao-ver-mais" style="padding:10px 18px;">Sim</button><button id="notifNao" class="link-ler-mais" style="padding:10px 18px;border:1px solid #ccc;border-radius:30px;">Não</button>');
+            m.overlay.querySelector('#notifSim')?.addEventListener('click', ()=>{ localStorage.setItem(prefKey,'1'); m.close(); initNotificacoesNoticias(); });
+            m.overlay.querySelector('#notifNao')?.addEventListener('click', ()=>{ localStorage.setItem(prefKey,'0'); m.close(); });
+            return;
+        }
+
+        if (pref !== '1') return;
+        const lastSeen = Number(localStorage.getItem(seenKey) || 0);
+        if (Number(noticiaRecente.id) <= lastSeen) return;
+
+        const resumo = String(noticiaRecente.resumo || noticiaRecente.conteudo || '').replace(/<[^>]*>/g, '').slice(0, 140);
+        const m = criarModalBase('📰 Novidade do IPIKK', `<strong>${noticiaRecente.titulo || 'Nova notícia'}</strong><br><span>${resumo}${resumo.length>=140?'...':''}</span>`, '<button id="verNoticia" class="botao-ver-mais" style="padding:10px 18px;">Ver notícia</button><button id="fecharNotif" class="link-ler-mais" style="padding:10px 18px;border:1px solid #ccc;border-radius:30px;">Fechar</button>');
+        const marcarVisto = ()=> localStorage.setItem(seenKey, String(noticiaRecente.id));
+        m.overlay.querySelector('#verNoticia')?.addEventListener('click', ()=>{ marcarVisto(); window.location.href = `noticias.php?id=${noticiaRecente.id}`; });
+        m.overlay.querySelector('#fecharNotif')?.addEventListener('click', ()=>{ marcarVisto(); m.close(); });
+        m.overlay.querySelector('[data-close]')?.addEventListener('click', ()=>{ marcarVisto(); });
+    }
     
     // Dados dos depoimentos
     const depoimentosData = <?= json_encode($depoimentos) ?>;
@@ -958,7 +1018,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     }
 
     function abrirModalNoticia(id) {
-        const noticia = noticiasData.find(n => n.id === id);
+        const noticia = noticiasData.find(n => Number(n.id) === Number(id));
         if (!noticia) return;
         
         const modal = document.getElementById('modalNoticia');
@@ -979,6 +1039,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         document.getElementById('modalAutor').textContent = noticia.autor || 'Gabinete de Comunicação';
         document.getElementById('modalVisualizacoes').textContent = (noticia.visualizacoes || 0) + ' visualizações';
         document.getElementById('modalDescricao').innerHTML = noticia.conteudo;
+        incrementarVisualizacaoNoticia(id);
         
         if (noticia.tags) {
             try {
@@ -1007,6 +1068,8 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') fecharModalNoticia();
     });
+
+    initNotificacoesNoticias();
     
     // Depoimentos
     if (depoimentosData.length > 0) {
