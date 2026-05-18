@@ -133,15 +133,6 @@ $cursos_destaque = isset($pagina_inicial['cursos_destaque']) && is_array($pagina
     ? $pagina_inicial['cursos_destaque']
     : [];
 
-// Mapeamento de classes CSS para cada área (baseado na ordem)
-$classe_card = [
-    1 => 'azul',        // Construção Civil
-    2 => 'azul-escuro', // Electricidade
-    3 => 'laranja',     // Mecânica
-    4 => 'verde',       // Informática
-    5 => 'vermelho'     // Tecnologias de Móveis
-];
-
 // Verificar status das inscrições para o botão de matrícula
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
 $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
@@ -268,23 +259,13 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
             position: absolute; left: 0; top: 0; width: 8px; height: 100%; transition: var(--transicao);
         }
         .card-curso:hover .barra-lateral { width: 12px; }
-        .card-curso .barra-lateral { background: var(--area-cor, var(--cor-construcao)); }
-        .card-curso.azul       .barra-lateral { background: var(--cor-construcao); }
-        .card-curso.azul-escuro .barra-lateral { background: var(--azul-principal); }
-        .card-curso.laranja    .barra-lateral { background: var(--cor-mecanica); }
-        .card-curso.verde      .barra-lateral { background: var(--cor-informatica); }
-        .card-curso.vermelho   .barra-lateral { background: var(--cor-moveis); }
+        .card-curso .barra-lateral { background: var(--area-cor, #6c757d); }
         .conteudo-card { display: flex; gap: 25px; padding: 35px; }
         .icone {
             width: 70px; height: 70px; background: var(--cinza-claro);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 28px; color: var(--cinza); flex-shrink: 0; transition: var(--transicao);
         }
-        .card-curso.azul:hover       .icone { background: var(--cor-construcao); color: var(--branco); }
-        .card-curso.azul-escuro:hover .icone { background: var(--azul-principal); color: var(--branco); }
-        .card-curso.laranja:hover    .icone { background: var(--cor-mecanica); color: var(--branco); }
-        .card-curso.verde:hover      .icone { background: var(--cor-informatica); color: var(--branco); }
-        .card-curso.vermelho:hover   .icone { background: var(--cor-moveis); color: var(--branco); }
         .texto-card h3 { font-size: 1.5rem; color: var(--azul-principal); margin-bottom: 10px; }
         .texto-card p  { color: var(--cinza); line-height: 1.6; margin-bottom: 18px; }
         .texto-card .botao {
@@ -293,13 +274,8 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
             color: var(--azul-principal); font-weight: 600; font-size: .9rem;
         }
         .texto-card .botao:hover { gap: 12px; }
-        .card-curso:hover .icone { background: var(--area-cor, var(--cor-construcao)); color: var(--branco); }
-        .texto-card .botao:hover { background: var(--area-cor, var(--cor-construcao)); color: white; }
-        .card-curso.azul       .botao:hover { background: var(--cor-construcao); color: white; }
-        .card-curso.azul-escuro .botao:hover { background: var(--azul-principal); color: white; }
-        .card-curso.laranja    .botao:hover { background: var(--cor-mecanica); color: white; }
-        .card-curso.verde      .botao:hover { background: var(--cor-informatica); color: white; }
-        .card-curso.vermelho   .botao:hover { background: var(--cor-moveis); color: white; }
+        .card-curso:hover .icone { background: var(--area-cor, #6c757d); color: var(--branco); }
+        .texto-card .botao:hover { background: var(--area-cor, #6c757d); color: white; }
 
         /* ================= SEÇÃO MENSAGEM DO DIRECTOR ==================== */
         .secao-mensagem { padding: 80px 20px; background: rgba(0,48,114,.03); position: relative; z-index: 10; }
@@ -722,8 +698,8 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         </div>
         <?php else: ?>
         <div class="grid-cursos">
-            <?php $i = 0; foreach($areas as $area): $i++; $cor_area_card = (!empty($area['cor_primaria']) && preg_match('/^#[0-9a-fA-F]{6}$/', $area['cor_primaria'])) ? $area['cor_primaria'] : null; ?>
-            <article class="card-curso <?= $classe_card[$i] ?? '' ?>" <?= $cor_area_card ? 'style="--area-cor:' . htmlspecialchars($cor_area_card) . ';"' : '' ?>>
+            <?php foreach($areas as $area): $cor_area_card = (!empty($area['cor_primaria']) && preg_match('/^#[0-9a-fA-F]{6}$/', $area['cor_primaria'])) ? $area['cor_primaria'] : '#6c757d'; ?>
+            <article class="card-curso" style="--area-cor: <?= htmlspecialchars($cor_area_card) ?>;">
                 <div class="barra-lateral"></div>
                 <div class="conteudo-card">
                     <div class="icone"><i class="fas <?= htmlspecialchars($area['icone_classe'] ?? 'fa-graduation-cap') ?>"></i></div>
@@ -923,7 +899,6 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
                         <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
-                    <?php endfor; ?>
                 <?php else: ?>
                     <div style="text-align:center; width:100%; background:#fff; border-radius:14px; padding:40px 20px;">
                         <i class="fas fa-handshake-slash" style="font-size:2.5rem; color:var(--cinza);"></i>
