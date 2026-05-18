@@ -133,15 +133,6 @@ $cursos_destaque = isset($pagina_inicial['cursos_destaque']) && is_array($pagina
     ? $pagina_inicial['cursos_destaque']
     : [];
 
-// Mapeamento de classes CSS para cada área (baseado na ordem)
-$classe_card = [
-    1 => 'azul',        // Construção Civil
-    2 => 'azul-escuro', // Electricidade
-    3 => 'laranja',     // Mecânica
-    4 => 'verde',       // Informática
-    5 => 'vermelho'     // Tecnologias de Móveis
-];
-
 // Verificar status das inscrições para o botão de matrícula
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
 $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
@@ -268,23 +259,13 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
             position: absolute; left: 0; top: 0; width: 8px; height: 100%; transition: var(--transicao);
         }
         .card-curso:hover .barra-lateral { width: 12px; }
-        .card-curso .barra-lateral { background: var(--area-cor, var(--cor-construcao)); }
-        .card-curso.azul       .barra-lateral { background: var(--cor-construcao); }
-        .card-curso.azul-escuro .barra-lateral { background: var(--azul-principal); }
-        .card-curso.laranja    .barra-lateral { background: var(--cor-mecanica); }
-        .card-curso.verde      .barra-lateral { background: var(--cor-informatica); }
-        .card-curso.vermelho   .barra-lateral { background: var(--cor-moveis); }
+        .card-curso .barra-lateral { background: var(--area-cor, #6c757d); }
         .conteudo-card { display: flex; gap: 25px; padding: 35px; }
         .icone {
             width: 70px; height: 70px; background: var(--cinza-claro);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 28px; color: var(--cinza); flex-shrink: 0; transition: var(--transicao);
         }
-        .card-curso.azul:hover       .icone { background: var(--cor-construcao); color: var(--branco); }
-        .card-curso.azul-escuro:hover .icone { background: var(--azul-principal); color: var(--branco); }
-        .card-curso.laranja:hover    .icone { background: var(--cor-mecanica); color: var(--branco); }
-        .card-curso.verde:hover      .icone { background: var(--cor-informatica); color: var(--branco); }
-        .card-curso.vermelho:hover   .icone { background: var(--cor-moveis); color: var(--branco); }
         .texto-card h3 { font-size: 1.5rem; color: var(--azul-principal); margin-bottom: 10px; }
         .texto-card p  { color: var(--cinza); line-height: 1.6; margin-bottom: 18px; }
         .texto-card .botao {
@@ -293,13 +274,8 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
             color: var(--azul-principal); font-weight: 600; font-size: .9rem;
         }
         .texto-card .botao:hover { gap: 12px; }
-        .card-curso:hover .icone { background: var(--area-cor, var(--cor-construcao)); color: var(--branco); }
-        .texto-card .botao:hover { background: var(--area-cor, var(--cor-construcao)); color: white; }
-        .card-curso.azul       .botao:hover { background: var(--cor-construcao); color: white; }
-        .card-curso.azul-escuro .botao:hover { background: var(--azul-principal); color: white; }
-        .card-curso.laranja    .botao:hover { background: var(--cor-mecanica); color: white; }
-        .card-curso.verde      .botao:hover { background: var(--cor-informatica); color: white; }
-        .card-curso.vermelho   .botao:hover { background: var(--cor-moveis); color: white; }
+        .card-curso:hover .icone { background: var(--area-cor, #6c757d); color: var(--branco); }
+        .texto-card .botao:hover { background: var(--area-cor, #6c757d); color: white; }
 
         /* ================= SEÇÃO MENSAGEM DO DIRECTOR ==================== */
         .secao-mensagem { padding: 80px 20px; background: rgba(0,48,114,.03); position: relative; z-index: 10; }
@@ -722,8 +698,8 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         </div>
         <?php else: ?>
         <div class="grid-cursos">
-            <?php $i = 0; foreach($areas as $area): $i++; $cor_area_card = (!empty($area['cor_primaria']) && preg_match('/^#[0-9a-fA-F]{6}$/', $area['cor_primaria'])) ? $area['cor_primaria'] : null; ?>
-            <article class="card-curso <?= $classe_card[$i] ?? '' ?>" <?= $cor_area_card ? 'style="--area-cor:' . htmlspecialchars($cor_area_card) . ';"' : '' ?>>
+            <?php foreach($areas as $area): $cor_area_card = (!empty($area['cor_primaria']) && preg_match('/^#[0-9a-fA-F]{6}$/', $area['cor_primaria'])) ? $area['cor_primaria'] : '#6c757d'; ?>
+            <article class="card-curso" style="--area-cor: <?= htmlspecialchars($cor_area_card) ?>;">
                 <div class="barra-lateral"></div>
                 <div class="conteudo-card">
                     <div class="icone"><i class="fas <?= htmlspecialchars($area['icone_classe'] ?? 'fa-graduation-cap') ?>"></i></div>
@@ -923,7 +899,6 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
                         <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
-                    <?php endfor; ?>
                 <?php else: ?>
                     <div style="text-align:center; width:100%; background:#fff; border-radius:14px; padding:40px 20px;">
                         <i class="fas fa-handshake-slash" style="font-size:2.5rem; color:var(--cinza);"></i>
@@ -948,6 +923,66 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     <script>
     // Dados das notícias para o modal
     const noticiasData = <?= json_encode($noticias) ?>;
+
+
+    function incrementarVisualizacaoNoticia(id) {
+        const noticiaId = Number(id || 0);
+        if (!noticiaId) return;
+        const chaveSessao = `noticia_vista_${noticiaId}`;
+        if (sessionStorage.getItem(chaveSessao)) return;
+        sessionStorage.setItem(chaveSessao, '1');
+
+        fetch(`../incrementar-visualizacao.php?tipo=noticia&id=${noticiaId}`)
+            .then(() => {
+                const noticia = noticiasData.find(n => Number(n.id) === noticiaId);
+                if (noticia) {
+                    noticia.visualizacoes = Number(noticia.visualizacoes || 0) + 1;
+                    const campo = document.getElementById('modalVisualizacoes');
+                    if (campo) campo.textContent = `${noticia.visualizacoes} visualizações`;
+                }
+            })
+            .catch(() => {});
+    }
+
+    function initNotificacoesNoticias() {
+        if (!noticiasData.length) return;
+        const noticiaRecente = [...noticiasData].sort((a,b)=>Number(b.id)-Number(a.id))[0];
+        if (!noticiaRecente) return;
+
+        const prefKey = 'ipikk_news_notif_enabled';
+        const seenKey = 'ipikk_news_last_seen_id';
+        let pref = localStorage.getItem(prefKey);
+
+        const criarModalBase = (titulo, corpoHtml, botoesHtml) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-fundo visivel';
+            overlay.style.zIndex = '100000';
+            overlay.innerHTML = `<div class="modal-conteudo" style="max-width:560px;"><button class="modal-botao-fechar" data-close="1"><i class="fas fa-times"></i></button><div class="modal-corpo"><h2 class="modal-titulo" style="font-size:1.6rem;">${titulo}</h2><div class="modal-descricao">${corpoHtml}</div><div style="display:flex;gap:10px;flex-wrap:wrap;">${botoesHtml}</div></div></div>`;
+            document.body.appendChild(overlay);
+            document.body.style.overflow = 'hidden';
+            const close = ()=>{ overlay.remove(); document.body.style.overflow = ''; };
+            overlay.addEventListener('click', e => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
+            return {overlay, close};
+        };
+
+        if (pref === null) {
+            const m = criarModalBase('🔔 Receber notificações?', 'Deseja ser notificado sobre novas notícias do IPIKK?', '<button id="notifSim" class="botao-ver-mais" style="padding:10px 18px;">Sim</button><button id="notifNao" class="link-ler-mais" style="padding:10px 18px;border:1px solid #ccc;border-radius:30px;">Não</button>');
+            m.overlay.querySelector('#notifSim')?.addEventListener('click', ()=>{ localStorage.setItem(prefKey,'1'); m.close(); initNotificacoesNoticias(); });
+            m.overlay.querySelector('#notifNao')?.addEventListener('click', ()=>{ localStorage.setItem(prefKey,'0'); m.close(); });
+            return;
+        }
+
+        if (pref !== '1') return;
+        const lastSeen = Number(localStorage.getItem(seenKey) || 0);
+        if (Number(noticiaRecente.id) <= lastSeen) return;
+
+        const resumo = String(noticiaRecente.resumo || noticiaRecente.conteudo || '').replace(/<[^>]*>/g, '').slice(0, 140);
+        const m = criarModalBase('📰 Novidade do IPIKK', `<strong>${noticiaRecente.titulo || 'Nova notícia'}</strong><br><span>${resumo}${resumo.length>=140?'...':''}</span>`, '<button id="verNoticia" class="botao-ver-mais" style="padding:10px 18px;">Ver notícia</button><button id="fecharNotif" class="link-ler-mais" style="padding:10px 18px;border:1px solid #ccc;border-radius:30px;">Fechar</button>');
+        const marcarVisto = ()=> localStorage.setItem(seenKey, String(noticiaRecente.id));
+        m.overlay.querySelector('#verNoticia')?.addEventListener('click', ()=>{ marcarVisto(); window.location.href = `noticias.php?id=${noticiaRecente.id}`; });
+        m.overlay.querySelector('#fecharNotif')?.addEventListener('click', ()=>{ marcarVisto(); m.close(); });
+        m.overlay.querySelector('[data-close]')?.addEventListener('click', ()=>{ marcarVisto(); });
+    }
     
     // Dados dos depoimentos
     const depoimentosData = <?= json_encode($depoimentos) ?>;
@@ -983,7 +1018,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     }
 
     function abrirModalNoticia(id) {
-        const noticia = noticiasData.find(n => n.id === id);
+        const noticia = noticiasData.find(n => Number(n.id) === Number(id));
         if (!noticia) return;
         
         const modal = document.getElementById('modalNoticia');
@@ -1004,6 +1039,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         document.getElementById('modalAutor').textContent = noticia.autor || 'Gabinete de Comunicação';
         document.getElementById('modalVisualizacoes').textContent = (noticia.visualizacoes || 0) + ' visualizações';
         document.getElementById('modalDescricao').innerHTML = noticia.conteudo;
+        incrementarVisualizacaoNoticia(id);
         
         if (noticia.tags) {
             try {
@@ -1032,6 +1068,8 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') fecharModalNoticia();
     });
+
+    initNotificacoesNoticias();
     
     // Depoimentos
     if (depoimentosData.length > 0) {

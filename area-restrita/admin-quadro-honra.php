@@ -65,7 +65,7 @@ $cursos = $db->query("SELECT id, nome FROM cursos WHERE estado = 'ativo' ORDER B
 // Cores padrão para cursos
 $cores_cursos = [];
 $stmt = $db->query("
-    SELECT c.nome, COALESCE(c.cor, a.cor_primaria, '#003072') as cor
+    SELECT c.nome, COALESCE(NULLIF(TRIM(c.cor), ''), NULLIF(TRIM(a.cor_primaria), ''), '#6c757d') as cor
     FROM cursos c
     LEFT JOIN areas a ON c.area_id = a.id
     WHERE c.estado = 'ativo'
@@ -828,7 +828,7 @@ const coresCursos = <?php echo json_encode($cores_cursos, JSON_UNESCAPED_UNICODE
 let classeFotos = {};
 
 function getCorCurso(cursoNome) {
-    return coresCursos[cursoNome] || '#003072';
+    return coresCursos[cursoNome] || '#6c757d';
 }
 
 function mostrarNotificacao(mensagem, tipo = 'sucesso') {
