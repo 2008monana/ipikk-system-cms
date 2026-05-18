@@ -954,19 +954,23 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         let pref = localStorage.getItem(prefKey);
 
         const criarModalBase = (titulo, corpoHtml, botoesHtml) => {
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-fundo visivel';
-            overlay.style.zIndex = '100000';
-            overlay.innerHTML = `<div class="modal-conteudo" style="max-width:560px;"><button class="modal-botao-fechar" data-close="1"><i class="fas fa-times"></i></button><div class="modal-corpo"><h2 class="modal-titulo" style="font-size:1.6rem;">${titulo}</h2><div class="modal-descricao">${corpoHtml}</div><div style="display:flex;gap:10px;flex-wrap:wrap;">${botoesHtml}</div></div></div>`;
-            document.body.appendChild(overlay);
-            document.body.style.overflow = 'hidden';
-            const close = ()=>{ overlay.remove(); document.body.style.overflow = ''; };
-            overlay.addEventListener('click', e => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
-            return {overlay, close};
+            if (!document.getElementById('newsTopNotifStyle')) {
+                const st = document.createElement('style');
+                st.id = 'newsTopNotifStyle';
+                st.textContent = `.news-top-notif{position:fixed;top:88px;left:50%;transform:translateX(-50%);width:min(92vw,520px);z-index:100000;background:#fff;border:1px solid rgba(0,48,114,.14);border-radius:14px;box-shadow:0 14px 35px rgba(0,0,0,.18);overflow:hidden}.news-top-notif-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:linear-gradient(135deg,#003072,#0a9396);color:#fff}.news-top-notif-head h3{margin:0;font-size:1rem;display:flex;align-items:center;gap:8px}.news-top-notif-close{border:none;background:rgba(255,255,255,.18);color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer}.news-top-notif-body{padding:14px 16px;color:#2c3e50;font-size:.95rem;line-height:1.55}.news-top-notif-actions{padding:0 16px 16px;display:flex;gap:10px}.btn-top-notif{border:1px solid #d6dbe1;background:#fff;color:#003072;padding:9px 14px;border-radius:10px;font-weight:600;cursor:pointer}.btn-top-notif-pri{background:#003072;color:#fff;border-color:#003072}`;
+                document.head.appendChild(st);
+            }
+            const card = document.createElement('div');
+            card.className = 'news-top-notif';
+            card.innerHTML = `<div class="news-top-notif-head"><h3>${titulo}</h3><button class="news-top-notif-close" data-close="1"><i class="fas fa-times"></i></button></div><div class="news-top-notif-body">${corpoHtml}</div><div class="news-top-notif-actions">${botoesHtml}</div>`;
+            document.body.appendChild(card);
+            const close = ()=> card.remove();
+            card.querySelector('[data-close]')?.addEventListener('click', close);
+            return {overlay: card, close};
         };
 
         if (pref === null) {
-            const m = criarModalBase('🔔 Receber notificações?', 'Deseja ser notificado sobre novas notícias do IPIKK?', '<button id="notifSim" class="botao-ver-mais" style="padding:10px 18px;">Sim</button><button id="notifNao" class="link-ler-mais" style="padding:10px 18px;border:1px solid #ccc;border-radius:30px;">Não</button>');
+            const m = criarModalBase('<i class="fas fa-bell"></i> Receber notificações?', 'Deseja ser notificado sobre novas notícias do IPIKK?', '<button id="notifSim" class="btn-top-notif btn-top-notif-pri">Sim</button><button id="notifNao" class="btn-top-notif">Não</button>');
             m.overlay.querySelector('#notifSim')?.addEventListener('click', ()=>{ localStorage.setItem(prefKey,'1'); m.close(); initNotificacoesNoticias(); });
             m.overlay.querySelector('#notifNao')?.addEventListener('click', ()=>{ localStorage.setItem(prefKey,'0'); m.close(); });
             return;
@@ -977,7 +981,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         if (Number(noticiaRecente.id) <= lastSeen) return;
 
         const resumo = String(noticiaRecente.resumo || noticiaRecente.conteudo || '').replace(/<[^>]*>/g, '').slice(0, 140);
-        const m = criarModalBase('📰 Novidade do IPIKK', `<strong>${noticiaRecente.titulo || 'Nova notícia'}</strong><br><span>${resumo}${resumo.length>=140?'...':''}</span>`, '<button id="verNoticia" class="botao-ver-mais" style="padding:10px 18px;">Ver notícia</button><button id="fecharNotif" class="link-ler-mais" style="padding:10px 18px;border:1px solid #ccc;border-radius:30px;">Fechar</button>');
+        const m = criarModalBase('<i class="fas fa-newspaper"></i> Nova Notícia', `<strong>${noticiaRecente.titulo || 'Nova notícia'}</strong><br><span>${resumo}${resumo.length>=140?'...':''}</span>`, '<button id="verNoticia" class="btn-top-notif btn-top-notif-pri">Ver notícia</button><button id="fecharNotif" class="btn-top-notif">Fechar</button>');
         const marcarVisto = ()=> localStorage.setItem(seenKey, String(noticiaRecente.id));
         m.overlay.querySelector('#verNoticia')?.addEventListener('click', ()=>{ marcarVisto(); window.location.href = `noticias.php?id=${noticiaRecente.id}`; });
         m.overlay.querySelector('#fecharNotif')?.addEventListener('click', ()=>{ marcarVisto(); m.close(); });

@@ -799,7 +799,7 @@ function initNotificacoesNoticiasPagina() {
     const overlay = document.createElement('div');
     overlay.className = 'modal-fundo visivel';
     overlay.style.zIndex = '100000';
-    overlay.innerHTML = `<div class="modal-conteudo" style="max-width:560px;"><button class="btn-fechar-modal" data-close="1"><i class="fas fa-times"></i></button><div class="modal-corpo"><h2 class="modal-titulo" style="font-size:1.6rem;">📰 Novidade do IPIKK</h2><p><strong>${escapeHtml(noticiaRecente.titulo || 'Nova notícia')}</strong></p><p>${escapeHtml(resumo)}${resumo.length>=140?'...':''}</p><div style="display:flex;gap:10px;"><button id="irNoticia" class="botao-filtro" style="background:#003072;color:#fff;">Ver notícia</button><button id="fecharNotif" class="botao-filtro">Fechar</button></div></div></div>`;
+    overlay.innerHTML = `<div class="modal-conteudo" style="max-width:560px;"><button class="btn-fechar-modal" data-close="1"><i class="fas fa-times"></i></button><div class="modal-corpo"><h2 class="modal-titulo" style="font-size:1.6rem;"><i class="fas fa-newspaper"></i> Nova Notícia</h2><p><strong>${escapeHtml(noticiaRecente.titulo || 'Nova notícia')}</strong></p><p>${escapeHtml(resumo)}${resumo.length>=140?'...':''}</p><div style="display:flex;gap:10px;"><button id="irNoticia" class="botao-filtro" style="background:#003072;color:#fff;">Ver notícia</button><button id="fecharNotif" class="botao-filtro">Fechar</button></div></div></div>`;
     document.body.appendChild(overlay);
     document.body.style.overflow='hidden';
     const marcar = ()=> localStorage.setItem('ipikk_news_last_seen_id', String(noticiaRecente.id));
@@ -807,7 +807,7 @@ function initNotificacoesNoticiasPagina() {
     overlay.querySelector('#irNoticia')?.addEventListener('click', ()=>{ marcar(); fechar(); abrirModalNoticia(noticiaRecente.id); });
     overlay.querySelector('#fecharNotif')?.addEventListener('click', ()=>{ marcar(); fechar(); });
     overlay.querySelector('[data-close]')?.addEventListener('click', ()=>{ marcar(); });
-    overlay.addEventListener('click', e=>{ if(e.target===overlay){ marcar(); fechar(); }});
+    
 }
 
 function normalizarDataNoticia(noticia) {
