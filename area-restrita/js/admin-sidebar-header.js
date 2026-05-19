@@ -3,7 +3,7 @@ if (window.__ipikkSidebarHeaderInitialized) {
 } else {
     window.__ipikkSidebarHeaderInitialized = true;
 
-    document.addEventListener('DOMContentLoaded', function() {
+    function inicializarSidebarRestrita() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlaySidebar');
         const btnClose = document.getElementById('sidebarClose');
@@ -55,7 +55,13 @@ if (window.__ipikkSidebarHeaderInitialized) {
 
         window.openSidebar = abrirSidebar;
         window.closeSidebar = fecharSidebar;
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', inicializarSidebarRestrita);
+    } else {
+        inicializarSidebarRestrita();
+    }
 }
 
 // Modal global de confirmação usado nas páginas administrativas.
