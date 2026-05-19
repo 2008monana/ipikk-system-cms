@@ -81,11 +81,11 @@ if ($cacheDb && !empty($cacheDb['texto_traduzido'])) {
     exit;
 }
 
-$googleApiKey = getenv('GOOGLE_CLOUD_TRANSLATE_API_KEY') ?: getenv('GOOGLE_TRANSLATE_API_KEY') ?: '';
+$googleApiKey = defined('GOOGLE_TRANSLATE_API_KEY') ? GOOGLE_TRANSLATE_API_KEY : '';
 $translated = '';
 $provider = '';
 
-if ($googleApiKey !== '') {
+if (TRANSLATION_PROVIDER === 'google' && $googleApiKey !== '') {
     $provider = 'google';
     $url = 'https://translation.googleapis.com/language/translate/v2?key=' . urlencode($googleApiKey);
 
@@ -113,8 +113,8 @@ if ($googleApiKey !== '') {
     }
 }
 
-// Fallback para MyMemory quando Google não está configurado ou falhar
-if ($translated === '') {
+// Fallback opcional para MyMemory quando Google não está configurado ou falhar
+if ($translated === '' && TRANSLATION_ENABLE_FALLBACK) {
     $provider = 'mymemory';
     $url = 'https://api.mymemory.translated.net/get?q=' . urlencode($texto) . '&langpair=' . urlencode($source . '|' . $target);
 
@@ -135,7 +135,10 @@ if ($translated === '') {
 }
 
 if ($translated === '') {
-    echo json_encode(['success' => false, 'message' => 'Falha ao traduzir conteúdo']);
+    $msg = (TRANSLATION_PROVIDER === 'google' && !$googleApiKey)
+        ? 'Google Translate não configurado. Defina GOOGLE_CLOUD_TRANSLATE_API_KEY.'
+        : 'Falha ao traduzir conteúdo';
+    echo json_encode(['success' => false, 'message' => $msg]);
     exit;
 }
 
