@@ -210,36 +210,7 @@ function fecharModalConfirmacaoGlobal() {
     document.body.style.overflow = '';
 }
 
-    const botaoConfirmar = modal.querySelector('#botaoConfirmarAcao');
-    if (botaoConfirmar) {
-        Object.assign(botaoConfirmar.style, {
-            alignItems: 'center',
-            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 48%, #991b1b 100%)',
-            border: '1px solid rgba(185, 28, 28, 0.35)',
-            borderRadius: '40px',
-            boxShadow: '0 10px 22px rgba(220, 38, 38, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.24)',
-            color: '#ffffff',
-            display: 'inline-flex',
-            fontSize: '0.9rem',
-            fontWeight: '800',
-            gap: '9px',
-            justifyContent: 'center',
-            minHeight: '46px',
-            minWidth: '138px',
-            padding: '13px 26px'
-        });
-    }
-}
 
-function fecharModalConfirmacaoGlobal() {
-    const modal = document.getElementById('modalConfirmacao');
-    if (modal) {
-        modal.classList.remove('ativo');
-        modal.style.display = 'none';
-    }
-    acaoPendenteConfirmacaoGlobal = null;
-    document.body.style.overflow = '';
-}
 
 window.abrirModalConfirmacao = function(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
     const modal = garantirModalConfirmacaoGlobal();
