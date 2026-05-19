@@ -85,6 +85,39 @@ $googleApiKey = defined('GOOGLE_TRANSLATE_API_KEY') ? GOOGLE_TRANSLATE_API_KEY :
 $translated = '';
 $provider = '';
 
+
+if (TRANSLATION_PROVIDER === 'libretranslate') {
+    $provider = 'libretranslate';
+    $payloadArr = [
+        'q' => $texto,
+        'source' => $source,
+        'target' => $target,
+        'format' => 'text',
+    ];
+
+    if (defined('LIBRETRANSLATE_API_KEY') && LIBRETRANSLATE_API_KEY !== '') {
+        $payloadArr['api_key'] = LIBRETRANSLATE_API_KEY;
+    }
+
+    $payload = json_encode($payloadArr, JSON_UNESCAPED_UNICODE);
+    $ctx = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'timeout' => 12,
+            'ignore_errors' => true,
+            'header' => "Content-Type: application/json
+",
+            'content' => $payload,
+        ],
+    ]);
+
+    $resp = @file_get_contents(LIBRETRANSLATE_URL, false, $ctx);
+    if ($resp !== false) {
+        $json = json_decode($resp, true);
+        $translated = trim((string)($json['translatedText'] ?? ''));
+    }
+}
+
 if (TRANSLATION_PROVIDER === 'google' && $googleApiKey !== '') {
     $provider = 'google';
     $url = 'https://translation.googleapis.com/language/translate/v2?key=' . urlencode($googleApiKey);
@@ -135,9 +168,12 @@ if ($translated === '' && TRANSLATION_ENABLE_FALLBACK) {
 }
 
 if ($translated === '') {
-    $msg = (TRANSLATION_PROVIDER === 'google' && !$googleApiKey)
-        ? 'Google Translate não configurado. Defina GOOGLE_CLOUD_TRANSLATE_API_KEY.'
-        : 'Falha ao traduzir conteúdo';
+    $msg = 'Falha ao traduzir conteúdo';
+    if (TRANSLATION_PROVIDER === 'google' && !$googleApiKey) {
+        $msg = 'Google Translate não configurado. Defina GOOGLE_CLOUD_TRANSLATE_API_KEY.';
+    } elseif (TRANSLATION_PROVIDER === 'libretranslate') {
+        $msg = 'LibreTranslate indisponível. Verifique LIBRETRANSLATE_URL.';
+    }
     echo json_encode(['success' => false, 'message' => $msg]);
     exit;
 }
