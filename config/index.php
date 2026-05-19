@@ -22,6 +22,7 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/database.php';
 
 require_once __DIR__ . '/email.php';
+require_once __DIR__ . '/translation.php';
 
 // ============================================
 // CONTAGEM DE VISITANTES (APENAS SITE PÚBLICO)
