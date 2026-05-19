@@ -24,27 +24,25 @@ foreach ($alunos_db as $aluno) {
     $alunos[$aluno['classe']] = $aluno;
 }
 
-// Cores padrão para cursos (mapeamento completo)
-$cores_padrao = [
-    'Energia e Instalações Eléctricas' => '#2e86c1',
-    'Energia e Instalações Elétricas' => '#2e86c1',
-    'Informática' => '#1F7A4D',
-    'Técnico de Informática' => '#2d7a3a',
-    'Gestão de Sistemas' => '#1a5a8c',
-    'Técnico de Obras' => '#6c757d',
-    'Construção Civil' => '#6c757d',
-    'Obras de Construção Civil' => '#6c757d',
-    'Desenhador Projectista' => '#b46e00',
-    'Frio e Climatização' => '#e07b2a',
-    'Tecnologias de Móveis' => '#c0392b',
-    'Tecnologia de Móveis' => '#c0392b',
-    'Alfaiataria' => '#a63cc3',
-    'costura' => '#ff055d'
-];
+// Mapa de cores dos cursos (curso -> cor do curso, fallback cor da área, fallback cinza)
+$cores_cursos = [];
+$stmt_cores = getDB()->query("
+    SELECT c.nome, COALESCE(NULLIF(TRIM(c.cor), ''), NULLIF(TRIM(a.cor_primaria), ''), '#6c757d') as cor
+    FROM cursos c
+    LEFT JOIN areas a ON a.id = c.area_id
+");
+while ($row = $stmt_cores->fetch()) {
+    $nome_curso = trim((string)($row['nome'] ?? ''));
+    $cor_curso = trim((string)($row['cor'] ?? ''));
+    if ($nome_curso !== '' && preg_match('/^#[0-9a-fA-F]{6}$/', $cor_curso)) {
+        $cores_cursos[mb_strtolower($nome_curso)] = $cor_curso;
+    }
+}
 
 function getCorCurso($curso) {
-    global $cores_padrao;
-    return $cores_padrao[$curso] ?? '#003072';
+    global $cores_cursos;
+    $chave = mb_strtolower(trim((string)$curso));
+    return $cores_cursos[$chave] ?? '#6c757d';
 }
 
 // Determinar melhor aluno geral (maior média)
