@@ -131,8 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($action === 'salvar_tecnico') {
         $stmt = $db->prepare("UPDATE configuracoes SET 
-            smtp_host = ?, smtp_porta = ?, smtp_seguranca = ?, smtp_email = ?, smtp_senha = ?,
-            seo_titulo = ?, seo_descricao = ?, seo_keywords = ?, seo_url = ?
+            smtp_host = ?, smtp_porta = ?, smtp_seguranca = ?, smtp_email = ?, smtp_senha = ?
             WHERE id = 1");
         
         $success = $stmt->execute([
@@ -140,11 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['smtp_porta'] ?? 587,
             $_POST['smtp_seguranca'] ?? 'tls',
             $_POST['smtp_email'] ?? '',
-            $_POST['smtp_senha'] ?? '',
-            $_POST['seo_titulo'] ?? '',
-            $_POST['seo_descricao'] ?? '',
-            $_POST['seo_keywords'] ?? '',
-            $_POST['seo_url'] ?? ''
+            $_POST['smtp_senha'] ?? ''
         ]);
         
         echo json_encode(['success' => $success, 'message' => $success ? 'Configuracoes tecnicas guardadas!' : 'Erro ao guardar']);
@@ -1019,7 +1014,6 @@ Webmail IPIKK|https://webmail.ipikk.ao/") ?></textarea>
                 
                 <h4 style="margin: 25px 0 15px;"><i class="fas fa-cog"></i> Configuracoes</h4>
                 <div class="grupo-checkbox"><input type="checkbox" id="mostrarCabecalho" <?= $config['mostrar_social_header'] ? 'checked' : '' ?>> <label>Mostrar icones no cabecalho</label></div>
-                <div class="grupo-checkbox"><input type="checkbox" id="mostrarRodape" <?= $config['mostrar_social_footer'] ? 'checked' : '' ?>> <label>Mostrar icones no rodape</label></div>
                 <div class="grupo-checkbox"><input type="checkbox" id="novaJanela" <?= $config['social_nova_janela'] ? 'checked' : '' ?>> <label>Abrir links em nova janela</label></div>
             </div>
             <div class="rodape-acoes"><button class="btn btn-primario" onclick="guardarRedesSociais()"><i class="fas fa-save"></i> Guardar Alteracoes</button></div>
@@ -1037,14 +1031,6 @@ Webmail IPIKK|https://webmail.ipikk.ao/") ?></textarea>
                 <div class="grupo-form"><label>Email de Envio</label><input type="email" class="campo-form" id="smtp_email" value="<?= htmlspecialchars($config['smtp_email'] ?? '') ?>"></div>
                 <div class="grupo-form"><label>Senha</label><input type="password" class="campo-form" id="smtp_senha" value="<?= htmlspecialchars($config['smtp_senha'] ?? '') ?>"></div>
                 <button class="btn btn-secundario" onclick="testarEmail()"><i class="fas fa-paper-plane"></i> Enviar Email de Teste</button>
-            </div>
-
-            <div class="secao">
-                <h3 class="titulo-secao"><i class="fas fa-search"></i> Configuracoes SEO</h3>
-                <div class="grupo-form"><label>Titulo Padrao</label><input type="text" class="campo-form" id="seo_titulo" value="<?= htmlspecialchars($config['seo_titulo'] ?? 'IPIKK - Instituto Politecnico Industrial') ?>"></div>
-                <div class="grupo-form"><label>Meta Descricao</label><textarea class="area-texto" rows="3" id="seo_descricao"><?= htmlspecialchars($config['seo_descricao'] ?? 'Formacao tecnica especializada') ?></textarea></div>
-                <div class="grupo-form"><label>Palavras-chave</label><input type="text" class="campo-form" id="seo_keywords" value="<?= htmlspecialchars($config['seo_keywords'] ?? 'IPIKK, formacao tecnica') ?>"></div>
-                <div class="grupo-form"><label>URL do Site</label><input type="url" class="campo-form" id="seo_url" value="<?= htmlspecialchars($config['seo_url'] ?? 'https://www.ipikk.ao') ?>"></div>
             </div>
 
             <div class="rodape-acoes"><button class="btn btn-primario" onclick="guardarTecnico()"><i class="fas fa-save"></i> Guardar Alteracoes</button></div>
@@ -1253,7 +1239,6 @@ Webmail IPIKK|https://webmail.ipikk.ao/") ?></textarea>
         formData.append('instagram', document.getElementById('social_instagram').value);
         formData.append('linkedin', document.getElementById('social_linkedin').value);
         formData.append('mostrar_header', document.getElementById('mostrarCabecalho').checked ? '1' : '0');
-        formData.append('mostrar_footer', document.getElementById('mostrarRodape').checked ? '1' : '0');
         formData.append('nova_janela', document.getElementById('novaJanela').checked ? '1' : '0');
         
         const response = await fetch(window.location.href, { method: 'POST', body: formData });
@@ -1270,10 +1255,6 @@ Webmail IPIKK|https://webmail.ipikk.ao/") ?></textarea>
         formData.append('smtp_seguranca', document.getElementById('smtp_seguranca').value);
         formData.append('smtp_email', document.getElementById('smtp_email').value);
         formData.append('smtp_senha', document.getElementById('smtp_senha').value);
-        formData.append('seo_titulo', document.getElementById('seo_titulo').value);
-        formData.append('seo_descricao', document.getElementById('seo_descricao').value);
-        formData.append('seo_keywords', document.getElementById('seo_keywords').value);
-        formData.append('seo_url', document.getElementById('seo_url').value);
         
         const response = await fetch(window.location.href, { method: 'POST', body: formData });
         const data = await response.json();
