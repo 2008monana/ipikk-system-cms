@@ -213,10 +213,7 @@ include 'includes/sidebar.php';
                     <span class="contador" id="contadorMidias">(<?= $total_midias ?> itens)</span>
                 </h2>
                 <div class="galeria-acoes">
-                    <button class="btn-acao" id="btnOrdenar" title="Ordenar por arrasto">
-                        <i class="fas fa-arrows-alt"></i> Ordenar
-                    </button>
-                    <button class="btn-acao" id="btnGuardarOrdem" style="display: none;">
+<button class="btn-acao" id="btnGuardarOrdem" style="display: none;">
                         <i class="fas fa-save"></i> Guardar Ordem
                     </button>
                     <button class="btn-acao" id="btnCancelarOrdem" style="display: none;">
@@ -1613,12 +1610,12 @@ function limparFiltros() {
 function ordenarGaleria() {
     modoOrdenacao = !modoOrdenacao;
     const cards = document.querySelectorAll('.galeria-card');
-    const btnOrdenar = document.getElementById('btnOrdenar');
+    const btnOrdenar = null;
     const btnGuardar = document.getElementById('btnGuardarOrdem');
     const btnCancelar = document.getElementById('btnCancelarOrdem');
     
     if (modoOrdenacao) {
-        btnOrdenar.style.display = 'none';
+        if (btnOrdenar) btnOrdenar.style.display = 'none';
         btnGuardar.style.display = 'flex';
         btnCancelar.style.display = 'flex';
         cards.forEach(card => {
@@ -1629,7 +1626,7 @@ function ordenarGaleria() {
         });
         iniciarDragDrop();
     } else {
-        btnOrdenar.style.display = 'flex';
+        if (btnOrdenar) btnOrdenar.style.display = 'flex';
         btnGuardar.style.display = 'none';
         btnCancelar.style.display = 'none';
         cards.forEach(card => {
@@ -1643,7 +1640,7 @@ function ordenarGaleria() {
 
 function cancelarOrdenacao() {
     modoOrdenacao = false;
-    document.getElementById('btnOrdenar').style.display = 'flex';
+    if (btnOrdenar) btnOrdenar.style.display = 'flex';
     document.getElementById('btnGuardarOrdem').style.display = 'none';
     document.getElementById('btnCancelarOrdem').style.display = 'none';
     document.querySelectorAll('.galeria-card').forEach(card => {
@@ -1731,7 +1728,7 @@ document.getElementById('btnNovaMidia')?.addEventListener('click', abrirModalMid
 document.getElementById('toggleFiltros')?.addEventListener('click', toggleFiltros);
 document.getElementById('btnAplicarFiltros')?.addEventListener('click', aplicarFiltros);
 document.getElementById('btnLimparFiltros')?.addEventListener('click', limparFiltros);
-document.getElementById('btnOrdenar')?.addEventListener('click', ordenarGaleria);
+
 document.getElementById('btnGuardarOrdem')?.addEventListener('click', guardarOrdem);
 document.getElementById('btnCancelarOrdem')?.addEventListener('click', cancelarOrdenacao);
 document.getElementById('btnCancelarConfirmacao')?.addEventListener('click', () => {
