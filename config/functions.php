@@ -248,16 +248,43 @@ if (!function_exists('uploadArquivoNuvem')) {
             return ['success' => false, 'url' => null, 'message' => 'Arquivo inválido para upload.'];
         }
 
-        $cloudName = getenv('CLOUDINARY_CLOUD_NAME') ?: '';
-        $uploadPreset = getenv('CLOUDINARY_UPLOAD_PRESET') ?: '';
-        $folderBase = getenv('CLOUDINARY_FOLDER') ?: 'ipikk';
+        $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
+        $nomeArquivo = uniqid('midia_', true) . ($ext ? '.' . $ext : '');
+        $subpasta = trim(str_replace('..', '', (string)$subpasta), '/');
+        $subpasta = $subpasta === '' ? 'geral' : $subpasta;
+
+        $fallbackLocal = function(string $motivo) use ($file, $subpasta, $nomeArquivo) {
+            $pastaRelativa = 'uploads/' . trim($subpasta, '/') . '/' . date('Y/m');
+            $pastaFisica = dirname(__DIR__) . '/area-publica/' . $pastaRelativa;
+
+            if (!is_dir($pastaFisica) && !mkdir($pastaFisica, 0755, true)) {
+                error_log('Falha upload local: não foi possível criar diretório ' . $pastaFisica);
+                return ['success' => false, 'url' => null, 'message' => 'Erro ao preparar diretório de upload.'];
+            }
+
+            $destinoFisico = $pastaFisica . '/' . $nomeArquivo;
+            if (!move_uploaded_file($file['tmp_name'], $destinoFisico)) {
+                error_log('Falha upload local: move_uploaded_file falhou para ' . $destinoFisico);
+                return ['success' => false, 'url' => null, 'message' => 'Erro ao salvar arquivo no servidor.'];
+            }
+
+            error_log('Upload salvo localmente. Motivo fallback: ' . $motivo);
+            return [
+                'success' => true,
+                'url' => $pastaRelativa . '/' . $nomeArquivo,
+                'message' => 'Upload realizado com sucesso (armazenamento local).'
+            ];
+        };
+
+        $cloudName = getenv('CLOUDINARY_CLOUD_NAME') ?: (defined('CLOUDINARY_CLOUD_NAME') ? CLOUDINARY_CLOUD_NAME : '');
+        $uploadPreset = getenv('CLOUDINARY_UPLOAD_PRESET') ?: (defined('CLOUDINARY_UPLOAD_PRESET') ? CLOUDINARY_UPLOAD_PRESET : '');
+        $folderBase = getenv('CLOUDINARY_FOLDER') ?: (defined('CLOUDINARY_FOLDER') ? CLOUDINARY_FOLDER : 'ipikk');
 
         if ($cloudName === '' || $uploadPreset === '') {
-            return ['success' => false, 'url' => null, 'message' => 'Cloudinary não configurado.'];
+            return $fallbackLocal('Cloudinary não configurado no ambiente.');
         }
 
         $folder = trim($folderBase . '/' . trim($subpasta, '/'), '/');
-        $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
         $isPdf = ($ext === 'pdf') || stripos((string)($file['type'] ?? ''), 'pdf') !== false;
         $resourceType = $isPdf ? 'raw' : 'auto';
         $endpoint = "https://api.cloudinary.com/v1_1/{$cloudName}/{$resourceType}/upload";
@@ -289,8 +316,7 @@ if (!function_exists('uploadArquivoNuvem')) {
         }
 
         error_log("Falha upload Cloudinary ({$httpCode}): " . ($curlError ?: $response));
-
-        return ['success' => false, 'url' => null, 'message' => 'Erro ao enviar arquivo para nuvem (cloud-only, sem fallback local).'];
+        return $fallbackLocal('Falha na API do Cloudinary.');
     }
 }
 
