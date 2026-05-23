@@ -1194,6 +1194,40 @@ include 'includes/sidebar.php';
 }
 
 @media (max-width: 768px) {
+    .secao-categorias {
+        padding: 16px;
+    }
+
+    .secao-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .secao-header-left {
+        width: 100%;
+    }
+
+    .secao-titulo {
+        flex-wrap: wrap;
+        row-gap: 4px;
+    }
+
+    .secao-header-acoes {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        gap: 8px;
+    }
+
+    .btn-adicionar {
+        width: 100%;
+        min-height: 40px;
+        justify-content: center;
+        display: inline-flex;
+        align-items: center;
+    }
+
     .stats-grid { grid-template-columns: 1fr; }
     .galeria-grid { grid-template-columns: 1fr; }
     .grid-categorias { grid-template-columns: 1fr; }
