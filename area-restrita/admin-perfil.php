@@ -84,11 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cargo = trim($_POST['cargo'] ?? '');
         $biografia = trim($_POST['biografia'] ?? '');
         
-        $notificacoes_contacto = isset($_POST['notificacoes_contacto']) ? 1 : 0;
-        $notificacoes_sistema = isset($_POST['notificacoes_sistema']) ? 1 : 0;
-        $notificacoes_relatorios = isset($_POST['notificacoes_relatorios']) ? 1 : 0;
-        $notificacoes_mensagens = isset($_POST['notificacoes_mensagens']) ? 1 : 0;
-        $notificacoes_comentarios = isset($_POST['notificacoes_comentarios']) ? 1 : 0;
+        $notificacoes_contacto = ($_POST['notificacoes_contacto'] ?? '0') === '1' ? 1 : 0;
+        $notificacoes_sistema = ($_POST['notificacoes_sistema'] ?? '0') === '1' ? 1 : 0;
+        $notificacoes_relatorios = ($_POST['notificacoes_relatorios'] ?? '0') === '1' ? 1 : 0;
+        $notificacoes_mensagens = ($_POST['notificacoes_mensagens'] ?? '0') === '1' ? 1 : 0;
+        $notificacoes_comentarios = ($_POST['notificacoes_comentarios'] ?? '0') === '1' ? 1 : 0;
         
         if (empty($nome) || empty($email)) {
             echo json_encode(['success' => false, 'message' => 'Nome e email são obrigatórios.']);
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $senha_atual = $_POST['senha_atual'] ?? '';
         $nova_senha = $_POST['nova_senha'] ?? '';
         $confirmar_senha = $_POST['confirmar_senha'] ?? '';
-        $encerrar_sessoes = isset($_POST['encerrar_sessoes']) ? 1 : 0;
+        $encerrar_sessoes = ($_POST['encerrar_sessoes'] ?? '0') === '1' ? 1 : 0;
         
         if (empty($senha_atual) || empty($nova_senha) || empty($confirmar_senha)) {
             echo json_encode(['success' => false, 'message' => 'Preencha todos os campos.']);
@@ -162,8 +162,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($success) {
             if ($encerrar_sessoes) {
-                $stmt = $db->prepare("DELETE FROM sessoes WHERE utilizador_id = ?");
-                $stmt->execute([$_SESSION['utilizador_id']]);
+                try {
+                    $stmt = $db->prepare("DELETE FROM sessoes WHERE utilizador_id = ?");
+                    $stmt->execute([$_SESSION['utilizador_id']]);
+                } catch (Exception $e) {
+                    error_log('Erro ao encerrar outras sessões após troca de senha: ' . $e->getMessage());
+                }
             }
             registrarLog('alterou_senha', 'utilizadores', $_SESSION['utilizador_id'], 'Alterou a própria senha');
             echo json_encode(['success' => true, 'message' => 'Senha alterada com sucesso!']);
