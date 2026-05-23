@@ -140,7 +140,8 @@ include 'includes/sidebar.php';
                             <th width="120">DATA</th>
                             <th width="120">ESTADO</th>
                             <th width="150">AÇÕES</th>
-                        </thead>
+                        </tr>
+                    </thead>
                     <tbody id="corpoTabelaNoticias">
                         <?php foreach($noticias as $noticia): ?>
                         <tr data-id="<?php echo $noticia['id']; ?>" data-estado="<?php echo $noticia['estado']; ?>" data-categoria="<?php echo $noticia['categoria']; ?>">
