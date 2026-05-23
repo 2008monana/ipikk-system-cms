@@ -22,5 +22,6 @@
     <!-- CSS -->
     <link rel="stylesheet" href="css/admin-sidebar-header.css">
     <link rel="stylesheet" href="css/<?= $css_especifico ?>">
+    <link rel="stylesheet" href="css/responsivo.css">
 </head>
 <body>
