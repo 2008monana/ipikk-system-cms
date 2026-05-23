@@ -1,0 +1,224 @@
+/* Responsividade global da Área Restrita IPIKK */
+*, *::before, *::after { box-sizing: border-box; }
+img, video, canvas, svg { max-width: 100%; height: auto; }
+
+:root {
+  --resp-gap: 12px;
+  --resp-touch: 44px;
+}
+
+body { overflow-x: hidden; }
+
+/* Conteúdo principal: segurança para páginas com estilos inline/antigos */
+.conteudo-principal,
+main.conteudo-principal,
+.main-content,
+[class*="conteudo-"] {
+  max-width: 100%;
+}
+
+/* Tabelas */
+.table-responsive,
+.tabela-wrapper,
+.tabela-container,
+[class*="tabela-wrapper"],
+[class*="table-wrapper"] {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  max-width: 100%;
+}
+
+table th, table td {
+  white-space: normal !important;
+  word-break: break-word;
+}
+
+/* Cards, listas e grids */
+.cards,
+.cards-grid,
+.grid-cards,
+.grid-estatisticas,
+.estatisticas-grid,
+.dashboard-cards,
+.dashboard-stats,
+.lista-cards,
+.galeria-grid,
+.funcionarios-grid,
+.filtros-grid,
+.form-grid,
+[class*="grid"] {
+  max-width: 100%;
+}
+
+/* Formularios e filtros */
+.linha-form,
+.form-row,
+.filtros,
+.filtros-form,
+.barra-filtros,
+[class*="filtro"] {
+  gap: var(--resp-gap);
+}
+
+input, select, textarea, button, .btn, [class*="botao"] {
+  min-height: var(--resp-touch);
+}
+
+/* Ações */
+.acoes,
+.acoes-tabela,
+.botoes-acao,
+.btn-group,
+[class*="acoes"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Modais */
+.modal,
+.modal-conteudo,
+.modal-content,
+.modal-caixa,
+[class*="modal"] {
+  max-width: 100%;
+}
+
+.modal.ativo,
+.modal.show,
+.modal-confirmacao.ativo {
+  padding: 12px;
+}
+
+.modal-conteudo,
+.modal-content,
+.modal-caixa,
+.modal-confirmacao-caixa {
+  width: 95% !important;
+  max-width: 95% !important;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+/* Gráficos */
+canvas,
+.chart-container,
+.grafico,
+[class*="chart"] {
+  max-width: 100% !important;
+}
+
+/* Sidebar/overlay: unificação de classe visivel/visible */
+.sidebar.visivel,
+.sidebar.visible { transform: translateX(0); }
+.sidebar-overlay.visivel,
+.sidebar-overlay.visible { opacity: 1; visibility: visible; }
+
+/*************** <= 1024px ***************/
+@media (max-width: 1024px) {
+  .conteudo-principal,
+  main.conteudo-principal {
+    margin-left: 0 !important;
+    width: 100%;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .cards,
+  .cards-grid,
+  .dashboard-cards,
+  .dashboard-stats,
+  .grid-estatisticas,
+  .estatisticas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  .filtros,
+  .filtros-form,
+  .barra-filtros,
+  .linha-form,
+  .form-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}
+
+/*************** <= 768px ***************/
+@media (max-width: 768px) {
+  .conteudo-principal,
+  main.conteudo-principal {
+    margin-left: 0 !important;
+    padding: 12px;
+  }
+
+  .cards,
+  .cards-grid,
+  .dashboard-cards,
+  .dashboard-stats,
+  .grid-estatisticas,
+  .estatisticas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filtros,
+  .filtros-form,
+  .barra-filtros,
+  .linha-form,
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .acoes,
+  .acoes-tabela,
+  .botoes-acao,
+  .btn-group,
+  [class*="acoes"] > .btn,
+  [class*="acoes"] > button {
+    width: 100%;
+  }
+
+  .tabela-wrapper,
+  .tabela-container,
+  .table-responsive,
+  [class*="table-wrapper"] {
+    border-radius: 12px;
+  }
+
+  table { min-width: 640px; }
+}
+
+/*************** <= 480px ***************/
+@media (max-width: 480px) {
+  :root { --resp-gap: 10px; }
+
+  body { font-size: 14px; }
+
+  .conteudo-principal,
+  main.conteudo-principal {
+    padding: 10px;
+  }
+
+  .sidebar {
+    width: min(86vw, 320px) !important;
+  }
+
+  .modal-conteudo,
+  .modal-content,
+  .modal-caixa,
+  .modal-confirmacao-caixa {
+    width: 95% !important;
+    max-width: 95% !important;
+    padding: 14px !important;
+    border-radius: 14px !important;
+  }
+
+  h1, h2, h3 { line-height: 1.2; }
+}
