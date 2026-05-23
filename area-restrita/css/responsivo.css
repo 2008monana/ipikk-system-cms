@@ -12,17 +12,14 @@ body { overflow-x: hidden; }
 /* Conteúdo principal: segurança para páginas com estilos inline/antigos */
 .conteudo-principal,
 main.conteudo-principal,
-.main-content,
-[class*="conteudo-"] {
+.main-content {
   max-width: 100%;
 }
 
 /* Tabelas */
 .table-responsive,
 .tabela-wrapper,
-.tabela-container,
-[class*="tabela-wrapper"],
-[class*="table-wrapper"] {
+.tabela-container {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -50,8 +47,7 @@ table th, table td {
 .galeria-grid,
 .funcionarios-grid,
 .filtros-grid,
-.form-grid,
-[class*="grid"] {
+.form-grid {
   max-width: 100%;
 }
 
@@ -60,12 +56,11 @@ table th, table td {
 .form-row,
 .filtros,
 .filtros-form,
-.barra-filtros,
-[class*="filtro"] {
+.barra-filtros {
   gap: var(--resp-gap);
 }
 
-input, select, textarea, button, .btn, [class*="botao"] {
+input, select, textarea, button, .btn, .botao, .botao-primario, .botao-secundario {
   min-height: var(--resp-touch);
 }
 
@@ -73,8 +68,7 @@ input, select, textarea, button, .btn, [class*="botao"] {
 .acoes,
 .acoes-tabela,
 .botoes-acao,
-.btn-group,
-[class*="acoes"] {
+.btn-group {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -84,8 +78,7 @@ input, select, textarea, button, .btn, [class*="botao"] {
 .modal,
 .modal-conteudo,
 .modal-content,
-.modal-caixa,
-[class*="modal"] {
+.modal-caixa {
   max-width: 100%;
 }
 
@@ -108,8 +101,7 @@ input, select, textarea, button, .btn, [class*="botao"] {
 /* Gráficos */
 canvas,
 .chart-container,
-.grafico,
-[class*="chart"] {
+.grafico {
   max-width: 100% !important;
 }
 
@@ -179,16 +171,13 @@ canvas,
   .acoes,
   .acoes-tabela,
   .botoes-acao,
-  .btn-group,
-  [class*="acoes"] > .btn,
-  [class*="acoes"] > button {
+  .btn-group {
     width: 100%;
   }
 
   .tabela-wrapper,
   .tabela-container,
-  .table-responsive,
-  [class*="table-wrapper"] {
+  .table-responsive {
     border-radius: 12px;
   }
 

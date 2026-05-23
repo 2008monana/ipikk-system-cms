@@ -17,7 +17,13 @@
   function syncMobileLayout() {
     const mobile = window.matchMedia('(max-width: 1024px)').matches;
     const main = document.querySelector('.conteudo-principal');
-    if (mobile && main) main.style.marginLeft = '0';
+    if (main) {
+      if (mobile) {
+        main.style.marginLeft = '0';
+      } else {
+        main.style.marginLeft = '';
+      }
+    }
 
     document.querySelectorAll('.sidebar, #sidebar').forEach((sb) => {
       if (!mobile) {
@@ -26,10 +32,12 @@
       }
     });
 
+    const body = document.body;
     const overlay = document.getElementById('overlaySidebar');
     if (overlay && !mobile) {
       overlay.classList.remove('visivel');
       overlay.classList.remove('visible');
+      body.style.overflow = '';
     }
 
     document.querySelectorAll('canvas').forEach((c) => {
