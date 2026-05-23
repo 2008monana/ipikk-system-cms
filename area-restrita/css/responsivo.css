@@ -75,6 +75,16 @@ input, select, textarea, button, .btn, .botao, .botao-primario, .botao-secundari
 }
 
 /* Modais */
+
+/* Garante que modal de confirmação NÃO aparece por padrão */
+.modal-confirmacao {
+  display: none !important;
+}
+.modal-confirmacao.ativo,
+.modal-confirmacao.show {
+  display: flex !important;
+}
+
 .modal,
 .modal-conteudo,
 .modal-content,
