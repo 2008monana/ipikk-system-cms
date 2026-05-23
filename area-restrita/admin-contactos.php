@@ -1437,6 +1437,20 @@ include 'includes/sidebar.php';
         width: 100%;
     }
 }
+        .modal-confirmacao {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 30000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-confirmacao.ativo,
+        .modal-confirmacao.show {
+            display: flex;
+        }
+
 </style>
 
 <script>

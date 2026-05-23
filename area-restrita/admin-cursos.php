@@ -275,6 +275,20 @@ unset($curso);
         .btn-acao:hover:not(:disabled) { background: var(--azul-primario); border-color: var(--azul-primario); color: var(--branco); }
         .btn-acao:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 
+        .modal-confirmacao {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 30000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-confirmacao.ativo,
+        .modal-confirmacao.show {
+            display: flex;
+        }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,30,70,0.75); backdrop-filter: blur(6px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
         .conteudo-modal { background: var(--branco); border-radius: 16px; max-width: 1000px; width: 100%; max-height: 92vh; overflow-y: auto; animation: slideInModal 0.35s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 25px 60px rgba(0,30,70,0.35); }
         @keyframes slideInModal { from { opacity: 0; transform: translateY(-60px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
