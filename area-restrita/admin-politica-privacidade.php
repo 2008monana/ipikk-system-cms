@@ -10,9 +10,17 @@ verificarPermissao('conteudo_site');
 
 $db = getDB();
 
-$texto_padrao = <<<'TXT'
-Política de Privacidade e Utilização do Site
 
+function tabelaPoliticaExiste(PDO $db): bool {
+    try {
+        $stmt = $db->query("SHOW TABLES LIKE 'politica_privacidade'");
+        return (bool)$stmt->fetchColumn();
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
+$texto_padrao = <<<'TXT'
 1. Utilização do Site
 O IPIKK empenha-se em manter a informação disponível neste site atualizada e rigorosa. Ainda assim, não é possível garantir que todos os conteúdos estejam permanentemente atualizados ou isentos de imprecisões.
 Este site é de acesso livre e tem como propósito apresentar a oferta formativa, os valores institucionais, as atividades, projetos, notícias e eventos do IPIKK. Os utilizadores podem descarregar, visualizar ou imprimir conteúdos do site exclusivamente para uso pessoal e não comercial.
@@ -57,21 +65,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($acao === 'salvar') {
         $texto = trim($_POST['texto'] ?? '');
-                $stmt = $db->prepare("INSERT INTO politica_privacidade (id, titulo, texto, ultima_actualizacao, ativo, updated_at) VALUES (1, ?, ?, ?, 1, NOW()) ON DUPLICATE KEY UPDATE titulo = VALUES(titulo), texto = VALUES(texto), ultima_actualizacao = VALUES(ultima_actualizacao), ativo = 1, updated_at = NOW()");
-        $stmt->execute(['Política de Privacidade e Utilização do Site', $texto, date('Y-m-d')]);
+        if (tabelaPoliticaExiste($db)) {
+            $stmt = $db->prepare("INSERT INTO politica_privacidade (id, titulo, texto, ultima_actualizacao, ativo, updated_at) VALUES (1, ?, ?, ?, 1, NOW()) ON DUPLICATE KEY UPDATE titulo = VALUES(titulo), texto = VALUES(texto), ultima_actualizacao = VALUES(ultima_actualizacao), ativo = 1, updated_at = NOW()");
+            $stmt->execute(['Política e Privacidade', $texto, date('Y-m-d')]);
+        } else {
+            $payload = json_encode(['texto' => $texto], JSON_UNESCAPED_UNICODE);
+            $stmt = $db->prepare("INSERT INTO conteudo_paginas (slug, titulo, conteudo, created_at) VALUES ('politica-privacidade', 'Política e Privacidade', ?, NOW()) ON DUPLICATE KEY UPDATE conteudo = VALUES(conteudo), titulo = VALUES(titulo)");
+            $stmt->execute([$payload]);
+        }
         $mensagem = 'Conteúdo salvo com sucesso.';
     }
 
     if ($acao === 'eliminar') {
-        $stmt = $db->prepare("UPDATE politica_privacidade SET texto = '', ativo = 0, updated_at = NOW() WHERE id = 1");
-        $stmt->execute();
+        if (tabelaPoliticaExiste($db)) {
+            $stmt = $db->prepare("UPDATE politica_privacidade SET texto = '', ativo = 0, updated_at = NOW() WHERE id = 1");
+            $stmt->execute();
+        } else {
+            $stmt = $db->prepare("UPDATE conteudo_paginas SET conteudo = NULL WHERE slug = 'politica-privacidade'");
+            $stmt->execute();
+        }
         $mensagem = 'Conteúdo eliminado da base de dados.';
     }
 }
 
-$stmt = $db->query("SELECT texto FROM politica_privacidade WHERE ativo = 1 ORDER BY id DESC LIMIT 1");
-$registo = $stmt->fetch();
-$texto = !empty($registo['texto']) ? $registo['texto'] : $texto_padrao;
+if (tabelaPoliticaExiste($db)) {
+    $stmt = $db->query("SELECT texto FROM politica_privacidade WHERE ativo = 1 ORDER BY id DESC LIMIT 1");
+    $registo = $stmt->fetch();
+    $texto = !empty($registo['texto']) ? $registo['texto'] : $texto_padrao;
+} else {
+    $stmt = $db->prepare("SELECT conteudo FROM conteudo_paginas WHERE slug = 'politica-privacidade' LIMIT 1");
+    $stmt->execute();
+    $registo = $stmt->fetch();
+    $dados = $registo && !empty($registo['conteudo']) ? json_decode($registo['conteudo'], true) : [];
+    $texto = trim($dados['texto'] ?? $texto_padrao);
+}
 
 $titulo_pagina = 'Política e Privacidade';
 include 'includes/header.php';
