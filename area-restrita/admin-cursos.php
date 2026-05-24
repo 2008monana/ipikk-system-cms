@@ -47,7 +47,7 @@ $stmt = $db->query("
            c.estado, c.destaque, c.icone_classe, c.cor,
            c.imagem_hero, c.subtitulo_hero, c.descricao_curta,
            c.descricao_completa, c.sobre_descricao, c.objetivo,
-           c.competencias_descricao, c.certificacao_descricao,
+           c.competencias_descricao, c.competencias_card, c.certificacao_descricao,
            c.programa_pdf_url, c.ordem,
            a.nome AS area_nome, a.cor_primaria AS area_cor, a.icone_classe AS area_icone
     FROM cursos c
@@ -1677,6 +1677,7 @@ function eliminarCurso(id) {
 // ============================================
 async function salvarCurso(event) {
     if (event) event.preventDefault();
+    syncCompetenciasCardTextarea();
 
     console.log("=== INICIANDO SALVAMENTO DO CURSO ===");
 
