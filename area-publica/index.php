@@ -146,6 +146,9 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     <meta name="description" content="<?= htmlspecialchars($config['seo_descricao'] ?? 'Bem-vindo ao site oficial do Instituto Politécnico Industrial do Kilamba Kiaxi Nº 8050 "Nova Vida" (IPIKK-NV).') ?>">
     <meta name="author" content="Equipa de Desenvolvimento Web, Curso de Gestão de Sistemas Informáticos, IPIKK-NV">
     <meta name="keywords" content="<?= htmlspecialchars($config['seo_keywords'] ?? 'IPIKK, IPIKK-NV, Instituto Politécnico Industrial do Kilamba Kiaxi') ?>">
+    <link rel="canonical" href="https://ipikk.it.ao/">
+    <meta name="robots" content="index, follow">
+
 
     <title>IPIKK - Inicio</title>
     
