@@ -898,6 +898,12 @@ function obterIconeAcao($acao) {
 
     document.getElementById('botaoMenuMobile')?.addEventListener('click', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        if (window.openSidebar) window.openSidebar();
+    });
+    document.getElementById('menuMobileBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         if (window.openSidebar) window.openSidebar();
     });
     
