@@ -29,11 +29,8 @@ if (!is_array($permissoes)) {
 }
 
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
-
-if ($nivel !== 'admin' && !in_array('galeria', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
-    exit;
-}
+// "Meu Perfil" deve estar acessível a qualquer utilizador autenticado.
+// Não depende de permissão de módulo (como "galeria").
 
 $db = getDB();
 
