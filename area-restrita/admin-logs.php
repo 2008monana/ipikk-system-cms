@@ -755,8 +755,14 @@ function obterIconeAcao($acao) {
                 <div class="timeline">
                     <?php 
                     $data_atual = '';
+                    $meses_pt = [
+                        'Jan' => 'Jan', 'Feb' => 'Fev', 'Mar' => 'Mar', 'Apr' => 'Abr',
+                        'May' => 'Mai', 'Jun' => 'Jun', 'Jul' => 'Jul', 'Aug' => 'Ago',
+                        'Sep' => 'Set', 'Oct' => 'Out', 'Nov' => 'Nov', 'Dec' => 'Dez'
+                    ];
                     foreach($logs as $log): 
-                        $data_log = date('Y-m-d', strtotime($log['data_hora']));
+                        $dt_log = new DateTime($log['data_hora'], new DateTimeZone('Africa/Luanda'));
+                        $data_log = $dt_log->format('Y-m-d');
                         $cor_acao = obterCorAcao($log['acao']);
                         $icone_acao = obterIconeAcao($log['acao']);
                         $nome_acao = $tipos_acao[$log['acao']]['nome'] ?? ucfirst($log['acao']);
@@ -766,8 +772,8 @@ function obterIconeAcao($acao) {
                     ?>
                         <div class="timeline-date">
                             <div class="date-marker">
-                                <span class="date-day"><?= date('d', strtotime($log['data_hora'])) ?></span>
-                                <span class="date-month"><?= ucfirst(date('M', strtotime($log['data_hora']))) ?></span>
+                                <span class="date-day"><?= $dt_log->format('d') ?></span>
+                                <span class="date-month"><?= $meses_pt[$dt_log->format('M')] ?? $dt_log->format('M') ?></span>
                             </div>
                             <div class="date-line"></div>
                         </div>
@@ -782,7 +788,7 @@ function obterIconeAcao($acao) {
                         <div class="timeline-content">
                             <div class="timeline-time">
                                 <i class="far fa-clock"></i>
-                                <span><?= date('H:i:s', strtotime($log['data_hora'])) ?></span>
+                                <span><?= $dt_log->format('H:i:s') ?></span>
                             </div>
                             <div class="timeline-user">
                                 <div class="user-avatar" style="background: <?= $cor_acao ?>20;">
@@ -887,6 +893,17 @@ function obterIconeAcao($acao) {
         if (!e.target.closest('.container-perfil')) {
             document.getElementById('dropdownPerfil')?.classList.remove('ativo');
         }
+    });
+
+    document.getElementById('botaoMenuMobile')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.openSidebar) window.openSidebar();
+    });
+    document.getElementById('menuMobileBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.openSidebar) window.openSidebar();
     });
     
 </script>

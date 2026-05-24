@@ -196,7 +196,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($upload['success']) {
                 $stmt = $db->prepare("UPDATE utilizadores SET foto_url = ? WHERE id = ?");
                 $stmt->execute([$upload['url'], $_SESSION['utilizador_id']]);
-                registrarLog('upload_foto', 'utilizadores', $_SESSION['utilizador_id'], 'Atualizou a foto de perfil');
+                try {
+                    registrarLog('upload_foto', 'utilizadores', $_SESSION['utilizador_id'], 'Atualizou a foto de perfil');
+                } catch (Exception $e) {
+                    error_log('Erro ao registrar log de upload de foto: ' . $e->getMessage());
+                }
                 echo json_encode(['success' => true, 'foto_url' => $upload['url']]);
                 exit;
             }
@@ -1366,11 +1370,22 @@ document.getElementById('uploadFoto')?.addEventListener('change', async function
     formData.append('foto', file);
     try {
         const response = await fetch(window.location.href, { method: 'POST', body: formData });
-        const data = await response.json();
-        if (data.success) {
-            document.getElementById('fotoContainer').innerHTML = `<img src="${normalizarUrlMidiaAdmin(data.foto_url || 'foto/sem_foto.png')}" alt="Foto">`;
-            mostrarNotificacao('Foto atualizada!', 'sucesso');
-        } else { mostrarNotificacao(data.message, 'erro'); }
+        const raw = await response.text();
+        let data = null;
+        try { data = JSON.parse(raw); } catch (_) { data = null; }
+        if (!data && raw.includes('foto_url')) {
+            const match = raw.match(/\{[\s\S]*\}/);
+            if (match) {
+                try { data = JSON.parse(match[0]); } catch (_) {}
+            }
+        }
+        const sucessoForcado = !data && /"success"\s*:\s*true/i.test(raw);
+        if ((data && data.success) || sucessoForcado) {
+            const fotoUrl = data && data.foto_url ? data.foto_url : 'foto/sem_foto.png';
+            document.getElementById('fotoContainer').innerHTML = `<img src="${normalizarUrlMidiaAdmin(fotoUrl)}" alt="Foto">`;
+            mostrarNotificacao('Foto de perfil actualizada!', 'sucesso');
+            setTimeout(() => window.location.reload(), 700);
+        } else { mostrarNotificacao((data && data.message) ? data.message : 'Erro ao fazer upload', 'erro'); }
     } catch(e) { mostrarNotificacao('Erro ao fazer upload', 'erro'); }
 });
 
@@ -1498,4 +1513,3 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModa
 </script>
 
 <?php include 'includes/footer.php'; ?>
-
