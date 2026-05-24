@@ -4,11 +4,26 @@
  */
 
 $css_especifico = 'admin-dashboard.css';
-require_once '../config/init.php';
+
+define('BASE_PATH', dirname(__DIR__));
+require_once BASE_PATH . '/config/database.php';
+require_once BASE_PATH . '/config/functions.php';
+require_once BASE_PATH . '/config/constants.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['utilizador_id'])) {
+    header('Location: area-restrita.php');
+    exit;
+}
+
 require_once __DIR__ . '/includes/verificar-permissao.php';
 verificarPermissao('conteudo_site');
 
 $db = getDB();
+$config = $db->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 
 
 function tabelaPoliticaExiste(PDO $db): bool {
