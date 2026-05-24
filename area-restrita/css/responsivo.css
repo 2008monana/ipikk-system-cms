@@ -1,223 +1,61 @@
-/* Responsividade global da Área Restrita IPIKK */
-*, *::before, *::after { box-sizing: border-box; }
-img, video, canvas, svg { max-width: 100%; height: auto; }
-
-:root {
-  --resp-gap: 12px;
-  --resp-touch: 44px;
-}
-
-body { overflow-x: hidden; }
-
-/* Conteúdo principal: segurança para páginas com estilos inline/antigos */
-.conteudo-principal,
-main.conteudo-principal,
-.main-content {
-  max-width: 100%;
-}
-
-/* Tabelas */
-.table-responsive,
-.tabela-wrapper,
-.tabela-container {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-table {
-  width: 100%;
-  max-width: 100%;
-}
-
-table th, table td {
-  white-space: normal !important;
-  word-break: break-word;
-}
-
-/* Cards, listas e grids */
-.cards,
-.cards-grid,
-.grid-cards,
-.grid-estatisticas,
-.estatisticas-grid,
-.dashboard-cards,
-.dashboard-stats,
-.lista-cards,
-.galeria-grid,
-.funcionarios-grid,
-.filtros-grid,
-.form-grid {
-  max-width: 100%;
-}
-
-/* Formularios e filtros */
-.linha-form,
-.form-row,
-.filtros,
-.filtros-form,
-.barra-filtros {
-  gap: var(--resp-gap);
-}
-
-input, select, textarea, button, .btn, .botao, .botao-primario, .botao-secundario {
-  min-height: var(--resp-touch);
-}
-
-/* Ações */
-.acoes,
-.acoes-tabela,
-.botoes-acao,
-.btn-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Modais */
-
-/* Garante que modal de confirmação NÃO aparece por padrão */
-.modal-confirmacao {
-  display: none !important;
-}
-.modal-confirmacao.ativo,
-.modal-confirmacao.show {
-  display: flex !important;
-}
+/* Responsividade dedicada apenas aos modais de criação/edição */
 
 .modal,
-.modal-conteudo,
-.modal-content,
-.modal-caixa {
-  max-width: 100%;
-}
-
 .modal.ativo,
 .modal.show,
-.modal-confirmacao.ativo {
+.modal-confirmacao,
+.modal-confirmacao.ativo,
+.modal-confirmacao.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px;
 }
 
 .modal-conteudo,
 .modal-content,
 .modal-caixa,
-.modal-confirmacao-caixa {
-  width: 95% !important;
-  max-width: 95% !important;
-  max-height: 90vh;
-  overflow: auto;
+.modal-confirmacao-caixa,
+.conteudo-modal {
+  width: 95vw !important;
+  max-width: 95vw !important;
+  max-height: 90vh !important;
+  overflow: auto !important;
+  margin: 0 auto !important;
+  border-radius: 14px !important;
 }
 
-/* Gráficos */
-canvas,
-.chart-container,
-.grafico {
-  max-width: 100% !important;
-}
-
-/* Sidebar/overlay: unificação de classe visivel/visible */
-.sidebar.visivel,
-.sidebar.visible { transform: translateX(0); }
-.sidebar-overlay.visivel,
-.sidebar-overlay.visible { opacity: 1; visibility: visible; }
-
-/*************** <= 1024px ***************/
-@media (max-width: 1024px) {
-  .conteudo-principal,
-  main.conteudo-principal {
-    margin-left: 0 !important;
-    width: 100%;
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-
-  .cards,
-  .cards-grid,
-  .dashboard-cards,
-  .dashboard-stats,
-  .grid-estatisticas,
-  .estatisticas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 12px;
-  }
-
-  .filtros,
-  .filtros-form,
-  .barra-filtros,
-  .linha-form,
-  .form-row {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-}
-
-/*************** <= 768px ***************/
 @media (max-width: 768px) {
-  .conteudo-principal,
-  main.conteudo-principal {
-    margin-left: 0 !important;
-    padding: 12px;
-  }
-
-  .cards,
-  .cards-grid,
-  .dashboard-cards,
-  .dashboard-stats,
-  .grid-estatisticas,
-  .estatisticas-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .filtros,
-  .filtros-form,
-  .barra-filtros,
-  .linha-form,
-  .form-row {
-    grid-template-columns: 1fr !important;
-  }
-
-  .acoes,
-  .acoes-tabela,
-  .botoes-acao,
-  .btn-group {
-    width: 100%;
-  }
-
-  .tabela-wrapper,
-  .tabela-container,
-  .table-responsive {
-    border-radius: 12px;
-  }
-
-  table { min-width: 640px; }
-}
-
-/*************** <= 480px ***************/
-@media (max-width: 480px) {
-  :root { --resp-gap: 10px; }
-
-  body { font-size: 14px; }
-
-  .conteudo-principal,
-  main.conteudo-principal {
+  .modal,
+  .modal.ativo,
+  .modal.show,
+  .modal-confirmacao,
+  .modal-confirmacao.ativo,
+  .modal-confirmacao.show {
     padding: 10px;
-  }
-
-  .sidebar {
-    width: min(86vw, 320px) !important;
   }
 
   .modal-conteudo,
   .modal-content,
   .modal-caixa,
-  .modal-confirmacao-caixa {
-    width: 95% !important;
-    max-width: 95% !important;
-    padding: 14px !important;
+  .modal-confirmacao-caixa,
+  .conteudo-modal {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 88vh !important;
     border-radius: 14px !important;
   }
+}
 
-  h1, h2, h3 { line-height: 1.2; }
+@media (max-width: 480px) {
+  .modal-conteudo,
+  .modal-content,
+  .modal-caixa,
+  .modal-confirmacao-caixa,
+  .conteudo-modal {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    max-height: 86vh !important;
+    padding: 12px !important;
+  }
 }
