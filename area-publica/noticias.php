@@ -387,6 +387,7 @@ $outras_noticias = array_slice($todas_noticias, 1);
             font-size: 0.85rem;
             color: var(--cinza);
             line-height: 1.5;
+            text-align: justify;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;

@@ -65,6 +65,7 @@ $is_sobre_active = $is_sobre;
     
     <!-- CSS Principal -->
     <link rel="stylesheet" href="css/header-footer.css">
+    <link rel="stylesheet" href="css/responsivo-publico.css">
     
     <style>
         /* === VARIÁVEIS CSS === */
@@ -1029,4 +1030,3 @@ $is_sobre_active = $is_sobre;
         </button>
     </div>
 </aside>
-

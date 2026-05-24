@@ -202,7 +202,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($curso['nome']);
         }
         
         .subtitulo-secao {
-            text-align: center;
+            text-align: justify;
             color: var(--cor-texto-clara);
             font-size: 1.1rem;
             max-width: 700px;
@@ -473,6 +473,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($curso['nome']);
             line-height: 1.7;
             margin-bottom: 16px;
             flex-grow: 1;
+            text-align: justify;
         }
 
         .competencias-saida {
@@ -533,8 +534,16 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($curso['nome']);
             margin-bottom: var(--espaco-sm);
         }
         
-        .titulo-projecto { font-family: var(--fonte-titulo); font-size: 1.4rem; color: var(--cor-institucional); margin-bottom: var(--espaco-sm); line-height: 1.3; }
-        .descricao-projecto { color: var(--cor-texto-clara); line-height: 1.7; margin-bottom: var(--espaco-md); }
+        .titulo-projecto { font-family: var(--fonte-titulo); font-size: 1.4rem; color: var(--cor-institucional); margin-bottom: var(--espaco-sm); line-height: 1.3; text-align: center; }
+        .descricao-projecto { color: var(--cor-texto-clara); line-height: 1.7; margin-bottom: var(--espaco-md); text-align: justify; }
+
+        .grade-sobre .cartao-sobre p,
+        .secao#sobre p,
+        .secao#saidas p,
+        .secao#projetos p,
+        .competencias-saida {
+            text-align: justify;
+        }
         
         .metadados-projecto {
             display: flex;
