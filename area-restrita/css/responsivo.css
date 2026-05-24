@@ -101,7 +101,8 @@ input, select, textarea, button, .btn, .botao, .botao-primario, .botao-secundari
 .modal-conteudo,
 .modal-content,
 .modal-caixa,
-.modal-confirmacao-caixa {
+.modal-confirmacao-caixa,
+.conteudo-modal {
   width: min(92vw, 560px) !important;
   max-width: min(92vw, 560px) !important;
   max-height: 90vh;
@@ -216,11 +217,13 @@ canvas,
   .modal-conteudo,
   .modal-content,
   .modal-caixa,
-  .modal-confirmacao-caixa {
+  .modal-confirmacao-caixa,
+  .conteudo-modal {
     width: 95% !important;
     max-width: 95% !important;
     padding: 14px !important;
     border-radius: 14px !important;
+    margin: 0 auto !important;
   }
 
   h1, h2, h3 { line-height: 1.2; }

@@ -1063,8 +1063,12 @@ function escapeHtml(t) { if (t === null || t === undefined) return ''; const d =
 
 function mostrarNotificacao(msg, tipo = 'success') {
     const n = document.createElement('div'); n.className = 'notificacao';
-    n.innerHTML = `<i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${escapeHtml(msg)}`;
-    n.style.cssText = `position:fixed;top:20px;right:20px;padding:14px 24px;border-radius:12px;z-index:99999;font-weight:600;display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;color:#fff;background:${tipo === 'success' ? 'linear-gradient(135deg,#28a745,#218838)' : 'linear-gradient(135deg,#dc3545,#c82333)'};box-shadow:0 8px 24px rgba(0,0,0,.2);`;
+    const icone = tipo === 'success' ? 'check-circle' : (tipo === 'info' ? 'info-circle' : 'exclamation-circle');
+    const fundo = tipo === 'success'
+        ? 'linear-gradient(135deg,#28a745,#218838)'
+        : (tipo === 'info' ? 'linear-gradient(135deg,#2563eb,#1d4ed8)' : 'linear-gradient(135deg,#dc3545,#c82333)');
+    n.innerHTML = `<i class="fas fa-${icone}"></i> ${escapeHtml(msg)}`;
+    n.style.cssText = `position:fixed;top:20px;right:20px;padding:14px 24px;border-radius:12px;z-index:99999;font-weight:600;display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;color:#fff;background:${fundo};box-shadow:0 8px 24px rgba(0,0,0,.2);`;
     document.body.appendChild(n); setTimeout(() => n.remove(), 3000);
 }
 
