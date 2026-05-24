@@ -1379,8 +1379,10 @@ document.getElementById('uploadFoto')?.addEventListener('change', async function
                 try { data = JSON.parse(match[0]); } catch (_) {}
             }
         }
-        if (data.success) {
-            document.getElementById('fotoContainer').innerHTML = `<img src="${normalizarUrlMidiaAdmin(data.foto_url || 'foto/sem_foto.png')}" alt="Foto">`;
+        const sucessoForcado = !data && /"success"\s*:\s*true/i.test(raw);
+        if ((data && data.success) || sucessoForcado) {
+            const fotoUrl = data && data.foto_url ? data.foto_url : 'foto/sem_foto.png';
+            document.getElementById('fotoContainer').innerHTML = `<img src="${normalizarUrlMidiaAdmin(fotoUrl)}" alt="Foto">`;
             mostrarNotificacao('Foto de perfil actualizada!', 'sucesso');
             setTimeout(() => window.location.reload(), 700);
         } else { mostrarNotificacao((data && data.message) ? data.message : 'Erro ao fazer upload', 'erro'); }

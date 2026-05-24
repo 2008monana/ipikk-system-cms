@@ -761,8 +761,7 @@ function obterIconeAcao($acao) {
                         'Sep' => 'Set', 'Oct' => 'Out', 'Nov' => 'Nov', 'Dec' => 'Dez'
                     ];
                     foreach($logs as $log): 
-                        $dt_log = new DateTime($log['data_hora'], new DateTimeZone('UTC'));
-                        $dt_log->setTimezone(new DateTimeZone('Africa/Luanda'));
+                        $dt_log = new DateTime($log['data_hora'], new DateTimeZone('Africa/Luanda'));
                         $data_log = $dt_log->format('Y-m-d');
                         $cor_acao = obterCorAcao($log['acao']);
                         $icone_acao = obterIconeAcao($log['acao']);
