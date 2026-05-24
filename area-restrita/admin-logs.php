@@ -760,8 +760,14 @@ function obterIconeAcao($acao) {
                         'May' => 'Mai', 'Jun' => 'Jun', 'Jul' => 'Jul', 'Aug' => 'Ago',
                         'Sep' => 'Set', 'Oct' => 'Out', 'Nov' => 'Nov', 'Dec' => 'Dez'
                     ];
+                    $timezone_origem_logs = new DateTimeZone('America/Los_Angeles');
+                    $timezone_destino_logs = new DateTimeZone('Africa/Luanda');
                     foreach($logs as $log): 
-                        $dt_log = new DateTime($log['data_hora'], new DateTimeZone('Africa/Luanda'));
+                        $dt_log = DateTime::createFromFormat('Y-m-d H:i:s', $log['data_hora'], $timezone_origem_logs);
+                        if (!$dt_log) {
+                            $dt_log = new DateTime($log['data_hora'], $timezone_origem_logs);
+                        }
+                        $dt_log->setTimezone($timezone_destino_logs);
                         $data_log = $dt_log->format('Y-m-d');
                         $cor_acao = obterCorAcao($log['acao']);
                         $icone_acao = obterIconeAcao($log['acao']);
