@@ -17,11 +17,12 @@
 .modal-caixa,
 .modal-confirmacao-caixa,
 .conteudo-modal {
-  width: min(92vw, 640px) !important;
-  max-width: min(92vw, 640px) !important;
+  width: 95vw !important;
+  max-width: 95vw !important;
   max-height: 90vh !important;
   overflow: auto !important;
   margin: 0 auto !important;
+  border-radius: 14px !important;
 }
 
 @media (max-width: 768px) {
