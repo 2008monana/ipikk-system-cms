@@ -196,7 +196,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($upload['success']) {
                 $stmt = $db->prepare("UPDATE utilizadores SET foto_url = ? WHERE id = ?");
                 $stmt->execute([$upload['url'], $_SESSION['utilizador_id']]);
-                registrarLog('upload_foto', 'utilizadores', $_SESSION['utilizador_id'], 'Atualizou a foto de perfil');
+                try {
+                    registrarLog('upload_foto', 'utilizadores', $_SESSION['utilizador_id'], 'Atualizou a foto de perfil');
+                } catch (Exception $e) {
+                    error_log('Erro ao registrar log de upload de foto: ' . $e->getMessage());
+                }
                 echo json_encode(['success' => true, 'foto_url' => $upload['url']]);
                 exit;
             }
@@ -1498,4 +1502,3 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModa
 </script>
 
 <?php include 'includes/footer.php'; ?>
-
