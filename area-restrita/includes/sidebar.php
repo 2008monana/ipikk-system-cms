@@ -49,7 +49,7 @@ function isActivePage($pages) {
 
             <!-- CONTEÚDO DO SITE -->
             <?php if (podeVerItem('conteudo_site', $is_admin, $permissoes_usuario)): ?>
-            <li class="menu-item-has-children has-submenu <?= isActivePage(['admin-inicio.php', 'admin-sobre.php', 'admin-perfil-director.php', 'admin-orgaos.php', 'admin-ex-directores.php', 'admin-normativos.php', 'admin-percurso.php', 'admin-quadro-honra.php', 'admin-funcionario-destacado.php', 'admin-escolas-afiliadas.php']) ? 'active open' : '' ?>">
+            <li class="menu-item-has-children has-submenu <?= isActivePage(['admin-inicio.php', 'admin-sobre.php', 'admin-perfil-director.php', 'admin-orgaos.php', 'admin-ex-directores.php', 'admin-normativos.php', 'admin-percurso.php', 'admin-quadro-honra.php', 'admin-funcionario-destacado.php', 'admin-escolas-afiliadas.php', 'admin-politica-privacidade.php']) ? 'active open' : '' ?>">
                 <a href="javascript:void(0)" class="submenu-toggle menu-link-parent">
                     <i class="fas fa-file-alt"></i>
                     <span>Conteúdo do Site</span>
@@ -101,6 +101,9 @@ function isActivePage($pages) {
                     </li>
                     <li class="<?= $pagina_atual == 'admin-escolas-afiliadas.php' ? 'active' : '' ?>">
                         <a href="admin-escolas-afiliadas.php"><i class="fas fa-school"></i> Escolas Afiliadas</a>
+                    </li>
+                    <li class="<?= $pagina_atual == 'admin-politica-privacidade.php' ? 'active' : '' ?>">
+                        <a href="admin-politica-privacidade.php"><i class="fas fa-file-contract"></i> Política e Privacidade</a>
                     </li>
                 </ul>
             </li>
