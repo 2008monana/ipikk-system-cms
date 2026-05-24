@@ -74,6 +74,10 @@ $icone_nivel = $usuario['nivel'] === 'admin' ? 'fa-crown' : 'fa-edit';
 
 // Processamento POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Garante resposta JSON limpa para chamadas AJAX deste ficheiro
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+    }
     $action = $_POST['action'] ?? '';
     
     if ($action === 'atualizar_perfil') {
@@ -193,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $upload = uploadArquivoNuvem($_FILES['foto'], 'perfis');
-            if ($upload['success']) {
+            if (!empty($upload['success'])) {
                 $stmt = $db->prepare("UPDATE utilizadores SET foto_url = ? WHERE id = ?");
                 $stmt->execute([$upload['url'], $_SESSION['utilizador_id']]);
                 try {
@@ -204,6 +208,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(['success' => true, 'foto_url' => $upload['url']]);
                 exit;
             }
+            echo json_encode([
+                'success' => false,
+                'message' => $upload['message'] ?? 'Erro ao fazer upload.'
+            ]);
+            exit;
         }
         echo json_encode(['success' => false, 'message' => 'Erro ao fazer upload.']);
         exit;
