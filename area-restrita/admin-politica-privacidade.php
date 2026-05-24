@@ -57,29 +57,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($acao === 'salvar') {
         $texto = trim($_POST['texto'] ?? '');
-        $payload = json_encode([
-            'titulo' => 'Política de Privacidade e Utilização do Site',
-            'texto' => $texto,
-            'ultima_actualizacao' => date('Y-m-d')
-        ], JSON_UNESCAPED_UNICODE);
-
-        $stmt = $db->prepare("INSERT INTO conteudo_paginas (slug, titulo, conteudo, updated_at) VALUES ('politica-privacidade', 'Política de Privacidade', ?, NOW()) ON DUPLICATE KEY UPDATE titulo = VALUES(titulo), conteudo = VALUES(conteudo), updated_at = NOW()");
-        $stmt->execute([$payload]);
+                $stmt = $db->prepare("INSERT INTO politica_privacidade (id, titulo, texto, ultima_actualizacao, ativo, updated_at) VALUES (1, ?, ?, ?, 1, NOW()) ON DUPLICATE KEY UPDATE titulo = VALUES(titulo), texto = VALUES(texto), ultima_actualizacao = VALUES(ultima_actualizacao), ativo = 1, updated_at = NOW()");
+        $stmt->execute(['Política de Privacidade e Utilização do Site', $texto, date('Y-m-d')]);
         $mensagem = 'Conteúdo salvo com sucesso.';
     }
 
     if ($acao === 'eliminar') {
-        $stmt = $db->prepare("UPDATE conteudo_paginas SET conteudo = NULL, updated_at = NOW() WHERE slug = 'politica-privacidade'");
+        $stmt = $db->prepare("UPDATE politica_privacidade SET texto = '', ativo = 0, updated_at = NOW() WHERE id = 1");
         $stmt->execute();
         $mensagem = 'Conteúdo eliminado da base de dados.';
     }
 }
 
-$stmt = $db->prepare("SELECT conteudo FROM conteudo_paginas WHERE slug = 'politica-privacidade' LIMIT 1");
-$stmt->execute();
+$stmt = $db->query("SELECT texto FROM politica_privacidade WHERE ativo = 1 ORDER BY id DESC LIMIT 1");
 $registo = $stmt->fetch();
-$dados = $registo && !empty($registo['conteudo']) ? json_decode($registo['conteudo'], true) : [];
-$texto = $dados['texto'] ?? $texto_padrao;
+$texto = !empty($registo['texto']) ? $registo['texto'] : $texto_padrao;
 
 $titulo_pagina = 'Política e Privacidade';
 include 'includes/header.php';
