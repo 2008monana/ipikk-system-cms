@@ -316,6 +316,12 @@ unset($curso);
         .controle-form { padding: 12px 14px; border: 2px solid var(--cinza-medio); border-radius: 8px; font-size: 14px; font-family: inherit; transition: var(--transicao); background: var(--branco); width: 100%; }
         .controle-form:focus { outline: none; border-color: var(--verde-acento); box-shadow: 0 0 0 4px rgba(10,147,150,0.12); }
         textarea.controle-form { resize: vertical; min-height: 100px; }
+        .competencias-card-editor { border: 1px solid var(--cinza-medio); border-radius: 10px; background: #f8fafc; padding: 12px; }
+        .competencias-card-lista { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .competencia-card-item { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; }
+        .competencia-card-item input { flex: 1; border: 1px solid #d1d9e6; border-radius: 6px; padding: 8px 10px; font-size: 13px; }
+        .btn-remover-competencia { width: 34px; height: 34px; border: none; border-radius: 8px; background: #fee2e2; color: #b91c1c; cursor: pointer; }
+        .btn-adicionar-competencia { border: 1px dashed #94a3b8; border-radius: 8px; background: #fff; color: #334155; padding: 8px 10px; font-size: 13px; cursor: pointer; width: 100%; }
 
         .sugestoes-icones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .sugestao-icone { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--cinza-claro); border: 1px solid var(--cinza-medio); border-radius: 20px; font-size: 12px; cursor: pointer; transition: var(--transicao); }
@@ -574,7 +580,13 @@ unset($curso);
                         </div>
                         <div class="grupo-form">
                             <label><i class="fas fa-list-check"></i> Competências em Destaque (Card)</label>
-                            <textarea id="cursoCompetênciasCard" class="controle-form" rows="4" placeholder="Uma competência por linha&#10;Ex: Formação técnica especializada"></textarea>
+                            <div class="competencias-card-editor">
+                                <div class="competencias-card-lista" id="competenciasCardLista"></div>
+                                <button type="button" class="btn-adicionar-competencia" onclick="adicionarLinhaCompetenciaCard()">
+                                    <i class="fas fa-plus"></i> Adicionar competência
+                                </button>
+                            </div>
+                            <textarea id="cursoCompetênciasCard" class="controle-form" rows="4" placeholder="Uma competência por linha&#10;Ex: Formação técnica especializada" style="display:none;"></textarea>
                             <small style="color:#6c757d;">Estas linhas serão exibidas nos cards dos cursos da página da área.</small>
                         </div>
                     </div>
@@ -1529,6 +1541,7 @@ function abrirModalCurso(id = null) {
     document.getElementById('cursoCompetências').value = '';
     document.getElementById('cursoCertificacao').value = '';
     document.getElementById('cursoCompetênciasCard').value = '';
+    renderCompetenciasCardEditor('');
 
     if(id) {
         const curso = cursos.find(c => c.id == id);
@@ -1548,6 +1561,7 @@ function abrirModalCurso(id = null) {
             document.getElementById('cursoCompetências').value = curso.competencias_descricao || '';
             document.getElementById('cursoCertificacao').value = curso.certificacao_descricao || '';
             document.getElementById('cursoCompetênciasCard').value = curso.competencias_card || '';
+            renderCompetenciasCardEditor(curso.competencias_card || '');
 
             const icone = curso.icone_classe || 'fa-graduation-cap';
             document.getElementById('cursoIcone').value = icone;
@@ -1582,6 +1596,47 @@ function abrirModalCurso(id = null) {
 
     modal.style.display = 'flex';
     setupPDFUploads();
+}
+
+function adicionarLinhaCompetenciaCard(valor = '') {
+    const lista = document.getElementById('competenciasCardLista');
+    if (!lista) return;
+    const item = document.createElement('div');
+    item.className = 'competencia-card-item';
+    item.innerHTML = `
+        <input type="text" class="input-competencia-card" placeholder="Ex: Formação técnica especializada" value="${escapeHtml(valor)}">
+        <button type="button" class="btn-remover-competencia" title="Remover competência"><i class="fas fa-trash"></i></button>
+    `;
+    item.querySelector('input')?.addEventListener('input', syncCompetenciasCardTextarea);
+    item.querySelector('.btn-remover-competencia')?.addEventListener('click', () => {
+        item.remove();
+        syncCompetenciasCardTextarea();
+    });
+    lista.appendChild(item);
+    syncCompetenciasCardTextarea();
+}
+
+function renderCompetenciasCardEditor(valor = '') {
+    const lista = document.getElementById('competenciasCardLista');
+    if (!lista) return;
+    lista.innerHTML = '';
+    const linhas = (valor || '')
+        .split(/\r?\n/)
+        .map(l => l.trim())
+        .filter(Boolean);
+    if (!linhas.length) {
+        adicionarLinhaCompetenciaCard('');
+        return;
+    }
+    linhas.forEach(linha => adicionarLinhaCompetenciaCard(linha));
+    syncCompetenciasCardTextarea();
+}
+
+function syncCompetenciasCardTextarea() {
+    const inputs = Array.from(document.querySelectorAll('.input-competencia-card'));
+    const valor = inputs.map(i => i.value.trim()).filter(Boolean).join('\n');
+    const textarea = document.getElementById('cursoCompetênciasCard');
+    if (textarea) textarea.value = valor;
 }
 
 function fecharModalCurso() {

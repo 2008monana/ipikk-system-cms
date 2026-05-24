@@ -551,67 +551,24 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
                                 endif;
                                 ?>
                             <?php else: ?>
-                                <!-- COMPETÊNCIAS PADRÃO POR CURSO -->
-                                <?php if($curso['id'] == 1): // Técnico de Obras ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Planeamento e gestão de obras</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Fiscalização e controle de qualidade</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Leitura e interpretação de projetos</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Gestão de materiais e equipamentos</li>
-                                
-                                <?php elseif($curso['id'] == 2): // Desenhador Projectista ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Desenho técnico arquitetônico</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Projetos estruturais e de instalações</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Softwares CAD e BIM</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Modelagem 3D e representação gráfica</li>
-                                
-                                <?php elseif($curso['id'] == 3): // Energia e Instalações ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Projetos de instalações elétricas</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Manutenção de sistemas elétricos</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Energias renováveis e eficiência energética</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Automação e comandos elétricos</li>
-                                
-                                <?php elseif($curso['id'] == 4): // Frio e Climatização ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Instalação de sistemas de refrigeração</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Manutenção de equipamentos de climatização</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Dimensionamento de sistemas HVAC</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Diagnóstico de falhas em sistemas frigoríficos</li>
-                                
-                                <?php elseif($curso['id'] == 5): // Gestão de Sistemas ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Administração de servidores e redes</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Gestão de bases de dados</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Segurança informática</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Desenvolvimento de software</li>
-                                
-                                <?php elseif($curso['id'] == 6): // Técnico de Informática ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Montagem e manutenção de computadores</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Instalação e configuração de sistemas operativos</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Redes de computadores e conectividade</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Suporte técnico a utilizadores</li>
-                                
-                                <?php elseif($curso['id'] == 8): // Tecnologias de Móveis ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Design de móveis e modelagem 3D</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Processos de produção moveleira</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Gestão da indústria moveleira</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Softwares CAD específicos para móveis</li>
-                                
-                                <?php else: ?>
                                 <?php
                                     $competencias_card = [];
                                     if (!empty($curso['competencias_card'])) {
                                         $competencias_card = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $curso['competencias_card']))));
                                     }
-                                    if (empty($competencias_card)) {
-                                        $competencias_card = [
-                                            'Formação técnica especializada',
-                                            'Prática em laboratórios modernos',
-                                            'Preparação para o mercado de trabalho'
-                                        ];
+
+                                    if (empty($competencias_card) && !empty($curso['competencias_descricao'])) {
+                                        $competencias_card = array_slice(array_values(array_filter(array_map('trim', preg_split('/;|\r\n|\r|\n/', $curso['competencias_descricao'])))), 0, 4);
                                     }
+
+                                    if (empty($competencias_card)) {
+                                        $competencias_card = ['Competências em atualização.'];
+                                    }
+
                                     foreach ($competencias_card as $item):
                                 ?>
                                 <li class="item-competencia"><span class="icone-check">✓</span> <?= htmlspecialchars($item) ?></li>
                                 <?php endforeach; ?>
-                                <?php endif; ?>
                             <?php endif; ?>
                         </ul>
                         <a href="curso.php?slug=<?= $curso['slug'] ?>" class="botao-detalhes" style="--botao-cor: <?= htmlspecialchars($cor_curso) ?>;">
