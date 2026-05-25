@@ -71,7 +71,10 @@ $icone_nivel = $usuario['nivel'] === 'admin' ? 'fa-crown' : 'fa-edit';
 
 // Processamento POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Garante resposta JSON limpa para chamadas AJAX deste ficheiro
+    // Limpa qualquer output buffer para garantir JSON puro no retorno AJAX
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
     if (!headers_sent()) {
         header('Content-Type: application/json; charset=utf-8');
     }
