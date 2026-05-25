@@ -29,11 +29,8 @@ if (!is_array($permissoes)) {
 }
 
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
-
-if ($nivel !== 'admin' && !in_array('galeria', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
-    exit;
-}
+// "Meu Perfil" deve estar acessível a qualquer utilizador autenticado.
+// Não depende de permissão de módulo (como "galeria").
 
 $db = getDB();
 
@@ -74,7 +71,10 @@ $icone_nivel = $usuario['nivel'] === 'admin' ? 'fa-crown' : 'fa-edit';
 
 // Processamento POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Garante resposta JSON limpa para chamadas AJAX deste ficheiro
+    // Limpa qualquer output buffer para garantir JSON puro no retorno AJAX
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
     if (!headers_sent()) {
         header('Content-Type: application/json; charset=utf-8');
     }

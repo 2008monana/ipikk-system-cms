@@ -146,6 +146,32 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     <meta name="description" content="<?= htmlspecialchars($config['seo_descricao'] ?? 'Bem-vindo ao site oficial do Instituto Politécnico Industrial do Kilamba Kiaxi Nº 8050 "Nova Vida" (IPIKK-NV).') ?>">
     <meta name="author" content="Equipa de Desenvolvimento Web, Curso de Gestão de Sistemas Informáticos, IPIKK-NV">
     <meta name="keywords" content="<?= htmlspecialchars($config['seo_keywords'] ?? 'IPIKK, IPIKK-NV, Instituto Politécnico Industrial do Kilamba Kiaxi') ?>">
+    <link rel="canonical" href="https://ipikk.it.ao/">
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="IPIKK - Inicio">
+    <meta property="og:description" content="<?= htmlspecialchars($config['seo_descricao'] ?? 'Bem-vindo ao site oficial do Instituto Politécnico Industrial do Kilamba Kiaxi Nº 8050 &quot;Nova Vida&quot; (IPIKK-NV).') ?>">
+    <meta property="og:url" content="https://ipikk.it.ao/">
+    <meta property="og:image" content="<?= htmlspecialchars($config['logo_url'] ?? 'https://ipikk.it.ao/foto/ipikk_new_logo.png') ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "<?= addslashes($config['nome_site'] ?? 'IPIKK') ?>",
+      "url": "https://ipikk.it.ao/",
+      "logo": "<?= addslashes($config['logo_url'] ?? 'https://ipikk.it.ao/foto/ipikk_new_logo.png') ?>",
+      "email": "<?= addslashes($config['email_geral'] ?? '') ?>",
+      "telephone": "<?= addslashes($config['telefone'] ?? '') ?>",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "<?= addslashes($config['endereco_completo'] ?? '') ?>",
+        "addressLocality": "<?= addslashes($config['cidade'] ?? 'Luanda') ?>",
+        "addressCountry": "AO"
+      }
+    }
+    </script>
+
 
     <title>IPIKK - Inicio</title>
     
