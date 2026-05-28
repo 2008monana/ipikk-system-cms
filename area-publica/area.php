@@ -607,10 +607,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
     <!-- ===== BOTÕES FLUTUANTES ===== -->
     <div class="botoes-flutuantes">
         <button class="botao-flutuante" id="botaoTopo"><i class="fas fa-chevron-up"></i></button>
-        <?php $whatsapp_link = montarLinkWhatsApp($config['whatsapp_numero'] ?? ''); ?>
-        <?php if($whatsapp_link): ?>
-        <a href="<?= htmlspecialchars($whatsapp_link) ?>" class="botao-flutuante whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

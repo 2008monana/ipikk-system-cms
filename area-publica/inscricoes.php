@@ -725,12 +725,7 @@ a { text-decoration: none; color: inherit; transition: var(--transition); }
         <button class="botao-flutuante" id="botaoTopo" title="Voltar ao topo">
             <i class="fas fa-chevron-up"></i>
         </button>
-        <?php $whatsapp_link = montarLinkWhatsApp($config['whatsapp_numero'] ?? ''); ?>
-        <?php if($whatsapp_link): ?>
-        <a href="<?= htmlspecialchars($whatsapp_link) ?>" class="botao-flutuante whatsapp" target="_blank" rel="noopener" title="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-        </a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
