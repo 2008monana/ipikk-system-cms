@@ -17,6 +17,7 @@ $manutencao_previsao = $config['manutencao_previsao'] ?? 'em breve';
 $manutencao_telefone = $config['manutencao_telefone'] ?? $config['telefone'] ?? '';
 $manutencao_whatsapp = $config['manutencao_whatsapp'] ?? $config['whatsapp_numero'] ?? '';
 $manutencao_email = $config['manutencao_email'] ?? $config['email_geral'] ?? '';
+$manutencao_whatsapp_link = montarLinkWhatsApp($manutencao_whatsapp);
 
 // Converter detalhes em array de parágrafos
 $detalhes_array = explode("\n", $manutencao_detalhes);
