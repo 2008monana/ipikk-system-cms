@@ -747,8 +747,9 @@ $outras_noticias = array_slice($todas_noticias, 1);
         <button class="botao-flutuante" id="botaoTopo" title="Voltar ao topo">
             <i class="fas fa-chevron-up"></i>
         </button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank" rel="noopener" title="WhatsApp">
+        <?php $whatsapp_link = montarLinkWhatsApp($config['whatsapp_numero'] ?? ''); ?>
+        <?php if($whatsapp_link): ?>
+        <a href="<?= htmlspecialchars($whatsapp_link) ?>" class="botao-flutuante whatsapp" target="_blank" rel="noopener" title="WhatsApp">
             <i class="fab fa-whatsapp"></i>
         </a>
         <?php endif; ?>

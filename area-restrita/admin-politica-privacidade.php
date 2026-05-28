@@ -25,6 +25,16 @@ verificarPermissao('conteudo_site');
 $db = getDB();
 $config = $db->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 
+$stmt = $db->prepare("SELECT id, nome, email, foto_url FROM utilizadores WHERE id = ?");
+$stmt->execute([$_SESSION['utilizador_id']]);
+$usuario = $stmt->fetch();
+
+if (!$usuario) {
+    session_destroy();
+    header('Location: area-restrita.php');
+    exit;
+}
+
 function tabelaPoliticaExiste(PDO $db): bool {
     try {
         $stmt = $db->query("SHOW TABLES LIKE 'politica_privacidade'");
@@ -93,6 +103,15 @@ include 'includes/sidebar.php';
 .btn-guardar:hover{background:#087f82}
 </style>
 <main class="conteudo-principal">
+  <?php
+  if (function_exists('renderAdminTopbar')) {
+      renderAdminTopbar($titulo_pagina);
+  } else {
+      $usuario_topo = $usuario;
+      $titulo_topo = $titulo_pagina;
+      include 'includes/topbar-fallback.php';
+  }
+  ?>
   <div class="politica-wrap">
     <div class="politica-card">
       <h1 class="politica-titulo">Política e Privacidade</h1>
