@@ -84,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'salvar_escola') {
         $db->exec("ALTER TABLE configuracoes ADD COLUMN IF NOT EXISTS rodape_links_ipikk TEXT NULL");
         $db->exec("ALTER TABLE configuracoes ADD COLUMN IF NOT EXISTS rodape_links_rapidos TEXT NULL");
+        $db->exec("ALTER TABLE configuracoes MODIFY COLUMN whatsapp_numero VARCHAR(255) DEFAULT NULL");
         $stmt = $db->prepare("UPDATE configuracoes SET 
             instituicao_nome = ?, instituicao_acronimo = ?, instituicao_slogan = ?,
             endereco_completo = ?, cidade = ?, provincia = ?, telefone = ?,
@@ -953,7 +954,7 @@ $dados_js = [
                 <div class="linha-form">
                     <div class="grupo-form"><label>Telefone</label><input type="text" class="campo-form" id="escola_telefone" value="<?= htmlspecialchars($config['telefone'] ?? '933 096 705') ?>"></div>
                     <div class="grupo-form"><label>Email</label><input type="email" class="campo-form" id="escola_email" value="<?= htmlspecialchars($config['email_geral'] ?? 'geral@ipikk.ao') ?>"></div>
-                    <div class="grupo-form"><label>WhatsApp</label><input type="text" class="campo-form" id="escola_whatsapp" value="<?= htmlspecialchars($config['whatsapp_numero'] ?? '933 096 705') ?>"></div>
+                    <div class="grupo-form"><label>WhatsApp dedicado</label><input type="text" class="campo-form" id="escola_whatsapp" placeholder="Ex: 244933096705 ou https://whatsapp.com/channel/..." value="<?= htmlspecialchars($config['whatsapp_numero'] ?? '') ?>"><small class="info-texto">Use um número de telemóvel ou cole o link de um canal/grupo do WhatsApp.</small></div>
                 </div>
                 <div class="grupo-form"><label>Horario de Funcionamento</label><input type="text" class="campo-form" id="escola_horario" value="<?= htmlspecialchars($config['horario_funcionamento'] ?? 'Segunda a Sexta: 7:00 - 17:40') ?>"></div>
             </div>
