@@ -39,6 +39,33 @@ function formatarNumero($numero) {
     return number_format($numero, 0, ',', '.');
 }
 
+/**
+ * Monta o link do WhatsApp a partir de um número ou URL completa.
+ * Aceita números locais de Angola (9 dígitos), números internacionais e links
+ * como wa.me, api.whatsapp.com, chat.whatsapp.com ou canais do WhatsApp.
+ */
+function montarLinkWhatsApp($valor) {
+    $valor = trim((string)$valor);
+    if ($valor === '') {
+        return '';
+    }
+
+    if (preg_match('/^(https?:\/\/|whatsapp:\/\/)/i', $valor)) {
+        return $valor;
+    }
+
+    $numero = preg_replace('/[^0-9]/', '', $valor);
+    if ($numero === '') {
+        return '';
+    }
+
+    if (strlen($numero) === 9 && strpos($numero, '9') === 0) {
+        $numero = '244' . $numero;
+    }
+
+    return 'https://wa.me/' . $numero;
+}
+
 
 /**
  * Formata bytes para KB/MB/GB.
