@@ -545,6 +545,7 @@ if (isset($_SESSION['utilizador_id'])) {
                 const response = await fetch('processar-login.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ email, senha, manter_conectado: manter })
                 });
                 

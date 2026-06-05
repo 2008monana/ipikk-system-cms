@@ -1,0 +1,132 @@
+/* Ajustes globais de responsividade - Área Pública */
+*, *::before, *::after { box-sizing: border-box; }
+img, video, iframe, canvas, svg { max-width: 100%; height: auto; }
+
+html, body { overflow-x: hidden; }
+
+.container,
+.conteudo-superior,
+.conteudo-cabecalho,
+.conteudo-principal,
+[class*="container"],
+[class*="conteudo"] {
+  max-width: 100%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-responsive,
+.tabela-wrapper,
+.tabela-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 1200px) {
+  .conteudo-superior,
+  .conteudo-cabecalho {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .conteudo-superior,
+  .conteudo-cabecalho,
+  .conteudo-principal,
+  main,
+  section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .conteudo-texto {
+    left: 5% !important;
+    right: 5% !important;
+    max-width: 90% !important;
+  }
+
+  .conteudo-texto h1 {
+    font-size: clamp(1.9rem, 5vw, 2.8rem) !important;
+  }
+
+  .grelha,
+  .grid,
+  .cards,
+  .cards-grid,
+  .lista-cards,
+  .depoimentos-grid,
+  .noticias-grid,
+  .parceiros-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+    gap: 14px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .conteudo-superior {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .social-traducao {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .container-slider {
+    min-height: 480px !important;
+    height: 82vh !important;
+  }
+
+  .conteudo-texto {
+    top: 52% !important;
+  }
+
+  .conteudo-texto h1 {
+    line-height: 1.2;
+  }
+
+  .conteudo-texto p,
+  .descricao,
+  .texto,
+  .subtitulo {
+    font-size: 0.95rem !important;
+  }
+
+  .botao,
+  .btn,
+  button {
+    min-height: 42px;
+  }
+
+  table {
+    min-width: 620px;
+  }
+}
+
+@media (max-width: 480px) {
+  .conteudo-superior,
+  .conteudo-cabecalho,
+  .conteudo-principal,
+  main,
+  section {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .container-slider {
+    min-height: 420px !important;
+  }
+
+  .conteudo-texto h1 {
+    font-size: clamp(1.5rem, 7vw, 2rem) !important;
+  }
+}

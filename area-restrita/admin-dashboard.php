@@ -9,8 +9,9 @@ define('BASE_PATH', dirname(__DIR__));
 require_once BASE_PATH . '/config/database.php';
 require_once BASE_PATH . '/config/functions.php';
 require_once BASE_PATH . '/config/constants.php';
+require_once BASE_PATH . '/config/session.php';
 
-session_start();
+iniciarSessaoIpikk();
 
 // Verificar se está logado
 if (!isset($_SESSION['utilizador_id'])) {
@@ -272,9 +273,20 @@ include 'includes/sidebar.php';
                 <a href="admin-logs.php" class="link-ver-todos">Ver Logs <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="lista-atividades">
+                <?php
+                    $timezone_origem_logs = new DateTimeZone('America/Los_Angeles');
+                    $timezone_destino_logs = new DateTimeZone('Africa/Luanda');
+                ?>
                 <?php foreach($atividades as $a): ?>
+                <?php
+                    $dt_atividade = DateTime::createFromFormat('Y-m-d H:i:s', $a['data_hora'], $timezone_origem_logs);
+                    if (!$dt_atividade) {
+                        $dt_atividade = new DateTime($a['data_hora'], $timezone_origem_logs);
+                    }
+                    $dt_atividade->setTimezone($timezone_destino_logs);
+                ?>
                 <div class="item-atividade">
-                    <span class="hora-atividade">[<?php echo date('H:i', strtotime($a['data_hora'])); ?>]</span>
+                    <span class="hora-atividade">[<?php echo $dt_atividade->format('H:i'); ?>]</span>
                     <i class="fas fa-<?php echo $a['acao'] == 'login' ? 'sign-in-alt' : ($a['acao'] == 'criou' ? 'plus-circle' : 'edit'); ?>"></i>
                     <span><?php echo htmlspecialchars($a['detalhes'] ?? $a['acao'] . ' em ' . $a['tabela']); ?></span>
                 </div>
