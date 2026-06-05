@@ -12,6 +12,15 @@ header('Content-Type: application/json');
 
 $email = trim($input['email'] ?? '');
 $senha = $input['senha'] ?? '';
+
+if (empty($_COOKIE['ipikk_cookie_teste'])) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Os cookies do navegador estão bloqueados. Ative os cookies ou saia do modo privado/anónimo para continuar.'
+    ]);
+    exit;
+}
+
 if (empty($email) || empty($senha)) {
     echo json_encode(['success' => false, 'message' => 'Preencha todos os campos']);
     exit;

@@ -28,6 +28,17 @@ if (isset($_SESSION['utilizador_id'])) {
     header('Location: ../area-restrita/admin-dashboard.php');
     exit;
 }
+
+// Cookie técnico de diagnóstico: ajuda a detetar bloqueio de cookies antes do login.
+if (!headers_sent()) {
+    setcookie('ipikk_cookie_teste', '1', [
+        'expires' => time() + 3600,
+        'path' => '/',
+        'secure' => function_exists('ipikkRequestIsHttps') ? ipikkRequestIsHttps() : (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+        'httponly' => false,
+        'samesite' => 'Lax',
+    ]);
+}
 ?>
 
 <!DOCTYPE html>
@@ -529,6 +540,11 @@ if (isset($_SESSION['utilizador_id'])) {
                 return;
             }
             
+            if (!navigator.cookieEnabled || !document.cookie.includes('ipikk_cookie_teste=1')) {
+                mostrarFeedback('error', 'Cookies bloqueados!', 'Ative os cookies ou saia do modo privado/anónimo para continuar.', '#c62828');
+                return;
+            }
+
             // Mostrar loading
             if (overlay) overlay.classList.add('ativo');
             mostrarFeedback('loading', 'Autenticando...', 'Aguarde 5 segundos', '#666');
