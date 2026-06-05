@@ -474,8 +474,10 @@ function registrarLog($acao, $tabela = null, $registro_id = null, $detalhes = nu
 function contarVisitante() {
     $db = getDB();
     
+    $sessao_ativa = session_status() === PHP_SESSION_ACTIVE;
+
     // Se já foi contado nesta sessão, não contar novamente
-    if (isset($_SESSION['visitante_contado'])) {
+    if ($sessao_ativa && isset($_SESSION['visitante_contado'])) {
         return;
     }
     
@@ -502,8 +504,10 @@ function contarVisitante() {
             $stmt->execute([$hoje]);
         }
         
-        // Marcar que o visitante já foi contado
-        $_SESSION['visitante_contado'] = true;
+        // Marcar que o visitante já foi contado quando houver sessão ativa
+        if ($sessao_ativa) {
+            $_SESSION['visitante_contado'] = true;
+        }
     } catch (PDOException $e) {
         // Se a tabela não existir, não fazer nada
         error_log("Erro ao contar visitante: " . $e->getMessage());

@@ -409,7 +409,7 @@ function getImagemArea($area) {
                         </div>
                     </div>
                     <div class="rodape-area-formativa">
-                        <span class="contagem-cursos"><?= $total_cursos ?> curso<?= $total_cursos != 1 ? 's' : '' ?> disponível<?= $total_cursos != 1 ? 'is' : '' ?></span>
+                        <span class="contagem-cursos"><?= $total_cursos ?> <?= $total_cursos === 1 ? 'curso disponível' : 'cursos disponíveis' ?></span>
                         <span class="botao-ver-area">Explorar área →</span>
                     </div>
                 </a>
