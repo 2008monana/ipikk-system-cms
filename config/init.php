@@ -7,10 +7,9 @@
 define('AREA_RESTRITA_PATH', dirname(__DIR__));
 define('PUBLIC_PATH', dirname(AREA_RESTRITA_PATH) . '/area-publica');
 
-// Iniciar sessão
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Iniciar sessão com parâmetros de cookie consistentes
+require_once __DIR__ . '/session.php';
+iniciarSessaoIpikk();
 
 // Carregar configurações do sistema
 require_once PUBLIC_PATH . '/../config/database.php';

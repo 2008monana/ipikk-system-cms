@@ -9,8 +9,9 @@ define('BASE_PATH', dirname(__DIR__));
 require_once BASE_PATH . '/config/database.php';
 require_once BASE_PATH . '/config/functions.php';
 require_once BASE_PATH . '/config/constants.php';
+require_once BASE_PATH . '/config/session.php';
 
-session_start();
+iniciarSessaoIpikk();
 
 // Verificar se está logado
 if (!isset($_SESSION['utilizador_id'])) {

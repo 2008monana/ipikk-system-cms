@@ -1,16 +1,17 @@
 <?php
 // processar-login.php
 
+$input = json_decode(file_get_contents('php://input'), true) ?: [];
+$manter_conectado = $input['manter_conectado'] ?? false;
+
+require_once '../config/session.php';
+iniciarSessaoIpikk($manter_conectado ? 30 * 24 * 3600 : 0);
 require_once '../config/index.php';
 
 header('Content-Type: application/json');
 
-$input = json_decode(file_get_contents('php://input'), true);
-
 $email = trim($input['email'] ?? '');
 $senha = $input['senha'] ?? '';
-$manter_conectado = $input['manter_conectado'] ?? false;
-
 if (empty($email) || empty($senha)) {
     echo json_encode(['success' => false, 'message' => 'Preencha todos os campos']);
     exit;
@@ -36,12 +37,6 @@ if (!password_verify($senha, $utilizador['senha'])) {
     exit;
 }
 
-if ($manter_conectado) {
-    ini_set('session.cookie_lifetime', 30 * 24 * 3600);
-    ini_set('session.gc_maxlifetime', 30 * 24 * 3600);
-    session_set_cookie_params(30 * 24 * 3600);
-}
-
 // Decodificar as permissões
 $permissoes = json_decode($utilizador['permissoes'] ?? '[]', true);
 if (!is_array($permissoes)) {
@@ -62,6 +57,7 @@ if ($utilizador['nivel'] !== 'admin') {
 }
 
 // Login bem-sucedido
+session_regenerate_id(true);
 $_SESSION['utilizador_id'] = $utilizador['id'];
 $_SESSION['utilizador_nome'] = $utilizador['nome'];
 $_SESSION['utilizador_email'] = $utilizador['email'];

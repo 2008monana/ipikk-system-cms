@@ -50,12 +50,10 @@ if (!$usuario) {
 
 // ===== PROCESSAMENTO POST — DEVE VIR ANTES DE QUALQUER INCLUDE/OUTPUT =====
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Limpa qualquer output buffer que possa existir
-    while (ob_get_level()) {
-        ob_end_clean();
+    // Garante resposta JSON limpa para chamadas AJAX deste ficheiro
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
     }
-    header('Content-Type: application/json; charset=utf-8');
-
     $action = $_POST['action'] ?? '';
 
     if ($action === 'atualizar_perfil') {
@@ -175,20 +173,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $upload = uploadArquivoNuvem($_FILES['foto'], 'perfis');
-
             if (!empty($upload['success'])) {
                 $stmt = $db->prepare("UPDATE utilizadores SET foto_url = ? WHERE id = ?");
                 $stmt->execute([$upload['url'], $_SESSION['utilizador_id']]);
                 try {
                     registrarLog('upload_foto', 'utilizadores', $_SESSION['utilizador_id'], 'Atualizou a foto de perfil');
                 } catch (Exception $e) {
-                    error_log('Erro ao registrar log: ' . $e->getMessage());
+                    error_log('Erro ao registrar log de upload de foto: ' . $e->getMessage());
                 }
-                // Resposta JSON limpa — sem nenhum HTML à volta
                 echo json_encode(['success' => true, 'foto_url' => $upload['url']]);
                 exit;
             }
-
             echo json_encode([
                 'success' => false,
                 'message' => $upload['message'] ?? 'Erro ao fazer upload.'
@@ -693,38 +688,24 @@ document.getElementById('uploadFoto')?.addEventListener('change', async function
     formData.append('foto', file);
 
     try {
-        const response = await fetch(window.location.href, {
-            method: 'POST',
-            body: formData
-        });
-
-        // Lê como texto primeiro para facilitar o debug
+        const response = await fetch(window.location.href, { method: 'POST', body: formData });
         const raw = await response.text();
-
-        let data;
-        try {
-            data = JSON.parse(raw);
-        } catch (parseErr) {
-            // Se o PHP ainda enviou HTML junto, extrai apenas o JSON do final
-            const match = raw.match(/(\{[^{}]*"success"[^{}]*\})/);
+        let data = null;
+        try { data = JSON.parse(raw); } catch (_) { data = null; }
+        if (!data && raw.includes('foto_url')) {
+            const match = raw.match(/\{[\s\S]*\}/);
             if (match) {
-                try { data = JSON.parse(match[1]); } catch (_) {}
+                try { data = JSON.parse(match[0]); } catch (_) {}
             }
         }
-
-        if (data && data.success) {
+        const sucessoForcado = !data && /"success"\s*:\s*true/i.test(raw);
+        if ((data && data.success) || sucessoForcado) {
+            const fotoUrl = data && data.foto_url ? data.foto_url : 'foto/sem_foto.png';
+            document.getElementById('fotoContainer').innerHTML = `<img src="${normalizarUrlMidiaAdmin(fotoUrl)}" alt="Foto">`;
             mostrarNotificacao('Foto de perfil actualizada!', 'sucesso');
-            // Recarrega a página após 800ms para mostrar a nova foto
-            setTimeout(() => window.location.reload(), 800);
-        } else {
-            mostrarNotificacao((data && data.message) ? data.message : 'Erro ao fazer upload.', 'erro');
-        }
-    } catch (err) {
-        mostrarNotificacao('Erro de rede ao fazer upload.', 'erro');
-    }
-
-    // Limpa o input para permitir selecionar o mesmo ficheiro novamente
-    this.value = '';
+            setTimeout(() => window.location.reload(), 700);
+        } else { mostrarNotificacao((data && data.message) ? data.message : 'Erro ao fazer upload', 'erro'); }
+    } catch(e) { mostrarNotificacao('Erro ao fazer upload', 'erro'); }
 });
 
 async function removerFoto() {

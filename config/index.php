@@ -4,10 +4,9 @@
  * Deve ser incluído no início de todos os arquivos PHP
  */
 
-// Iniciar sessão
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Iniciar sessão com parâmetros de cookie consistentes
+require_once __DIR__ . '/session.php';
+iniciarSessaoIpikk();
 
 // Definir timezone
 date_default_timezone_set('Africa/Luanda');
