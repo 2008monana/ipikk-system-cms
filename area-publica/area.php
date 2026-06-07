@@ -516,7 +516,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
                     
                     // Imagem do curso ou padrão da área
                     $imagem_curso = !empty($curso['imagem_hero']) 
-                        ? (strpos($curso['imagem_hero'], 'http') === 0 ? $curso['imagem_hero'] : '../uploads/cursos/' . $curso['imagem_hero'])
+                        ? normalizarUrlMidia($curso['imagem_hero'], '')
                         : ($imagens_padrao[$area_slug] ?? 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80');
                 ?>
                 <article class="cartao-curso" data-curso-id="<?= $curso['id'] ?>" style="--curso-cor: <?= htmlspecialchars($cor_curso) ?>;">
