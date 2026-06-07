@@ -20,7 +20,7 @@ foreach ($todos_cursos as $curso_item) {
 
 // Verificar status das inscrições
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 
 // Processar formulário via AJAX
 $processar = isset($_GET['processar']) ? true : false;
@@ -531,7 +531,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Rodapé -->
             <div class="rodape-recuperar">
-                <p><i class="fas fa-arrow-left"></i> <a href="area-restrita.php">Voltar para o login</a></p>
+                <p><i class="fas fa-arrow-left"></i> <a href="area-restrita">Voltar para o login</a></p>
                 <p style="margin-top: 12px; font-size: 0.8rem;">
                     <i class="fas fa-shield-alt"></i> Suas informações são protegidas com criptografia SSL
                 </p>
@@ -615,7 +615,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
             botaoEnviar.disabled = true;
             
             try {
-                const response = await fetch('recuperar-senha.php?processar=1', {
+                const response = await fetch('recuperar-senha?processar=1', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

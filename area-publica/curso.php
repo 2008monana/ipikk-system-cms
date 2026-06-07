@@ -3,7 +3,7 @@
  * Pagina de Curso - IPIKK
  * UMA pagina para TODOS os cursos
  * O conteudo e filtrado pelo parametro 'slug' na URL
- * Ex: curso.php?slug=construcao-civil-obras
+ * Ex: curso?slug=construcao-civil-obras
  */
 
 require_once '../config/index.php';
@@ -13,7 +13,7 @@ $config = getDB()->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 $curso_slug = $_GET['slug'] ?? null;
 
 if (!$curso_slug) {
-    header('Location: oferta-formativa.php');
+    header('Location: oferta-formativa');
     exit;
 }
 

@@ -9,6 +9,13 @@ require_once '../config/index.php';
 // Buscar configurações do site
 $config = getDB()->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 
+// Se o modo de manutenção estiver desativado, a página de manutenção
+// não deve continuar visível para visitantes.
+if (empty($config['modo_manutencao'])) {
+    header('Location: ./');
+    exit;
+}
+
 // Buscar dados da manutenção
 $manutencao_titulo = $config['manutencao_titulo'] ?? 'Site em Manutenção';
 $manutencao_mensagem = $config['manutencao_mensagem_principal'] ?? 'Estamos realizando melhorias para lhe servir melhor.';

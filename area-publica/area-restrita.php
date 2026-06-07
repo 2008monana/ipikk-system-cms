@@ -330,7 +330,7 @@ if (isset($_SESSION['utilizador_id'])) {
                 <p class="subtitulo-login">Área Restrita - Acesso Administrativo</p>
             </div>
 
-            <form id="formularioLogin" method="POST" action="processar-login.php" novalidate>
+            <form id="formularioLogin" method="POST" action="processar-login" novalidate>
                 <div class="grupo-campo" id="grupoCampoEmail">
                     <i class="fas fa-envelope"></i>
                     <input type="email" name="email" id="campoEmail" placeholder="Email" required autocomplete="email">
@@ -351,7 +351,7 @@ if (isset($_SESSION['utilizador_id'])) {
                         <input type="checkbox" name="manter_conectado" id="manterConectado">
                         <span>Manter conectado</span>
                     </label>
-                    <a href="recuperar-senha.php" class="link-esqueceu-senha">Esqueceu sua senha?</a>
+                    <a href="recuperar-senha" class="link-esqueceu-senha">Esqueceu sua senha?</a>
                 </div>
 
                 <button type="submit" class="botao-entrar" id="botaoSubmeter">
@@ -541,8 +541,8 @@ if (isset($_SESSION['utilizador_id'])) {
             await new Promise(resolve => setTimeout(resolve, 5000));
             
             try {
-                console.log('Enviando requisição para processar-login.php');
-                const response = await fetch('processar-login.php', {
+                console.log('Enviando requisição para processar-login');
+                const response = await fetch('processar-login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, senha, manter_conectado: manter })

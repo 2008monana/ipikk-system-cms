@@ -135,7 +135,7 @@ $cursos_destaque = isset($pagina_inicial['cursos_destaque']) && is_array($pagina
 
 // Verificar status das inscrições para o botão de matrícula
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 ?>
 
 <!DOCTYPE html>
@@ -732,7 +732,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
                     <div class="texto-card">
                         <h3><?= htmlspecialchars($area['nome']) ?></h3>
                         <p><?= htmlspecialchars($area['descricao_curta'] ?? 'Formação técnica especializada') ?></p>
-                        <a href="area.php?slug=<?= $area['slug'] ?>" class="botao">Ver Detalhes <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="area?slug=<?= $area['slug'] ?>" class="botao">Ver Detalhes <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </article>
@@ -869,7 +869,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         </div>
         <?php endif; ?>
         <div class="area-botao">
-            <a href="noticias.php" class="botao-ver-mais">
+            <a href="noticias" class="botao-ver-mais">
                 Ver Mais Notícias <i class="fa-solid fa-arrow-right"></i>
             </a>
         </div>
@@ -1007,7 +1007,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         const resumo = String(noticiaRecente.resumo || noticiaRecente.conteudo || '').replace(/<[^>]*>/g, '').slice(0, 140);
         const m = criarModalBase('<i class="fas fa-newspaper"></i> Nova Notícia', `<strong>${noticiaRecente.titulo || 'Nova notícia'}</strong><br><span>${resumo}${resumo.length>=140?'...':''}</span>`, '<button id="verNoticia" class="btn-top-notif btn-top-notif-pri">Ver notícia</button><button id="fecharNotif" class="btn-top-notif">Fechar</button>');
         const marcarVisto = ()=> localStorage.setItem(seenKey, String(noticiaRecente.id));
-        m.overlay.querySelector('#verNoticia')?.addEventListener('click', ()=>{ marcarVisto(); window.location.href = `noticias.php?id=${noticiaRecente.id}`; });
+        m.overlay.querySelector('#verNoticia')?.addEventListener('click', ()=>{ marcarVisto(); window.location.href = `noticias?id=${noticiaRecente.id}`; });
         m.overlay.querySelector('#fecharNotif')?.addEventListener('click', ()=>{ marcarVisto(); m.close(); });
         m.overlay.querySelector('[data-close]')?.addEventListener('click', ()=>{ marcarVisto(); });
     }

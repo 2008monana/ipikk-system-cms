@@ -149,7 +149,7 @@ async function traduzirTextoOnline(texto, source, target) {
     const chave = `${source}:${target}:${texto}`;
     if (cacheTraducao.has(chave)) return cacheTraducao.get(chave);
 
-    const resp = await fetch('processar-traducao.php', {
+    const resp = await fetch('processar-traducao', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ texto, source, target })
@@ -260,7 +260,7 @@ async function subscreverPush() {
     }
 
     const json = sub.toJSON();
-    await fetch('processar-push.php', {
+    await fetch('processar-push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

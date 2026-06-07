@@ -7,13 +7,13 @@ self.addEventListener('push', (event) => {
     icon: data.icon || '/area-publica/uploads/favicon.png',
     badge: data.badge || '/area-publica/uploads/favicon.png',
     image: data.image || undefined,
-    data: { url: data.url || '/area-publica/noticias.php' }
+    data: { url: data.url || '/area-publica/noticias' }
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = event.notification?.data?.url || '/area-publica/noticias.php';
+  const url = event.notification?.data?.url || '/area-publica/noticias';
   event.waitUntil(clients.openWindow(url));
 });

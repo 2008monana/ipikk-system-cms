@@ -2,7 +2,7 @@
 /**
  * Página de Área de Formação - IPIKK
  * UMA página para TODAS as áreas
- * Ex: area.php?slug=construcao-civil
+ * Ex: area?slug=construcao-civil
  */
 
 require_once '../config/index.php';
@@ -12,7 +12,7 @@ $config = getDB()->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 $area_slug = $_GET['slug'] ?? null;
 
 if (!$area_slug) {
-    header('Location: oferta-formativa.php');
+    header('Location: oferta-formativa');
     exit;
 }
 
@@ -113,12 +113,12 @@ $imagens_padrao = [
     'alfaiataria' => 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80'
 ];
 
-$link_inscricao = 'inscricoes.php';
+$link_inscricao = 'inscricoes';
 $controle_inscricao = getDB()->query("SELECT * FROM controle_inscricoes WHERE id = 1")->fetch();
 if ($controle_inscricao && $controle_inscricao['status'] === 'abertas') {
-    $link_inscricao = 'inscricoes.php';
+    $link_inscricao = 'inscricoes';
 } else {
-    $link_inscricao = 'inscricoes-indisponiveis.php';
+    $link_inscricao = 'inscricoes-indisponiveis';
 }
 
 $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
@@ -571,7 +571,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </ul>
-                        <a href="curso.php?slug=<?= $curso['slug'] ?>" class="botao-detalhes" style="--botao-cor: <?= htmlspecialchars($cor_curso) ?>;">
+                        <a href="curso?slug=<?= $curso['slug'] ?>" class="botao-detalhes" style="--botao-cor: <?= htmlspecialchars($cor_curso) ?>;">
                             Ver detalhes do curso →
                         </a>
                     </div>
@@ -587,7 +587,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
 
                 <div class="grade-outras-areas">
                     <?php foreach($outras_areas as $outra_area): ?>
-                    <a href="area.php?slug=<?= $outra_area['slug'] ?>" class="cartao-area" style="--area-cor: <?= $outra_area['cor_primaria'] ?? '#6c757d' ?>;">
+                    <a href="area?slug=<?= $outra_area['slug'] ?>" class="cartao-area" style="--area-cor: <?= $outra_area['cor_primaria'] ?? '#6c757d' ?>;">
                         <div class="topo-cartao-area">
                             <div class="icone-area">
                                 <i class="fas <?= $outra_area['icone_classe'] ?? 'fa-graduation-cap' ?>"></i>
