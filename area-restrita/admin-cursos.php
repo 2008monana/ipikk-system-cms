@@ -1548,6 +1548,8 @@ function setupPDFUploads() {
 function abrirModalCurso(id = null) {
     const modal = document.getElementById('modalCurso');
     document.getElementById('formularioCurso').reset();
+    const imagemInput = document.getElementById('imagemInput');
+    if (imagemInput) imagemInput.value = '';
     document.getElementById('cursoId').value = '';
     document.getElementById('tituloModalCurso').innerHTML = 'Novo Curso';
 
@@ -1835,6 +1837,16 @@ async function salvarCurso(event) {
         console.log("Resposta do servidor:", data);
 
         if (data.success) {
+            if (data.imagem_hero) {
+                const cursoAtual = cursos.find(c => c.id == (data.id || id));
+                if (cursoAtual) cursoAtual.imagem_hero = data.imagem_hero;
+                const miniatura = document.getElementById('miniaturaImagem');
+                const preview = document.getElementById('previewImagem');
+                if (miniatura && preview) {
+                    miniatura.src = normalizarUrlMidiaAdmin(data.imagem_hero);
+                    preview.classList.add('ativo');
+                }
+            }
             mostrarNotificacao(data.message, 'success');
             setTimeout(() => {
                 location.reload();
