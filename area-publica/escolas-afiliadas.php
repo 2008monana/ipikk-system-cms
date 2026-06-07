@@ -117,16 +117,6 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
             transition: var(--transicao);
         }
 
-        .card-escola::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: linear-gradient(155deg, var(--azul-principal) 0%, var(--verde-acento) 100%);
-        }
-
         .card-escola:hover {
             transform: translateY(-8px);
             box-shadow: 0 24px 55px rgba(0, 48, 114, 0.18);
