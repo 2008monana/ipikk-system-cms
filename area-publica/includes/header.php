@@ -846,14 +846,14 @@ $is_sobre_active = $is_sobre;
                     <div class="conteudo-suspenso">
                         <?php foreach($areas as $area_menu): $cursos_area = $cursos_por_area[$area_menu['id']] ?? []; ?>
                         <div class="item-suspenso">
-                            <a href="area?slug=<?= $area_menu['slug'] ?>" class="link-suspenso">
+                            <a href="area.php?slug=<?= urlencode($area_menu['slug']) ?>" class="link-suspenso">
                                 <?= htmlspecialchars($area_menu['nome']) ?> 
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                             <?php if(count($cursos_area) > 0): ?>
                             <div class="submenu-suspenso">
                                 <?php foreach($cursos_area as $curso_menu): ?>
-                                <a href="curso?slug=<?= $curso_menu['slug'] ?>">
+                                <a href="curso.php?slug=<?= urlencode($curso_menu['slug']) ?>">
                                     <?= htmlspecialchars($curso_menu['nome']) ?>
                                 </a>
                                 <?php endforeach; ?>
@@ -954,7 +954,7 @@ $is_sobre_active = $is_sobre;
                 <?php foreach($areas as $area_menu): $cursos_area = $cursos_por_area[$area_menu['id']] ?? []; ?>
                 <div class="sidebar-item">
                     <div style="display: flex; align-items: stretch;">
-                        <a href="area?slug=<?= $area_menu['slug'] ?>" class="sidebar-sub-link" style="flex: 1; border-radius: 8px 0 0 8px;">
+                        <a href="area.php?slug=<?= urlencode($area_menu['slug']) ?>" class="sidebar-sub-link" style="flex: 1; border-radius: 8px 0 0 8px;">
                             <?= htmlspecialchars($area_menu['nome']) ?>
                         </a>
                         <?php if(count($cursos_area) > 0): ?>
@@ -966,7 +966,7 @@ $is_sobre_active = $is_sobre;
                     <?php if(count($cursos_area) > 0): ?>
                     <div class="sidebar-submenu" id="submenu-<?= $area_menu['id'] ?>">
                         <?php foreach($cursos_area as $curso_menu): ?>
-                        <a href="curso?slug=<?= $curso_menu['slug'] ?>" class="sidebar-sub-link">
+                        <a href="curso.php?slug=<?= urlencode($curso_menu['slug']) ?>" class="sidebar-sub-link">
                             <?= htmlspecialchars($curso_menu['nome']) ?>
                         </a>
                         <?php endforeach; ?>

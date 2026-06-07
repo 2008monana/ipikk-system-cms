@@ -732,7 +732,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
                     <div class="texto-card">
                         <h3><?= htmlspecialchars($area['nome']) ?></h3>
                         <p><?= htmlspecialchars($area['descricao_curta'] ?? 'Formação técnica especializada') ?></p>
-                        <a href="area?slug=<?= $area['slug'] ?>" class="botao">Ver Detalhes <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="area.php?slug=<?= urlencode($area['slug']) ?>" class="botao">Ver Detalhes <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </article>

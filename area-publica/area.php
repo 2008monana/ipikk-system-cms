@@ -2,7 +2,7 @@
 /**
  * Página de Área de Formação - IPIKK
  * UMA página para TODAS as áreas
- * Ex: area?slug=construcao-civil
+ * Ex: area.php?slug=construcao-civil
  */
 
 require_once '../config/index.php';
@@ -12,7 +12,7 @@ $config = getDB()->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 $area_slug = $_GET['slug'] ?? null;
 
 if (!$area_slug) {
-    header('Location: oferta-formativa');
+    header('Location: oferta-formativa.php');
     exit;
 }
 
@@ -571,7 +571,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </ul>
-                        <a href="curso?slug=<?= $curso['slug'] ?>" class="botao-detalhes" style="--botao-cor: <?= htmlspecialchars($cor_curso) ?>;">
+                        <a href="curso.php?slug=<?= urlencode($curso['slug']) ?>" class="botao-detalhes" style="--botao-cor: <?= htmlspecialchars($cor_curso) ?>;">
                             Ver detalhes do curso →
                         </a>
                     </div>
@@ -587,7 +587,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
 
                 <div class="grade-outras-areas">
                     <?php foreach($outras_areas as $outra_area): ?>
-                    <a href="area?slug=<?= $outra_area['slug'] ?>" class="cartao-area" style="--area-cor: <?= $outra_area['cor_primaria'] ?? '#6c757d' ?>;">
+                    <a href="area.php?slug=<?= urlencode($outra_area['slug']) ?>" class="cartao-area" style="--area-cor: <?= $outra_area['cor_primaria'] ?? '#6c757d' ?>;">
                         <div class="topo-cartao-area">
                             <div class="icone-area">
                                 <i class="fas <?= $outra_area['icone_classe'] ?? 'fa-graduation-cap' ?>"></i>
