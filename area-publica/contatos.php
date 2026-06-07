@@ -491,7 +491,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
             const formData = new FormData(formulario);
 
             try {
-                const response = await fetch('contatos.php?processar=1', {
+                const response = await fetch('contatos?processar=1', {
                     method: 'POST',
                     body: formData
                 });

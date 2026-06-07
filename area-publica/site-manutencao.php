@@ -12,7 +12,7 @@ $config = getDB()->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 // Se o modo de manutenção estiver desativado, a página de manutenção
 // não deve continuar visível para visitantes.
 if (empty($config['modo_manutencao'])) {
-    header('Location: index.php');
+    header('Location: ./');
     exit;
 }
 
