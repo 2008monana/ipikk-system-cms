@@ -334,7 +334,7 @@ unset($curso);
         .area-upload-arquivo:hover { border-color: var(--verde-acento); background: var(--cinza-claro); }
         .preview-arquivo { margin-top: 15px; padding: 15px; background: var(--branco); border-radius: var(--borda-arredondada); border: 1px solid var(--cinza-medio); display: none; align-items: center; justify-content: space-between; }
         .preview-arquivo.ativo { display: flex; }
-        .preview-arquivo img { max-width: 100px; max-height: 100px; border-radius: var(--borda-arredondada); }
+        .preview-arquivo img { width: 140px; height: 92px; max-width: 140px; max-height: 92px; object-fit: cover; border-radius: var(--borda-arredondada); border: 1px solid var(--cinza-medio); background: var(--cinza-claro); }
         .wrapper-toggle { display: flex; align-items: center; gap: 10px; }
         .toggle-switch { position: relative; width: 44px; height: 24px; display: inline-block; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
@@ -1073,9 +1073,34 @@ function mostrarNotificacao(msg, tipo = 'success') {
 }
 
 function criarOverlayGradiente(hex) { hex = (hex || '#003072').replace('#', ''); const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16); return `linear-gradient(to bottom,rgba(${r},${g},${b},.25),rgba(${Math.round(r*.4)},${Math.round(g*.4)},${Math.round(b*.4)},.85))`; }
-function normalizarUrlMidiaAdmin(url){ if(!url) return ''; const u=String(url).trim(); if(/^https?:\/\//i.test(u)) return u; return '../'+u.replace(/^\/+/, ''); }
-function getImagemÁrea(area) { const pad = { 'construcao-civil':'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80','eletricidade':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80','mecanica':'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80','informatica':'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80','tecnologia-moveis':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80','alfaiataria':'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&q=80' }; if (!area.imagem_url) return pad[area.slug] || pad['informatica']; return normalizarUrlMidiaAdmin(area.imagem_url); }
-function getImagemCurso(curso) { const pad = { 'construcao-civil-obras':'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80','construcao-civil-desenhador':'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800&q=80','eletricidade-instalacoes':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80','mecanica-climatizacao':'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80','informatica-gestao-sistemas':'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80','informatica-tecnico':'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80','tecnologia-moveis-curso':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80' }; if (!curso.imagem_hero) return pad[curso.slug] || pad['construcao-civil-obras']; return normalizarUrlMidiaAdmin(curso.imagem_hero); }
+function normalizarUrlMidiaAdmin(url){
+    if(!url) return '';
+    let u = String(url).trim().replace(/\\/g, '/');
+    if(/^(https?:)?\/\//i.test(u) || /^(data|blob):/i.test(u)) return u;
+    u = u.replace(/^\/+/, '');
+    if(u.startsWith('../')) return u;
+    if(u.startsWith('area-publica/')) return '../' + u;
+    if(/^(uploads|foto)\//i.test(u)) return '../area-publica/' + u;
+    return '../area-publica/uploads/' + u;
+}
+function getImagemÁrea(area) {
+    const pad = { 'construcao-civil':'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80','eletricidade':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80','mecanica':'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80','informatica':'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80','tecnologia-moveis':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80','alfaiataria':'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&q=80' };
+    if (!area.imagem_url) return pad[area.slug] || pad['informatica'];
+    const img = String(area.imagem_url).trim();
+    if (!/^(https?:)?\/\//i.test(img) && !img.includes('/') && !img.startsWith('../')) {
+        return normalizarUrlMidiaAdmin('uploads/areas/' + img);
+    }
+    return normalizarUrlMidiaAdmin(img);
+}
+function getImagemCurso(curso) {
+    const pad = { 'construcao-civil-obras':'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80','construcao-civil-desenhador':'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800&q=80','eletricidade-instalacoes':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80','mecanica-climatizacao':'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80','informatica-gestao-sistemas':'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80','informatica-tecnico':'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80','tecnologia-moveis-curso':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80' };
+    if (!curso.imagem_hero) return pad[curso.slug] || pad['construcao-civil-obras'];
+    const img = String(curso.imagem_hero).trim();
+    if (!/^(https?:)?\/\//i.test(img) && !img.includes('/') && !img.startsWith('../')) {
+        return normalizarUrlMidiaAdmin('uploads/cursos/' + img);
+    }
+    return normalizarUrlMidiaAdmin(img);
+}
 function getOverlayCurso(curso, corÁreaFallback) { const map = { 'construcao-civil-obras':'linear-gradient(to bottom,rgba(42,46,51,.25) 0%,rgba(36,37,39,.78) 100%)','construcao-civil-desenhador':'linear-gradient(to bottom,rgba(180,110,0,.45) 0%,rgba(140,80,0,.92) 100%)','eletricidade-instalacoes':'linear-gradient(135deg,rgba(15,23,42,.8),rgba(46,134,193,.6))','mecanica-climatizacao':'linear-gradient(to bottom,rgba(224,123,42,.3),rgba(184,94,26,.9))','informatica-gestao-sistemas':'linear-gradient(to bottom,rgba(46,134,193,.3),rgba(26,90,140,.9))','informatica-tecnico':'linear-gradient(to bottom,rgba(45,122,58,.3),rgba(30,85,39,.9))','tecnologia-moveis-curso':'linear-gradient(to bottom,rgba(192,57,43,.3),rgba(150,45,34,.9))' }; return map[curso.slug] || criarOverlayGradiente(corÁreaFallback); }
 function getCorCurso(curso, corÁreaFallback) { return curso.cor || corÁreaFallback || '#6c757d'; }
 function getBotaoCores(curso) { const map = { 'construcao-civil-obras':{ bg:'#6c757d',hov:'#444' },'construcao-civil-desenhador':{ bg:'#e6a817',hov:'#c9920e' },'eletricidade-instalacoes':{ bg:'#2e86c1',hov:'#1f5a8a' },'mecanica-climatizacao':{ bg:'#e07b2a',hov:'#c95a0e' },'informatica-gestao-sistemas':{ bg:'#2e86c1',hov:'#1f5a8a' },'informatica-tecnico':{ bg:'#2d7a3a',hov:'#1e5527' },'tecnologia-moveis-curso':{ bg:'#c0392b',hov:'#a83224' } }; return map[curso.slug] || { bg:'#003072',hov:'#001a40' }; }
@@ -1159,7 +1184,10 @@ function abrirModalÁrea(id = null) {
             document.getElementById('iconePreviewIcon').className = 'fas '+(area.icone_classe||'fa-layer-group');
             document.getElementById('areaOrdem').value = area.ordem||0;
             document.getElementById('areaAtivo').checked = area.ativo==1;
-            if (area.imagem_url) { document.getElementById('miniaturaÁreaImagem').src = normalizarUrlMidiaAdmin(area.imagem_url); document.getElementById('previewÁreaImagem').classList.add('ativo'); }
+            if (area.imagem_url) {
+                document.getElementById('miniaturaÁreaImagem').src = getImagemÁrea(area);
+                document.getElementById('previewÁreaImagem').classList.add('ativo');
+            }
         }
     }
     modal.style.display = 'flex';
@@ -1583,7 +1611,7 @@ function abrirModalCurso(id = null) {
                 projetosPorCurso[curso.id].forEach(p => adicionarProjecto(p));
             }
             if(curso.imagem_hero) {
-                document.getElementById('miniaturaImagem').src = '../uploads/cursos/' + curso.imagem_hero;
+                document.getElementById('miniaturaImagem').src = getImagemCurso(curso);
                 document.getElementById('previewImagem').classList.add('ativo');
             }
         }

@@ -409,8 +409,41 @@ function getConteudoPagina($slug) {
 function normalizarUrlMidia($url, $prefixoRelativo = '../') {
     $url = trim((string)$url);
     if ($url === '') return '';
-    if (preg_match('/^https?:\/\//i', $url)) return ajustarCloudinaryPdfUrl($url);
-    return rtrim($prefixoRelativo, '/') . '/' . ltrim($url, '/');
+
+    if (preg_match('/^(https?:)?\/\//i', $url) || preg_match('/^(data|blob):/i', $url)) {
+        return ajustarCloudinaryPdfUrl($url);
+    }
+
+    $url = str_replace('\\', '/', $url);
+    $url = preg_replace('#/+#', '/', $url);
+    $urlLimpa = ltrim($url, '/');
+
+    if (strpos($urlLimpa, '../') === 0) {
+        return $urlLimpa;
+    }
+
+    $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    $emAreaRestrita = strpos($script, '/area-restrita/') !== false;
+    $emAreaPublica = strpos($script, '/area-publica/') !== false;
+
+    if (strpos($urlLimpa, 'area-publica/') === 0) {
+        return $emAreaRestrita ? '../' . $urlLimpa : substr($urlLimpa, strlen('area-publica/'));
+    }
+
+    if (preg_match('#^(uploads|foto)/#', $urlLimpa)) {
+        return $emAreaRestrita ? '../area-publica/' . $urlLimpa : $urlLimpa;
+    }
+
+    if ($emAreaPublica && $prefixoRelativo === '..') {
+        return $urlLimpa;
+    }
+
+    $prefixoRelativo = trim((string)$prefixoRelativo);
+    if ($prefixoRelativo === '') {
+        return $urlLimpa;
+    }
+
+    return rtrim($prefixoRelativo, '/') . '/' . $urlLimpa;
 }
 
 

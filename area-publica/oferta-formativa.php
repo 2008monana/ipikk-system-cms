@@ -67,23 +67,18 @@ function getImagemArea($area) {
         return $imagens_padrao[$area['slug']] ?? 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80';
     }
     
-    // Se já é uma URL externa (http ou https)
-    if (strpos($area['imagem_url'], 'http') === 0) {
-        return $area['imagem_url'];
+    // Se já é uma URL externa (http, https ou protocol-relative)
+    if (preg_match('/^(https?:)?\/\//i', $area['imagem_url'])) {
+        return normalizarUrlMidia($area['imagem_url'], '');
     }
     
-    // Se já tem o caminho completo começando com ../
-    if (strpos($area['imagem_url'], '../') === 0) {
-        return $area['imagem_url'];
+    // Se já tem um caminho relativo completo (uploads/foto/area-publica), normalizar conforme a página atual.
+    if (preg_match('#^(\.\./|area-publica/|uploads/|foto/)#', $area['imagem_url'])) {
+        return normalizarUrlMidia($area['imagem_url'], '');
     }
     
-    // Se já tem o caminho uploads/ (sem a barra no início)
-    if (strpos($area['imagem_url'], 'uploads/') === 0) {
-        return normalizarUrlMidia($area['imagem_url'], '..');
-    }
-    
-    // Se for apenas o nome do arquivo (ex: 69cc66ecaba9e.png)
-    return '../uploads/areas/' . $area['imagem_url'];
+    // Se for apenas o nome do arquivo (ex: 69cc66ecaba9e.png), considerar a pasta padrão das áreas.
+    return normalizarUrlMidia('uploads/areas/' . $area['imagem_url'], '');
 }
 ?>
 
@@ -204,12 +199,14 @@ function getImagemArea($area) {
 
         .capa-area {
             position: relative;
-            height: 220px;
+            height: 250px;
             background-size: cover;
-            background-position: center;
+            background-position: center center;
+            background-repeat: no-repeat;
             display: flex;
             align-items: flex-end;
             padding: 24px 22px;
+            isolation: isolate;
         }
 
         .overlay-area {
@@ -398,7 +395,7 @@ function getImagemArea($area) {
                     $overlay_gradiente = criarOverlayGradiente($cor_area);
                 ?>
                 <a href="area?slug=<?= $area['slug'] ?>" class="cartao-area" style="--area-cor: <?= $cor_area ?>;">
-                    <div class="capa-area" style="background-image: url('<?= $imagem_url ?>')">
+                    <div class="capa-area" style="background-image: url('<?= htmlspecialchars($imagem_url, ENT_QUOTES) ?>')">
                         <div class="overlay-area" style="background: <?= $overlay_gradiente ?>;"></div>
                         <div class="conteudo-capa-area">
                             <div class="icone-area-formativa">
