@@ -135,7 +135,7 @@ $cursos_destaque = isset($pagina_inicial['cursos_destaque']) && is_array($pagina
 
 // Verificar status das inscrições para o botão de matrícula
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
 ?>
 
 <!DOCTYPE html>
@@ -304,7 +304,16 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         .texto-card .botao:hover { background: var(--area-cor, #6c757d); color: white; }
 
         /* ================= SEÇÃO MENSAGEM DO DIRECTOR ==================== */
-        .secao-mensagem { padding: 80px 20px; background: rgba(0,48,114,.03); position: relative; z-index: 10; }
+        .secao-mensagem {
+            width: calc(100% - 40px);
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 40px;
+            background: rgba(0,48,114,.03);
+            position: relative;
+            z-index: 10;
+            box-sizing: border-box;
+        }
         .container-mensagem {
             max-width: 1100px; margin: auto; display: flex; flex-wrap: wrap;
             border-radius: 18px; overflow: hidden;
@@ -538,7 +547,16 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         .tag-item:hover { background: var(--azul-principal); color: var(--branco); transform: translateY(-2px); }
 
             /* ===================== SEÇÃO MATRÍCULA =========================== */
-            .secao-matricula { padding: 80px 20px; background: var(--branco); position: relative; z-index: 10; }
+            .secao-matricula {
+                width: calc(100% - 40px);
+                max-width: 1200px;
+                margin: 80px auto;
+                padding: 40px;
+                background: var(--branco);
+                position: relative;
+                z-index: 10;
+                box-sizing: border-box;
+            }
             .container-matricula {
                 max-width: 1200px; margin: 0 auto;
                 display: flex;
@@ -679,6 +697,8 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
             .cartao-noticia { width: 100%; }
             .modal-midia { height: 320px; }
             .modal-titulo { font-size: 1.6rem; }
+            .secao-mensagem,
+            .secao-matricula { width: calc(100% - 32px); padding: 24px; }
             .coluna-esquerda-matricula,.coluna-direita-matricula { padding: 40px; width: 100%; }
         }
         @media (max-width: 480px) {
@@ -732,7 +752,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
                     <div class="texto-card">
                         <h3><?= htmlspecialchars($area['nome']) ?></h3>
                         <p><?= htmlspecialchars($area['descricao_curta'] ?? 'Formação técnica especializada') ?></p>
-                        <a href="area?slug=<?= $area['slug'] ?>" class="botao">Ver Detalhes <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="area.php?slug=<?= urlencode($area['slug']) ?>" class="botao">Ver Detalhes <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </article>
@@ -900,7 +920,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
                 <div class="coluna-esquerda-matricula">
                     <h2 class="titulo-matricula"><?= htmlspecialchars($matricula['titulo'] ?? 'Faça a sua matrícula no IPIKK') ?></h2>
                     <p class="descricao-matricula"><?= htmlspecialchars($matricula['descricao'] ?? 'Junte-se a nós para a sua capacitação profissional.') ?></p>
-                    <a href="<?= $link_inscricao ?>" class="botao-matricula">Inscreva-se Agora <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="<?= htmlspecialchars($link_inscricao) ?>" class="botao-matricula">Inscreva-se Agora <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
                 <div class="coluna-direita-matricula">
                     <img src="<?= htmlspecialchars($matricula['imagem'] ?? 'foto/matricula.jpg') ?>" alt="Aluno IPIKK" onerror="this.src='foto/sem_foto.png'">

@@ -394,7 +394,7 @@ function getImagemArea($area) {
                     // Criar overlay gradiente com a cor da área
                     $overlay_gradiente = criarOverlayGradiente($cor_area);
                 ?>
-                <a href="area?slug=<?= $area['slug'] ?>" class="cartao-area" style="--area-cor: <?= $cor_area ?>;">
+                <a href="area.php?slug=<?= urlencode($area['slug']) ?>" class="cartao-area" style="--area-cor: <?= $cor_area ?>;">
                     <div class="capa-area" style="background-image: url('<?= htmlspecialchars($imagem_url, ENT_QUOTES) ?>')">
                         <div class="overlay-area" style="background: <?= $overlay_gradiente ?>;"></div>
                         <div class="conteudo-capa-area">
