@@ -13,7 +13,7 @@ $config = getDB()->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 $curso_slug = $_GET['slug'] ?? null;
 
 if (!$curso_slug) {
-    header('Location: oferta-formativa');
+    header('Location: oferta-formativa.php');
     exit;
 }
 

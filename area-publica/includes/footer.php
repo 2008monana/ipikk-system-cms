@@ -69,7 +69,7 @@ $links_rapidos = array_filter(array_map('trim', explode("\n", (string)($config['
             <div class="coluna-links">
                 <h4 class="titulo-rodape">Oferta Formativa</h4>
                 <div class="links-rodape">
-                    <a href="oferta-formativa" class="link-rodape">Ver Todos os Cursos</a>
+                    <a href="oferta-formativa.php" class="link-rodape">Ver Todos os Cursos</a>
                     <?php foreach($areas as $area_rodape): ?>
                     <a href="area.php?slug=<?= urlencode($area_rodape['slug']) ?>" class="link-rodape"><?= htmlspecialchars($area_rodape['nome']) ?></a>
                     <?php endforeach; ?>

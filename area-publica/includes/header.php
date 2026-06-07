@@ -840,7 +840,7 @@ $is_sobre_active = $is_sobre;
                     <a href="./" class="link-navegacao">Início</a>
                 </li>
                 <li class="item-navegacao menu-suspenso <?= $is_oferta_active ? 'ativo' : '' ?>">
-                    <a href="oferta-formativa" class="link-navegacao">
+                    <a href="oferta-formativa.php" class="link-navegacao">
                         Oferta Formativa <i class="fas fa-chevron-down"></i>
                     </a>
                     <div class="conteudo-suspenso">
@@ -942,7 +942,7 @@ $is_sobre_active = $is_sobre;
         <!-- OFERTA FORMATIVA - com seta separada -->
         <div class="sidebar-item">
             <div style="display: flex; align-items: stretch;">
-                <a href="oferta-formativa" class="sidebar-oferta-link <?= $is_oferta_active ? 'ativo' : '' ?>">
+                <a href="oferta-formativa.php" class="sidebar-oferta-link <?= $is_oferta_active ? 'ativo' : '' ?>">
                     <span class="sidebar-icone"><i class="fas fa-graduation-cap"></i></span>
                     <span>Oferta Formativa</span>
                 </a>
