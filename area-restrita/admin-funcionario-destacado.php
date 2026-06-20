@@ -10,7 +10,7 @@ $css_especifico = 'admin-funcionario-destacado.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -27,7 +27,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1286,7 +1286,7 @@ function salvarFuncionario(btn) {
     formData.append('cargo', cargo);
     if (fotoFile) formData.append('foto', fotoFile);
     
-    fetch('processos/processar-funcionario-destacado.php', {
+    fetch('processos/processar-funcionario-destacado', {
         method: 'POST',
         body: formData
     })
@@ -1327,7 +1327,7 @@ function salvarNovoFuncionario(btn) {
     formData.append('cargo', cargo);
     if (fotoFile) formData.append('foto', fotoFile);
     
-    fetch('processos/processar-funcionario-destacado.php', {
+    fetch('processos/processar-funcionario-destacado', {
         method: 'POST',
         body: formData
     })
@@ -1360,7 +1360,7 @@ function eliminarFuncionario(btn) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-funcionario-destacado.php', {
+            const response = await fetch('processos/processar-funcionario-destacado', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })
@@ -1399,7 +1399,7 @@ function salvarTodos() {
     formData.append('hero_subtitulo', heroSubtitulo);
     formData.append('faixa_texto', faixaTexto);
     
-    fetch('processos/processar-funcionario-destacado.php', {
+    fetch('processos/processar-funcionario-destacado', {
         method: 'POST',
         body: formData
     })
@@ -1422,7 +1422,7 @@ function salvarTodos() {
     });
 }
 function previewPagina() {
-    window.open('../area-publica/funcionario-destacado.php?preview=1', '_blank');
+    window.open('../area-publica/funcionario-destacado?preview=1', '_blank');
 }
 
 document.getElementById('btnCancelarConfirmacao')?.addEventListener('click', () => {

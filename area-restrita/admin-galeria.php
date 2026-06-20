@@ -10,7 +10,7 @@ $css_especifico = 'admin-galeria.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -27,7 +27,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1370,7 +1370,7 @@ async function salvarMidia(event) {
     }
     
     try {
-        const response = await fetch('processos/processar-galeria.php', {
+        const response = await fetch('processos/processar-galeria', {
             method: 'POST',
             body: formData
         });
@@ -1389,7 +1389,7 @@ async function salvarMidia(event) {
 }
 
 function editarMidia(id) {
-    fetch(`processos/processar-galeria.php?action=buscar&id=${id}`)
+    fetch(`processos/processar-galeria?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -1417,7 +1417,7 @@ function eliminarMidia(id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-galeria.php', {
+            const response = await fetch('processos/processar-galeria', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })
@@ -1503,7 +1503,7 @@ async function salvarCategoria(event) {
     formData.append('ordem', ordem);
     
     try {
-        const response = await fetch('processos/processar-galeria.php', {
+        const response = await fetch('processos/processar-galeria', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData
@@ -1537,7 +1537,7 @@ function abrirModalCategoria(id = null) {
     
     if (id) {
         titulo.innerHTML = '<i class="fas fa-edit"></i> Editar Categoria';
-        fetch(`processos/processar-galeria.php?action=buscar_categoria&id=${id}`)
+        fetch(`processos/processar-galeria?action=buscar_categoria&id=${id}`)
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
@@ -1574,7 +1574,7 @@ function eliminarCategoria(id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-galeria.php', {
+            const response = await fetch('processos/processar-galeria', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar_categoria', id: id })
@@ -1738,7 +1738,7 @@ async function guardarOrdem() {
     });
     
     try {
-        const response = await fetch('processos/processar-galeria.php', {
+        const response = await fetch('processos/processar-galeria', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'ordenar', ordem: ordem })

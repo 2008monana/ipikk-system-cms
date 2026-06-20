@@ -1,20 +1,21 @@
-# URLs públicas sem extensão .php
+# IPIKK - URLs amigáveis e página 404 institucional
 <IfModule mod_rewrite.c>
     RewriteEngine On
     Options -MultiViews
+
     ErrorDocument 404 /404
 
-    # Canonicalizar /index.php para a raiz da área pública.
+    # Canonicalizar /index.php para a raiz.
     RewriteCond %{REQUEST_METHOD} !POST
     RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.php[\s?] [NC]
-    RewriteRule ^index\.php$ ./ [R=301,L]
+    RewriteRule ^(.*/)?index\.php$ /$1 [R=301,L]
 
-    # Redirecionar acessos públicos GET/HEAD de /pagina.php para /pagina.
+    # Redirecionar acessos públicos GET/HEAD de /arquivo.php para /arquivo.
     RewriteCond %{REQUEST_METHOD} !POST
     RewriteCond %{THE_REQUEST} \s/+(.+?)\.php[\s?] [NC]
-    RewriteRule ^(.+)\.php$ $1 [R=301,L,NE]
+    RewriteRule ^(.+)\.php$ /$1 [R=301,L,NE]
 
-    # Resolver internamente /pagina para /pagina.php quando o arquivo existir.
+    # Resolver internamente /arquivo para /arquivo.php quando existir.
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME}.php -f

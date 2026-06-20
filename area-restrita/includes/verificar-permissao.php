@@ -5,7 +5,7 @@
 
 function verificarPermissao($permissao_necessaria) {
     if (!isset($_SESSION['utilizador_id'])) {
-        header('Location: area-restrita.php');
+        header('Location: area-restrita');
         exit;
     }
     
@@ -57,6 +57,6 @@ function verificarPermissao($permissao_necessaria) {
         }
     }
     
-    header('Location: admin-perfil.php');
+    header('Location: admin-perfil');
     exit;
 }

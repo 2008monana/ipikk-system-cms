@@ -358,9 +358,15 @@ if (!function_exists('uploadArquivoNuvem')) {
 function getPagina($slug) {
     $db = getDB();
     
-    // Primeiro tenta buscar da tabela conteudo_paginas (mais recente)
-    $stmt = $db->prepare("SELECT conteudo FROM conteudo_paginas WHERE slug = ?");
-    $stmt->execute([$slug]);
+    // Primeiro tenta buscar da tabela conteudo_paginas (mais recente).
+    $sql_conteudo = "SELECT conteudo FROM conteudo_paginas WHERE slug = ?";
+    $params_conteudo = [$slug];
+    if (colunaExiste('conteudo_paginas', 'status')) {
+        $sql_conteudo .= " AND status = ?";
+        $params_conteudo[] = 'publicado';
+    }
+    $stmt = $db->prepare($sql_conteudo);
+    $stmt->execute($params_conteudo);
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($resultado && !empty($resultado['conteudo'])) {
@@ -370,9 +376,17 @@ function getPagina($slug) {
         }
     }
     
-    // Fallback: tenta buscar da tabela paginas_estaticas (antiga)
-    $stmt = $db->prepare("SELECT conteudo FROM paginas_estaticas WHERE slug = ? AND ativo = 1");
-    $stmt->execute([$slug]);
+    // Fallback: tenta buscar da tabela paginas_estaticas (antiga).
+    // Algumas bases instaladas não possuem a coluna "ativo"; por isso a condição
+    // só é aplicada quando a coluna existe, evitando erro 1054.
+    $sql_estaticas = "SELECT conteudo FROM paginas_estaticas WHERE slug = ?";
+    $params_estaticas = [$slug];
+    if (colunaExiste('paginas_estaticas', 'ativo')) {
+        $sql_estaticas .= " AND ativo = ?";
+        $params_estaticas[] = 1;
+    }
+    $stmt = $db->prepare($sql_estaticas);
+    $stmt->execute($params_estaticas);
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($resultado && !empty($resultado['conteudo'])) {
@@ -383,6 +397,30 @@ function getPagina($slug) {
     }
     
     return [];
+}
+
+/**
+ * Verifica de forma cacheada se uma coluna existe na tabela atual.
+ */
+function colunaExiste($tabela, $coluna) {
+    static $cache = [];
+    $chave = $tabela . '.' . $coluna;
+
+    if (array_key_exists($chave, $cache)) {
+        return $cache[$chave];
+    }
+
+    try {
+        $db = getDB();
+        $stmt = $db->prepare("SHOW COLUMNS FROM `$tabela` LIKE ?");
+        $stmt->execute([$coluna]);
+        $cache[$chave] = (bool)$stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        error_log("Erro ao verificar coluna {$tabela}.{$coluna}: " . $e->getMessage());
+        $cache[$chave] = false;
+    }
+
+    return $cache[$chave];
 }
 
 /**
@@ -497,25 +535,70 @@ function getConfig($chave) {
 // ============================================
 
 /**
- * Registra uma ação no log
+ * Remove a extensão .php de URLs internas sem alterar includes/requires.
+ */
+function urlAmigavel($url) {
+    if (!is_string($url) || $url === '' || preg_match('#^(https?:)?//#i', $url) || strpos($url, 'mailto:') === 0 || strpos($url, 'tel:') === 0) {
+        return $url;
+    }
+
+    return preg_replace('/\.php(?=([?#]|$))/', '', $url);
+}
+
+/**
+ * Redireciona usando URLs amigáveis quando aplicável.
+ */
+function redirectAmigavel($url, $status = 302) {
+    header('Location: ' . urlAmigavel($url), true, $status);
+    exit;
+}
+
+/**
+ * Registra uma ação no log mantendo compatibilidade com a assinatura antiga.
+ *
+ * Formato detalhado gravado:
+ * [YYYY-mm-dd HH:ii] Nome (Nivel) ação módulo ID X - detalhes
  */
 function registrarLog($acao, $tabela = null, $registro_id = null, $detalhes = null) {
-    if (!isset($_SESSION['utilizador_id'])) {
-        return;
-    }
-    
     $db = getDB();
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+    $utilizador_nome = $_SESSION['utilizador_nome'] ?? 'Sistema';
+    $nivel = ucfirst($_SESSION['utilizador_nivel'] ?? 'Sistema');
+    $utilizador_id = $_SESSION['utilizador_id'] ?? null;
+
+    if (!$utilizador_id) {
+        $stmt_utilizador = $db->query("SELECT id FROM utilizadores WHERE ativo = 1 ORDER BY nivel = 'admin' DESC, id ASC LIMIT 1");
+        $utilizador_id = $stmt_utilizador->fetchColumn();
+    }
+
+    if (!$utilizador_id) {
+        error_log('Não foi possível registrar log: nenhum utilizador disponível para associar o evento.');
+        return;
+    }
+    $modulo = $tabela ?: 'sistema';
+    $registro = ($registro_id !== null && $registro_id !== '') ? " ID {$registro_id}" : '';
+    $detalhe_texto = $detalhes ? " - {$detalhes}" : '';
+    $detalhes_formatados = sprintf(
+        '[%s] %s (%s) %s %s%s%s | IP: %s',
+        date('Y-m-d H:i'),
+        $utilizador_nome,
+        $nivel,
+        $acao,
+        $modulo,
+        $registro,
+        $detalhe_texto,
+        $ip ?: 'N/A'
+    );
     
     $stmt = $db->prepare("INSERT INTO logs (utilizador_id, acao, tabela, registro_id, detalhes, ip_address, user_agent) 
                           VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
-        $_SESSION['utilizador_id'],
+        $utilizador_id,
         $acao,
         $tabela,
         $registro_id,
-        $detalhes,
+        $detalhes_formatados,
         $ip,
         $user_agent
     ]);

@@ -10,7 +10,7 @@ $css_especifico = 'admin-perfil-director.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -27,7 +27,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1716,7 +1716,7 @@ async function salvarDirector(event) {
     }
     
     try {
-        const response = await fetch('processos/processar-perfil-director.php', {
+        const response = await fetch('processos/processar-perfil-director', {
             method: 'POST',
             body: formData
         });

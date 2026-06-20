@@ -17,6 +17,11 @@ if (!isset($_SESSION['utilizador_id'])) {
 $db = getDB();
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
+// Log automático de alteração de módulo para cobrir páginas escondidas/dropdowns.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && function_exists('registrarLog')) {
+    registrarLog('editou', 'conteudo_site', $_POST['id'] ?? 0, 'Processou ação ' . ($action ?: 'salvar') . ' no módulo conteudo_site');
+}
+
 // ============================================
 // SALVAR ALUMNI (CRIAR/EDITAR)
 // ============================================

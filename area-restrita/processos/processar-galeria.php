@@ -93,13 +93,20 @@ if ($action === 'salvar') {
                 WHERE id = ?");
             $success = $stmt->execute([$categoria_id, $tipo, $url, $legenda, $ordem, $id]);
             $message = $success ? 'Mídia atualizada com sucesso!' : 'Erro ao atualizar mídia.';
+            if ($success && function_exists('registrarLog')) {
+                registrarLog('editou', 'galeria', $id, "Editou mídia da galeria ({$tipo})");
+            }
         } else {
             // Inserir nova mídia
             $stmt = $db->prepare("INSERT INTO galeria 
                 (categoria_id, tipo, url, legenda, ordem, created_at, updated_at) 
                 VALUES (?, ?, ?, ?, ?, NOW(), NOW())");
             $success = $stmt->execute([$categoria_id, $tipo, $url, $legenda, $ordem]);
+            $novo_id = $db->lastInsertId();
             $message = $success ? 'Mídia adicionada com sucesso!' : 'Erro ao adicionar mídia.';
+            if ($success && function_exists('registrarLog')) {
+                registrarLog('criou', 'galeria', $novo_id, "Upload/adicionou mídia da galeria ({$tipo})");
+            }
         }
         
         echo json_encode(['success' => $success, 'message' => $message]);
@@ -196,6 +203,9 @@ if ($action === 'eliminar') {
         // Remover registro do banco
         $stmt = $db->prepare("DELETE FROM galeria WHERE id = ?");
         $stmt->execute([$id]);
+        if (function_exists('registrarLog')) {
+            registrarLog('eliminou', 'galeria', $id, "Eliminou mídia da galeria ({$midia['tipo']})");
+        }
         
         $mensagem = 'Mídia eliminada com sucesso!';
         if ($arquivo_movido) {
@@ -231,6 +241,9 @@ if ($action === 'ordenar') {
         }
         
         $db->commit();
+        if (function_exists('registrarLog')) {
+            registrarLog('editou', 'galeria', 0, 'Atualizou a ordenação das mídias da galeria');
+        }
         echo json_encode(['success' => true, 'message' => 'Ordem atualizada com sucesso!']);
     } catch (PDOException $e) {
         $db->rollBack();
