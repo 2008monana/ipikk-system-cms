@@ -11,7 +11,7 @@ require_once dirname(__DIR__) . '/config/index.php';
 
 // Verificar login
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 // ===== VERIFICAÇÃO DE PERMISSÃO CORRIGIDA =====
@@ -32,7 +32,7 @@ if (!is_array($permissoes)) {
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
 
 if ($nivel !== 'admin' && !in_array('galeria', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
+    header('Location: admin-dashboard?erro=permissao');
     exit;
 }
 
@@ -1032,7 +1032,7 @@ function restaurarArquivo(id) {
         formData.append('acao', 'restaurar_lixeira');
         formData.append('id', id);
         
-        fetch('processos/processar-noticia.php', {
+        fetch('processos/processar-noticia', {
             method: 'POST',
             body: formData
         })
@@ -1074,7 +1074,7 @@ function restaurarSelecionadosLixeira() {
                     const formData = new FormData();
                     formData.append('acao', 'restaurar_lixeira');
                     formData.append('id', id);
-                    return fetch('processos/processar-noticia.php', { method: 'POST', body: formData }).then(r => r.json());
+                    return fetch('processos/processar-noticia', { method: 'POST', body: formData }).then(r => r.json());
                 });
 
                 const resultados = await Promise.all(requisicoes);
@@ -1119,7 +1119,7 @@ function excluirArquivoLixeira(id) {
         formData.append('acao', 'excluir_item_lixeira');
         formData.append('id', id);
         
-        fetch('processos/processar-noticia.php', {
+        fetch('processos/processar-noticia', {
             method: 'POST',
             body: formData
         })
@@ -1168,7 +1168,7 @@ function limparLixeira(tipo) {
         formData.append('acao', 'limpar_lixeira');
         formData.append('tipo', tipo);
         
-        fetch('processos/processar-noticia.php', {
+        fetch('processos/processar-noticia', {
             method: 'POST',
             body: formData
         })

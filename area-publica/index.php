@@ -133,18 +133,9 @@ $cursos_destaque = isset($pagina_inicial['cursos_destaque']) && is_array($pagina
     ? $pagina_inicial['cursos_destaque']
     : [];
 
-// Mapeamento de classes CSS para cada área (baseado na ordem)
-$classe_card = [
-    1 => 'azul',        // Construção Civil
-    2 => 'azul-escuro', // Electricidade
-    3 => 'laranja',     // Mecânica
-    4 => 'verde',       // Informática
-    5 => 'vermelho'     // Tecnologias de Móveis
-];
-
 // Verificar status das inscrições para o botão de matrícula
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 ?>
 
 <!DOCTYPE html>
@@ -155,6 +146,32 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     <meta name="description" content="<?= htmlspecialchars($config['seo_descricao'] ?? 'Bem-vindo ao site oficial do Instituto Politécnico Industrial do Kilamba Kiaxi Nº 8050 "Nova Vida" (IPIKK-NV).') ?>">
     <meta name="author" content="Equipa de Desenvolvimento Web, Curso de Gestão de Sistemas Informáticos, IPIKK-NV">
     <meta name="keywords" content="<?= htmlspecialchars($config['seo_keywords'] ?? 'IPIKK, IPIKK-NV, Instituto Politécnico Industrial do Kilamba Kiaxi') ?>">
+    <link rel="canonical" href="https://ipikk.it.ao/">
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="IPIKK - Inicio">
+    <meta property="og:description" content="<?= htmlspecialchars($config['seo_descricao'] ?? 'Bem-vindo ao site oficial do Instituto Politécnico Industrial do Kilamba Kiaxi Nº 8050 &quot;Nova Vida&quot; (IPIKK-NV).') ?>">
+    <meta property="og:url" content="https://ipikk.it.ao/">
+    <meta property="og:image" content="<?= htmlspecialchars($config['logo_url'] ?? 'https://ipikk.it.ao/foto/ipikk_new_logo.png') ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "<?= addslashes($config['nome_site'] ?? 'IPIKK') ?>",
+      "url": "https://ipikk.it.ao/",
+      "logo": "<?= addslashes($config['logo_url'] ?? 'https://ipikk.it.ao/foto/ipikk_new_logo.png') ?>",
+      "email": "<?= addslashes($config['email_geral'] ?? '') ?>",
+      "telephone": "<?= addslashes($config['telefone'] ?? '') ?>",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "<?= addslashes($config['endereco_completo'] ?? '') ?>",
+        "addressLocality": "<?= addslashes($config['cidade'] ?? 'Luanda') ?>",
+        "addressCountry": "AO"
+      }
+    }
+    </script>
+
 
     <title>IPIKK - Inicio</title>
     
@@ -268,23 +285,13 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
             position: absolute; left: 0; top: 0; width: 8px; height: 100%; transition: var(--transicao);
         }
         .card-curso:hover .barra-lateral { width: 12px; }
-        .card-curso .barra-lateral { background: var(--area-cor, var(--cor-construcao)); }
-        .card-curso.azul       .barra-lateral { background: var(--cor-construcao); }
-        .card-curso.azul-escuro .barra-lateral { background: var(--azul-principal); }
-        .card-curso.laranja    .barra-lateral { background: var(--cor-mecanica); }
-        .card-curso.verde      .barra-lateral { background: var(--cor-informatica); }
-        .card-curso.vermelho   .barra-lateral { background: var(--cor-moveis); }
+        .card-curso .barra-lateral { background: var(--area-cor, #6c757d); }
         .conteudo-card { display: flex; gap: 25px; padding: 35px; }
         .icone {
             width: 70px; height: 70px; background: var(--cinza-claro);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 28px; color: var(--cinza); flex-shrink: 0; transition: var(--transicao);
         }
-        .card-curso.azul:hover       .icone { background: var(--cor-construcao); color: var(--branco); }
-        .card-curso.azul-escuro:hover .icone { background: var(--azul-principal); color: var(--branco); }
-        .card-curso.laranja:hover    .icone { background: var(--cor-mecanica); color: var(--branco); }
-        .card-curso.verde:hover      .icone { background: var(--cor-informatica); color: var(--branco); }
-        .card-curso.vermelho:hover   .icone { background: var(--cor-moveis); color: var(--branco); }
         .texto-card h3 { font-size: 1.5rem; color: var(--azul-principal); margin-bottom: 10px; }
         .texto-card p  { color: var(--cinza); line-height: 1.6; margin-bottom: 18px; }
         .texto-card .botao {
@@ -293,13 +300,8 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
             color: var(--azul-principal); font-weight: 600; font-size: .9rem;
         }
         .texto-card .botao:hover { gap: 12px; }
-        .card-curso:hover .icone { background: var(--area-cor, var(--cor-construcao)); color: var(--branco); }
-        .texto-card .botao:hover { background: var(--area-cor, var(--cor-construcao)); color: white; }
-        .card-curso.azul       .botao:hover { background: var(--cor-construcao); color: white; }
-        .card-curso.azul-escuro .botao:hover { background: var(--azul-principal); color: white; }
-        .card-curso.laranja    .botao:hover { background: var(--cor-mecanica); color: white; }
-        .card-curso.verde      .botao:hover { background: var(--cor-informatica); color: white; }
-        .card-curso.vermelho   .botao:hover { background: var(--cor-moveis); color: white; }
+        .card-curso:hover .icone { background: var(--area-cor, #6c757d); color: var(--branco); }
+        .texto-card .botao:hover { background: var(--area-cor, #6c757d); color: white; }
 
         /* ================= SEÇÃO MENSAGEM DO DIRECTOR ==================== */
         .secao-mensagem { padding: 80px 20px; background: rgba(0,48,114,.03); position: relative; z-index: 10; }
@@ -722,15 +724,15 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         </div>
         <?php else: ?>
         <div class="grid-cursos">
-            <?php $i = 0; foreach($areas as $area): $i++; $cor_area_card = (!empty($area['cor_primaria']) && preg_match('/^#[0-9a-fA-F]{6}$/', $area['cor_primaria'])) ? $area['cor_primaria'] : null; ?>
-            <article class="card-curso <?= $classe_card[$i] ?? '' ?>" <?= $cor_area_card ? 'style="--area-cor:' . htmlspecialchars($cor_area_card) . ';"' : '' ?>>
+            <?php foreach($areas as $area): $cor_area_card = (!empty($area['cor_primaria']) && preg_match('/^#[0-9a-fA-F]{6}$/', $area['cor_primaria'])) ? $area['cor_primaria'] : '#6c757d'; ?>
+            <article class="card-curso" style="--area-cor: <?= htmlspecialchars($cor_area_card) ?>;">
                 <div class="barra-lateral"></div>
                 <div class="conteudo-card">
                     <div class="icone"><i class="fas <?= htmlspecialchars($area['icone_classe'] ?? 'fa-graduation-cap') ?>"></i></div>
                     <div class="texto-card">
                         <h3><?= htmlspecialchars($area['nome']) ?></h3>
                         <p><?= htmlspecialchars($area['descricao_curta'] ?? 'Formação técnica especializada') ?></p>
-                        <a href="area.php?slug=<?= $area['slug'] ?>" class="botao">Ver Detalhes <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="area?slug=<?= $area['slug'] ?>" class="botao">Ver Detalhes <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </article>
@@ -867,7 +869,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         </div>
         <?php endif; ?>
         <div class="area-botao">
-            <a href="noticias.php" class="botao-ver-mais">
+            <a href="noticias" class="botao-ver-mais">
                 Ver Mais Notícias <i class="fa-solid fa-arrow-right"></i>
             </a>
         </div>
@@ -923,7 +925,6 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
                         <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
-                    <?php endfor; ?>
                 <?php else: ?>
                     <div style="text-align:center; width:100%; background:#fff; border-radius:14px; padding:40px 20px;">
                         <i class="fas fa-handshake-slash" style="font-size:2.5rem; color:var(--cinza);"></i>
@@ -937,9 +938,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     <!-- ===== BOTÕES FLUTUANTES ===== -->
     <div class="botoes-flutuantes">
         <button class="botao-flutuante" id="botaoTopo"><i class="fas fa-chevron-up"></i></button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
@@ -948,6 +947,70 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     <script>
     // Dados das notícias para o modal
     const noticiasData = <?= json_encode($noticias) ?>;
+
+
+    function incrementarVisualizacaoNoticia(id) {
+        const noticiaId = Number(id || 0);
+        if (!noticiaId) return;
+        const chaveSessao = `noticia_vista_${noticiaId}`;
+        if (sessionStorage.getItem(chaveSessao)) return;
+        sessionStorage.setItem(chaveSessao, '1');
+
+        fetch(`../incrementar-visualizacao?tipo=noticia&id=${noticiaId}`)
+            .then(() => {
+                const noticia = noticiasData.find(n => Number(n.id) === noticiaId);
+                if (noticia) {
+                    noticia.visualizacoes = Number(noticia.visualizacoes || 0) + 1;
+                    const campo = document.getElementById('modalVisualizacoes');
+                    if (campo) campo.textContent = `${noticia.visualizacoes} visualizações`;
+                }
+            })
+            .catch(() => {});
+    }
+
+    function initNotificacoesNoticias() {
+        if (!noticiasData.length) return;
+        const noticiaRecente = [...noticiasData].sort((a,b)=>Number(b.id)-Number(a.id))[0];
+        if (!noticiaRecente) return;
+
+        const prefKey = 'ipikk_news_notif_enabled';
+        const seenKey = 'ipikk_news_last_seen_id';
+        let pref = localStorage.getItem(prefKey);
+
+        const criarModalBase = (titulo, corpoHtml, botoesHtml) => {
+            if (!document.getElementById('newsTopNotifStyle')) {
+                const st = document.createElement('style');
+                st.id = 'newsTopNotifStyle';
+                st.textContent = `.news-top-notif{position:fixed;top:88px;left:50%;transform:translateX(-50%);width:min(92vw,520px);z-index:100000;background:#fff;border:1px solid rgba(0,48,114,.14);border-radius:14px;box-shadow:0 14px 35px rgba(0,0,0,.18);overflow:hidden}.news-top-notif-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:linear-gradient(135deg,#003072,#0a9396);color:#fff}.news-top-notif-head h3{margin:0;font-size:1rem;display:flex;align-items:center;gap:8px}.news-top-notif-close{border:none;background:rgba(255,255,255,.18);color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer}.news-top-notif-body{padding:14px 16px;color:#2c3e50;font-size:.95rem;line-height:1.55}.news-top-notif-actions{padding:0 16px 16px;display:flex;gap:10px}.btn-top-notif{border:1px solid #d6dbe1;background:#fff;color:#003072;padding:9px 14px;border-radius:10px;font-weight:600;cursor:pointer}.btn-top-notif-pri{background:#003072;color:#fff;border-color:#003072}`;
+                document.head.appendChild(st);
+            }
+            const card = document.createElement('div');
+            card.className = 'news-top-notif';
+            card.innerHTML = `<div class="news-top-notif-head"><h3>${titulo}</h3><button class="news-top-notif-close" data-close="1"><i class="fas fa-times"></i></button></div><div class="news-top-notif-body">${corpoHtml}</div><div class="news-top-notif-actions">${botoesHtml}</div>`;
+            document.body.appendChild(card);
+            const close = ()=> card.remove();
+            card.querySelector('[data-close]')?.addEventListener('click', close);
+            return {overlay: card, close};
+        };
+
+        if (pref === null) {
+            const m = criarModalBase('<i class="fas fa-bell"></i> Receber notificações?', 'Deseja ser notificado sobre novas notícias do IPIKK?', '<button id="notifSim" class="btn-top-notif btn-top-notif-pri">Sim</button><button id="notifNao" class="btn-top-notif">Não</button>');
+            m.overlay.querySelector('#notifSim')?.addEventListener('click', ()=>{ localStorage.setItem(prefKey,'1'); m.close(); initNotificacoesNoticias(); });
+            m.overlay.querySelector('#notifNao')?.addEventListener('click', ()=>{ localStorage.setItem(prefKey,'0'); m.close(); });
+            return;
+        }
+
+        if (pref !== '1') return;
+        const lastSeen = Number(localStorage.getItem(seenKey) || 0);
+        if (Number(noticiaRecente.id) <= lastSeen) return;
+
+        const resumo = String(noticiaRecente.resumo || noticiaRecente.conteudo || '').replace(/<[^>]*>/g, '').slice(0, 140);
+        const m = criarModalBase('<i class="fas fa-newspaper"></i> Nova Notícia', `<strong>${noticiaRecente.titulo || 'Nova notícia'}</strong><br><span>${resumo}${resumo.length>=140?'...':''}</span>`, '<button id="verNoticia" class="btn-top-notif btn-top-notif-pri">Ver notícia</button><button id="fecharNotif" class="btn-top-notif">Fechar</button>');
+        const marcarVisto = ()=> localStorage.setItem(seenKey, String(noticiaRecente.id));
+        m.overlay.querySelector('#verNoticia')?.addEventListener('click', ()=>{ marcarVisto(); window.location.href = `noticias?id=${noticiaRecente.id}`; });
+        m.overlay.querySelector('#fecharNotif')?.addEventListener('click', ()=>{ marcarVisto(); m.close(); });
+        m.overlay.querySelector('[data-close]')?.addEventListener('click', ()=>{ marcarVisto(); });
+    }
     
     // Dados dos depoimentos
     const depoimentosData = <?= json_encode($depoimentos) ?>;
@@ -983,7 +1046,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     }
 
     function abrirModalNoticia(id) {
-        const noticia = noticiasData.find(n => n.id === id);
+        const noticia = noticiasData.find(n => Number(n.id) === Number(id));
         if (!noticia) return;
         
         const modal = document.getElementById('modalNoticia');
@@ -1004,6 +1067,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         document.getElementById('modalAutor').textContent = noticia.autor || 'Gabinete de Comunicação';
         document.getElementById('modalVisualizacoes').textContent = (noticia.visualizacoes || 0) + ' visualizações';
         document.getElementById('modalDescricao').innerHTML = noticia.conteudo;
+        incrementarVisualizacaoNoticia(id);
         
         if (noticia.tags) {
             try {
@@ -1032,6 +1096,8 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') fecharModalNoticia();
     });
+
+    initNotificacoesNoticias();
     
     // Depoimentos
     if (depoimentosData.length > 0) {

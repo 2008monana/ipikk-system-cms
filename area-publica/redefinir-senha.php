@@ -21,7 +21,7 @@ foreach ($todos_cursos as $curso_item) {
 
 // Verificar status das inscrições
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 
 // Buscar token da URL
 $token = $_GET['token'] ?? '';
@@ -605,8 +605,8 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?= htmlspecialchars($mensagem_erro) ?>
                 </div>
                 <div class="rodape-redefinir">
-                    <p><i class="fas fa-arrow-left"></i> <a href="recuperar-senha.php">Solicitar novo link de recuperação</a></p>
-                    <p style="margin-top: 12px;"><a href="area-restrita.php">Voltar para o login</a></p>
+                    <p><i class="fas fa-arrow-left"></i> <a href="recuperar-senha">Solicitar novo link de recuperação</a></p>
+                    <p style="margin-top: 12px;"><a href="area-restrita">Voltar para o login</a></p>
                 </div>
             <?php elseif (empty($token)): ?>
                 <!-- Token não fornecido -->
@@ -615,14 +615,14 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     Link de recuperação inválido. Solicite um novo link.
                 </div>
                 <div class="rodape-redefinir">
-                    <p><i class="fas fa-arrow-left"></i> <a href="recuperar-senha.php">Solicitar novo link de recuperação</a></p>
-                    <p style="margin-top: 12px;"><a href="area-restrita.php">Voltar para o login</a></p>
+                    <p><i class="fas fa-arrow-left"></i> <a href="recuperar-senha">Solicitar novo link de recuperação</a></p>
+                    <p style="margin-top: 12px;"><a href="area-restrita">Voltar para o login</a></p>
                 </div>
             <?php else: ?>
                 <!-- Token válido - mostrar formulário -->
                 <div id="mensagemFeedback"></div>
 
-                <form id="formularioRedefinir" method="POST" action="redefinir-senha.php?processar=1" novalidate>
+                <form id="formularioRedefinir" method="POST" action="redefinir-senha?processar=1" novalidate>
                     <input type="hidden" name="token" id="token" value="<?= htmlspecialchars($token) ?>">
                     
                     <div class="grupo-campo" id="grupoCampoNovaSenha">
@@ -672,7 +672,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
 
                 <div class="rodape-redefinir">
-                    <p><i class="fas fa-arrow-left"></i> <a href="area-restrita.php">Voltar para o login</a></p>
+                    <p><i class="fas fa-arrow-left"></i> <a href="area-restrita">Voltar para o login</a></p>
                 </div>
             <?php endif; ?>
 
@@ -684,11 +684,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
         <button class="botao-flutuante" id="botaoTopo" title="Voltar ao topo">
             <i class="fas fa-chevron-up"></i>
         </button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank" rel="noopener" title="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-        </a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
@@ -836,7 +832,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
             botaoRedefinir.disabled = true;
             
             try {
-                const response = await fetch('redefinir-senha.php?processar=1', {
+                const response = await fetch('redefinir-senha?processar=1', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -861,7 +857,7 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     if (resultado.redirect) {
                         setTimeout(() => {
-                            window.location.href = 'area-restrita.php';
+                            window.location.href = 'area-restrita';
                         }, 3000);
                     }
                 } else {

@@ -11,7 +11,7 @@ require_once dirname(__DIR__) . '/config/index.php';
 
 // Verificar se está logado (o init.php já faz isso)
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -29,7 +29,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -140,7 +140,8 @@ include 'includes/sidebar.php';
                             <th width="120">DATA</th>
                             <th width="120">ESTADO</th>
                             <th width="150">AÇÕES</th>
-                        </thead>
+                        </tr>
+                    </thead>
                     <tbody id="corpoTabelaNoticias">
                         <?php foreach($noticias as $noticia): ?>
                         <tr data-id="<?php echo $noticia['id']; ?>" data-estado="<?php echo $noticia['estado']; ?>" data-categoria="<?php echo $noticia['categoria']; ?>">
@@ -1743,7 +1744,7 @@ include 'includes/sidebar.php';
         btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
         btnSalvar.disabled = true;
         
-        fetch('processos/processar-noticia.php', {
+        fetch('processos/processar-noticia', {
             method: 'POST',
             body: formData
         })
@@ -1980,7 +1981,7 @@ function escapeHtml(text) {
             formData.append('acao', 'eliminar');
             formData.append('id', id);
             
-            fetch('processos/processar-noticia.php', {
+            fetch('processos/processar-noticia', {
                 method: 'POST',
                 body: formData
             })
@@ -2042,7 +2043,7 @@ function escapeHtml(text) {
             formData.append('acao', 'eliminar_massa');
             formData.append('ids', linhasSelecionadas.join(','));
             
-            fetch('processos/processar-noticia.php', {
+            fetch('processos/processar-noticia', {
                 method: 'POST',
                 body: formData
             })
@@ -2085,7 +2086,7 @@ function escapeHtml(text) {
             formData.append('acao', 'publicar_massa');
             formData.append('ids', idsPublicaveis.join(','));
             
-            fetch('processos/processar-noticia.php', {
+            fetch('processos/processar-noticia', {
                 method: 'POST',
                 body: formData
             })
@@ -2424,7 +2425,7 @@ document.getElementById('botaoConfirmarImportar')?.addEventListener('click', fun
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importando...';
     btn.disabled = true;
     
-    fetch('processos/processar-noticia.php', {
+    fetch('processos/processar-noticia', {
         method: 'POST',
         body: formData
     })

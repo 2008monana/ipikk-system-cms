@@ -50,6 +50,48 @@ function garantirColunaCompetenciasCard($db) {
     $ok = true;
 }
 
+
+function garantirColunaImagemHero($db) {
+    static $ok = false;
+    if ($ok) return;
+
+    $stmt = $db->query("SHOW COLUMNS FROM cursos LIKE 'imagem_hero'");
+    $coluna = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($coluna) {
+        $tipo = strtolower((string)($coluna['Type'] ?? ''));
+        if (strpos($tipo, 'varchar') === 0) {
+            $db->exec("ALTER TABLE cursos MODIFY imagem_hero TEXT NULL");
+        }
+    } else {
+        $db->exec("ALTER TABLE cursos ADD COLUMN imagem_hero TEXT NULL AFTER cor");
+    }
+
+    $ok = true;
+}
+
+function processarUploadImagemHero($file) {
+    if (!isset($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return ['success' => true, 'url' => null, 'uploaded' => false];
+    }
+
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        return ['success' => false, 'message' => 'Erro ao receber a imagem de capa. Tente novamente.'];
+    }
+
+    $tipo = (string)($file['type'] ?? '');
+    if (strpos($tipo, 'image/') !== 0) {
+        return ['success' => false, 'message' => 'A capa do curso deve ser uma imagem válida.'];
+    }
+
+    $upload = uploadArquivoNuvem($file, 'cursos/hero');
+    if (!$upload['success']) {
+        return ['success' => false, 'message' => $upload['message'] ?? 'Erro ao guardar a imagem de capa.'];
+    }
+
+    return ['success' => true, 'url' => $upload['url'], 'uploaded' => true];
+}
+
 // ===================================================
 // AUXILIAR: Saídas e Projetos
 // ===================================================
@@ -176,6 +218,7 @@ if ($action === 'upload_imagem_projeto') {
 // ===================================================
 if ($action === 'create_curso') {
     garantirColunaCompetenciasCard($db);
+    garantirColunaImagemHero($db);
     $nome                   = trim($_POST['nome'] ?? '');
     $area_id                = (int)($_POST['area_id'] ?? 0);
     $duracao                = $_POST['duracao'] ?? '4 anos';
@@ -196,13 +239,11 @@ if ($action === 'create_curso') {
 
     $slug = strtolower(trim(preg_replace('/[^a-zA-Z0-9-]+/', '-', $nome), '-'));
 
-    $imagem_hero = null;
-    if (isset($_FILES['imagem_hero']) && $_FILES['imagem_hero']['error'] === UPLOAD_ERR_OK) {
-        $upload = uploadArquivoNuvem($_FILES['imagem_hero'], 'cursos/hero');
-        if ($upload['success']) {
-            $imagem_hero = $upload['url'];
-        }
+    $uploadImagem = processarUploadImagemHero($_FILES['imagem_hero'] ?? null);
+    if (!$uploadImagem['success']) {
+        sendResponse(false, $uploadImagem['message']);
     }
+    $imagem_hero = $uploadImagem['url'];
 
     try {
         $db->beginTransaction();
@@ -226,7 +267,7 @@ if ($action === 'create_curso') {
         processarSaidasProjetos($db, $curso_id, $_POST);
 
         $db->commit();
-        sendResponse(true, 'Curso criado com sucesso!', ['id' => $curso_id]);
+        sendResponse(true, 'Curso criado com sucesso!', ['id' => $curso_id, 'imagem_hero' => $imagem_hero]);
 
     } catch (Exception $e) {
         $db->rollBack();
@@ -239,6 +280,7 @@ if ($action === 'create_curso') {
 // ===================================================
 if ($action === 'update_curso') {
     garantirColunaCompetenciasCard($db);
+    garantirColunaImagemHero($db);
     $curso_id               = (int)($_POST['curso_id'] ?? 0);
     $nome                   = trim($_POST['nome'] ?? '');
     $area_id                = (int)($_POST['area_id'] ?? 0);
@@ -261,12 +303,13 @@ if ($action === 'update_curso') {
     $slug = strtolower(trim(preg_replace('/[^a-zA-Z0-9-]+/', '-', $nome), '-'));
 
     // Imagem: novo upload ou manter a existente
-    $imagem_hero = null;
-    if (isset($_FILES['imagem_hero']) && $_FILES['imagem_hero']['error'] === UPLOAD_ERR_OK) {
-        $upload = uploadArquivoNuvem($_FILES['imagem_hero'], 'cursos/hero');
-        if ($upload['success']) {
-            $imagem_hero = $upload['url'];
-        }
+    $uploadImagem = processarUploadImagemHero($_FILES['imagem_hero'] ?? null);
+    if (!$uploadImagem['success']) {
+        sendResponse(false, $uploadImagem['message']);
+    }
+
+    if ($uploadImagem['uploaded']) {
+        $imagem_hero = $uploadImagem['url'];
     } else {
         $r = $db->prepare("SELECT imagem_hero FROM cursos WHERE id = ?");
         $r->execute([$curso_id]);
@@ -295,7 +338,7 @@ if ($action === 'update_curso') {
         processarSaidasProjetos($db, $curso_id, $_POST);
 
         $db->commit();
-        sendResponse(true, 'Curso atualizado com sucesso!', ['id' => $curso_id]);
+        sendResponse(true, 'Curso atualizado com sucesso!', ['id' => $curso_id, 'imagem_hero' => $imagem_hero]);
 
     } catch (Exception $e) {
         $db->rollBack();

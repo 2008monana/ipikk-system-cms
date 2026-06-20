@@ -39,6 +39,33 @@ function formatarNumero($numero) {
     return number_format($numero, 0, ',', '.');
 }
 
+/**
+ * Monta o link do WhatsApp a partir de um número ou URL completa.
+ * Aceita números locais de Angola (9 dígitos), números internacionais e links
+ * como wa.me, api.whatsapp.com, chat.whatsapp.com ou canais do WhatsApp.
+ */
+function montarLinkWhatsApp($valor) {
+    $valor = trim((string)$valor);
+    if ($valor === '') {
+        return '';
+    }
+
+    if (preg_match('/^(https?:\/\/|whatsapp:\/\/)/i', $valor)) {
+        return $valor;
+    }
+
+    $numero = preg_replace('/[^0-9]/', '', $valor);
+    if ($numero === '') {
+        return '';
+    }
+
+    if (strlen($numero) === 9 && strpos($numero, '9') === 0) {
+        $numero = '244' . $numero;
+    }
+
+    return 'https://wa.me/' . $numero;
+}
+
 
 /**
  * Formata bytes para KB/MB/GB.
@@ -248,16 +275,43 @@ if (!function_exists('uploadArquivoNuvem')) {
             return ['success' => false, 'url' => null, 'message' => 'Arquivo inválido para upload.'];
         }
 
-        $cloudName = getenv('CLOUDINARY_CLOUD_NAME') ?: '';
-        $uploadPreset = getenv('CLOUDINARY_UPLOAD_PRESET') ?: '';
-        $folderBase = getenv('CLOUDINARY_FOLDER') ?: 'ipikk';
+        $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
+        $nomeArquivo = uniqid('midia_', true) . ($ext ? '.' . $ext : '');
+        $subpasta = trim(str_replace('..', '', (string)$subpasta), '/');
+        $subpasta = $subpasta === '' ? 'geral' : $subpasta;
+
+        $fallbackLocal = function(string $motivo) use ($file, $subpasta, $nomeArquivo) {
+            $pastaRelativa = 'uploads/' . trim($subpasta, '/') . '/' . date('Y/m');
+            $pastaFisica = dirname(__DIR__) . '/area-publica/' . $pastaRelativa;
+
+            if (!is_dir($pastaFisica) && !mkdir($pastaFisica, 0755, true)) {
+                error_log('Falha upload local: não foi possível criar diretório ' . $pastaFisica);
+                return ['success' => false, 'url' => null, 'message' => 'Erro ao preparar diretório de upload.'];
+            }
+
+            $destinoFisico = $pastaFisica . '/' . $nomeArquivo;
+            if (!move_uploaded_file($file['tmp_name'], $destinoFisico)) {
+                error_log('Falha upload local: move_uploaded_file falhou para ' . $destinoFisico);
+                return ['success' => false, 'url' => null, 'message' => 'Erro ao salvar arquivo no servidor.'];
+            }
+
+            error_log('Upload salvo localmente. Motivo fallback: ' . $motivo);
+            return [
+                'success' => true,
+                'url' => $pastaRelativa . '/' . $nomeArquivo,
+                'message' => 'Upload realizado com sucesso (armazenamento local).'
+            ];
+        };
+
+        $cloudName = getenv('CLOUDINARY_CLOUD_NAME') ?: (defined('CLOUDINARY_CLOUD_NAME') ? CLOUDINARY_CLOUD_NAME : '');
+        $uploadPreset = getenv('CLOUDINARY_UPLOAD_PRESET') ?: (defined('CLOUDINARY_UPLOAD_PRESET') ? CLOUDINARY_UPLOAD_PRESET : '');
+        $folderBase = getenv('CLOUDINARY_FOLDER') ?: (defined('CLOUDINARY_FOLDER') ? CLOUDINARY_FOLDER : 'ipikk');
 
         if ($cloudName === '' || $uploadPreset === '') {
-            return ['success' => false, 'url' => null, 'message' => 'Cloudinary não configurado.'];
+            return $fallbackLocal('Cloudinary não configurado no ambiente.');
         }
 
         $folder = trim($folderBase . '/' . trim($subpasta, '/'), '/');
-        $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
         $isPdf = ($ext === 'pdf') || stripos((string)($file['type'] ?? ''), 'pdf') !== false;
         $resourceType = $isPdf ? 'raw' : 'auto';
         $endpoint = "https://api.cloudinary.com/v1_1/{$cloudName}/{$resourceType}/upload";
@@ -289,8 +343,7 @@ if (!function_exists('uploadArquivoNuvem')) {
         }
 
         error_log("Falha upload Cloudinary ({$httpCode}): " . ($curlError ?: $response));
-
-        return ['success' => false, 'url' => null, 'message' => 'Erro ao enviar arquivo para nuvem (cloud-only, sem fallback local).'];
+        return $fallbackLocal('Falha na API do Cloudinary.');
     }
 }
 
@@ -305,9 +358,15 @@ if (!function_exists('uploadArquivoNuvem')) {
 function getPagina($slug) {
     $db = getDB();
     
-    // Primeiro tenta buscar da tabela conteudo_paginas (mais recente)
-    $stmt = $db->prepare("SELECT conteudo FROM conteudo_paginas WHERE slug = ?");
-    $stmt->execute([$slug]);
+    // Primeiro tenta buscar da tabela conteudo_paginas (mais recente).
+    $sql_conteudo = "SELECT conteudo FROM conteudo_paginas WHERE slug = ?";
+    $params_conteudo = [$slug];
+    if (colunaExiste('conteudo_paginas', 'status')) {
+        $sql_conteudo .= " AND status = ?";
+        $params_conteudo[] = 'publicado';
+    }
+    $stmt = $db->prepare($sql_conteudo);
+    $stmt->execute($params_conteudo);
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($resultado && !empty($resultado['conteudo'])) {
@@ -317,9 +376,17 @@ function getPagina($slug) {
         }
     }
     
-    // Fallback: tenta buscar da tabela paginas_estaticas (antiga)
-    $stmt = $db->prepare("SELECT conteudo FROM paginas_estaticas WHERE slug = ? AND ativo = 1");
-    $stmt->execute([$slug]);
+    // Fallback: tenta buscar da tabela paginas_estaticas (antiga).
+    // Algumas bases instaladas não possuem a coluna "ativo"; por isso a condição
+    // só é aplicada quando a coluna existe, evitando erro 1054.
+    $sql_estaticas = "SELECT conteudo FROM paginas_estaticas WHERE slug = ?";
+    $params_estaticas = [$slug];
+    if (colunaExiste('paginas_estaticas', 'ativo')) {
+        $sql_estaticas .= " AND ativo = ?";
+        $params_estaticas[] = 1;
+    }
+    $stmt = $db->prepare($sql_estaticas);
+    $stmt->execute($params_estaticas);
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($resultado && !empty($resultado['conteudo'])) {
@@ -330,6 +397,30 @@ function getPagina($slug) {
     }
     
     return [];
+}
+
+/**
+ * Verifica de forma cacheada se uma coluna existe na tabela atual.
+ */
+function colunaExiste($tabela, $coluna) {
+    static $cache = [];
+    $chave = $tabela . '.' . $coluna;
+
+    if (array_key_exists($chave, $cache)) {
+        return $cache[$chave];
+    }
+
+    try {
+        $db = getDB();
+        $stmt = $db->prepare("SHOW COLUMNS FROM `$tabela` LIKE ?");
+        $stmt->execute([$coluna]);
+        $cache[$chave] = (bool)$stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        error_log("Erro ao verificar coluna {$tabela}.{$coluna}: " . $e->getMessage());
+        $cache[$chave] = false;
+    }
+
+    return $cache[$chave];
 }
 
 /**
@@ -356,8 +447,41 @@ function getConteudoPagina($slug) {
 function normalizarUrlMidia($url, $prefixoRelativo = '../') {
     $url = trim((string)$url);
     if ($url === '') return '';
-    if (preg_match('/^https?:\/\//i', $url)) return ajustarCloudinaryPdfUrl($url);
-    return rtrim($prefixoRelativo, '/') . '/' . ltrim($url, '/');
+
+    if (preg_match('/^(https?:)?\/\//i', $url) || preg_match('/^(data|blob):/i', $url)) {
+        return ajustarCloudinaryPdfUrl($url);
+    }
+
+    $url = str_replace('\\', '/', $url);
+    $url = preg_replace('#/+#', '/', $url);
+    $urlLimpa = ltrim($url, '/');
+
+    if (strpos($urlLimpa, '../') === 0) {
+        return $urlLimpa;
+    }
+
+    $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    $emAreaRestrita = strpos($script, '/area-restrita/') !== false;
+    $emAreaPublica = strpos($script, '/area-publica/') !== false;
+
+    if (strpos($urlLimpa, 'area-publica/') === 0) {
+        return $emAreaRestrita ? '../' . $urlLimpa : substr($urlLimpa, strlen('area-publica/'));
+    }
+
+    if (preg_match('#^(uploads|foto)/#', $urlLimpa)) {
+        return $emAreaRestrita ? '../area-publica/' . $urlLimpa : $urlLimpa;
+    }
+
+    if ($emAreaPublica && $prefixoRelativo === '..') {
+        return $urlLimpa;
+    }
+
+    $prefixoRelativo = trim((string)$prefixoRelativo);
+    if ($prefixoRelativo === '') {
+        return $urlLimpa;
+    }
+
+    return rtrim($prefixoRelativo, '/') . '/' . $urlLimpa;
 }
 
 
@@ -411,25 +535,70 @@ function getConfig($chave) {
 // ============================================
 
 /**
- * Registra uma ação no log
+ * Remove a extensão .php de URLs internas sem alterar includes/requires.
+ */
+function urlAmigavel($url) {
+    if (!is_string($url) || $url === '' || preg_match('#^(https?:)?//#i', $url) || strpos($url, 'mailto:') === 0 || strpos($url, 'tel:') === 0) {
+        return $url;
+    }
+
+    return preg_replace('/\.php(?=([?#]|$))/', '', $url);
+}
+
+/**
+ * Redireciona usando URLs amigáveis quando aplicável.
+ */
+function redirectAmigavel($url, $status = 302) {
+    header('Location: ' . urlAmigavel($url), true, $status);
+    exit;
+}
+
+/**
+ * Registra uma ação no log mantendo compatibilidade com a assinatura antiga.
+ *
+ * Formato detalhado gravado:
+ * [YYYY-mm-dd HH:ii] Nome (Nivel) ação módulo ID X - detalhes
  */
 function registrarLog($acao, $tabela = null, $registro_id = null, $detalhes = null) {
-    if (!isset($_SESSION['utilizador_id'])) {
-        return;
-    }
-    
     $db = getDB();
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+    $utilizador_nome = $_SESSION['utilizador_nome'] ?? 'Sistema';
+    $nivel = ucfirst($_SESSION['utilizador_nivel'] ?? 'Sistema');
+    $utilizador_id = $_SESSION['utilizador_id'] ?? null;
+
+    if (!$utilizador_id) {
+        $stmt_utilizador = $db->query("SELECT id FROM utilizadores WHERE ativo = 1 ORDER BY nivel = 'admin' DESC, id ASC LIMIT 1");
+        $utilizador_id = $stmt_utilizador->fetchColumn();
+    }
+
+    if (!$utilizador_id) {
+        error_log('Não foi possível registrar log: nenhum utilizador disponível para associar o evento.');
+        return;
+    }
+    $modulo = $tabela ?: 'sistema';
+    $registro = ($registro_id !== null && $registro_id !== '') ? " ID {$registro_id}" : '';
+    $detalhe_texto = $detalhes ? " - {$detalhes}" : '';
+    $detalhes_formatados = sprintf(
+        '[%s] %s (%s) %s %s%s%s | IP: %s',
+        date('Y-m-d H:i'),
+        $utilizador_nome,
+        $nivel,
+        $acao,
+        $modulo,
+        $registro,
+        $detalhe_texto,
+        $ip ?: 'N/A'
+    );
     
     $stmt = $db->prepare("INSERT INTO logs (utilizador_id, acao, tabela, registro_id, detalhes, ip_address, user_agent) 
                           VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
-        $_SESSION['utilizador_id'],
+        $utilizador_id,
         $acao,
         $tabela,
         $registro_id,
-        $detalhes,
+        $detalhes_formatados,
         $ip,
         $user_agent
     ]);

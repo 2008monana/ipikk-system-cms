@@ -24,8 +24,28 @@ if (!isset($cursos_por_area) || !is_array($cursos_por_area)) {
 
 if (!isset($link_inscricao)) {
     $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-    $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+    $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 }
+
+if (!function_exists('urlPublicaLimpa')) {
+    function urlPublicaLimpa($url) {
+        $url = (string) $url;
+        if ($url === '' || preg_match('/^(mailto:|tel:|javascript:|#)/i', $url)) {
+            return $url;
+        }
+
+        $partes = parse_url($url);
+        $host = $partes['host'] ?? '';
+        if ($host !== '' && !preg_match('/(^|\.)ipikk\.(it\.)?ao$/i', $host)) {
+            return $url;
+        }
+
+        $url = preg_replace('/\.php(?=($|[?#]))/i', '', $url);
+        return in_array($url, ['index', './index'], true) ? './' : $url;
+    }
+}
+
+$link_inscricao = urlPublicaLimpa($link_inscricao);
 
 // ========== DETECTAR PÁGINA ATUAL ==========
 $arquivo_atual = basename($_SERVER['PHP_SELF']);
@@ -65,6 +85,7 @@ $is_sobre_active = $is_sobre;
     
     <!-- CSS Principal -->
     <link rel="stylesheet" href="css/header-footer.css">
+    <link rel="stylesheet" href="css/responsivo-publico.css">
     
     <style>
         /* === VARIÁVEIS CSS === */
@@ -810,29 +831,29 @@ $is_sobre_active = $is_sobre;
 <!-- CABEÇALHO -->
 <header class="cabecalho">
     <div class="conteudo-cabecalho">
-        <a href="index.php" class="logo">
+        <a href="./" class="logo">
             <img src="<?= $config['logo_url'] ?? 'foto/ipikk_new_logo.png' ?>" alt="Logo IPIKK">
         </a>
         <nav>
             <ul class="menu-navegacao">
                 <li class="item-navegacao <?= $is_inicio ? 'ativo' : '' ?>">
-                    <a href="index.php" class="link-navegacao">Início</a>
+                    <a href="./" class="link-navegacao">Início</a>
                 </li>
                 <li class="item-navegacao menu-suspenso <?= $is_oferta_active ? 'ativo' : '' ?>">
-                    <a href="oferta-formativa.php" class="link-navegacao">
+                    <a href="oferta-formativa" class="link-navegacao">
                         Oferta Formativa <i class="fas fa-chevron-down"></i>
                     </a>
                     <div class="conteudo-suspenso">
                         <?php foreach($areas as $area_menu): $cursos_area = $cursos_por_area[$area_menu['id']] ?? []; ?>
                         <div class="item-suspenso">
-                            <a href="area.php?slug=<?= $area_menu['slug'] ?>" class="link-suspenso">
+                            <a href="area?slug=<?= $area_menu['slug'] ?>" class="link-suspenso">
                                 <?= htmlspecialchars($area_menu['nome']) ?> 
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                             <?php if(count($cursos_area) > 0): ?>
                             <div class="submenu-suspenso">
                                 <?php foreach($cursos_area as $curso_menu): ?>
-                                <a href="curso.php?slug=<?= $curso_menu['slug'] ?>">
+                                <a href="curso?slug=<?= $curso_menu['slug'] ?>">
                                     <?= htmlspecialchars($curso_menu['nome']) ?>
                                 </a>
                                 <?php endforeach; ?>
@@ -847,42 +868,42 @@ $is_sobre_active = $is_sobre;
                         Sobre <i class="fas fa-chevron-down"></i>
                     </a>
                     <div class="conteudo-suspenso">
-                        <a href="sobre-nos.php" class="link-suspenso">Quem Somos</a>
+                        <a href="sobre-nos" class="link-suspenso">Quem Somos</a>
                         <div class="item-suspenso">
                             <a href="javascript:void(0)" class="link-suspenso">
                                 Institucional <i class="fas fa-chevron-right"></i>
                             </a>
                             <div class="submenu-suspenso">
-                                <a href="diretor.php">Perfil do Director</a>
-                                <a href="orgaos-diretivos.php">Órgãos Directivos</a>
-                                <a href="ex-diretores.php">Ex-Directores</a>
+                                <a href="diretor">Perfil do Director</a>
+                                <a href="orgaos-diretivos">Órgãos Directivos</a>
+                                <a href="ex-diretores">Ex-Directores</a>
                             </div>
                         </div>
-                        <a href="normativos.php" class="link-suspenso">Normativos</a>
+                        <a href="normativos" class="link-suspenso">Normativos</a>
                         <div class="item-suspenso">
                             <a href="javascript:void(0)" class="link-suspenso">
                                 Reconhecimentos <i class="fas fa-chevron-right"></i>
                             </a>
                             <div class="submenu-suspenso">
-                                <a href="percurso.php">Percurso</a>
-                                <a href="quadro-honra.php">Quadro de Honra</a>
-                                <a href="funcionario-destacado.php">Funcionário Destacado</a>
+                                <a href="percurso">Percurso</a>
+                                <a href="quadro-honra">Quadro de Honra</a>
+                                <a href="funcionario-destacado">Funcionário Destacado</a>
                             </div>
                         </div>
-                        <a href="escolas-afiliadas.php" class="link-suspenso">Escolas Afiliadas</a>
+                        <a href="escolas-afiliadas" class="link-suspenso">Escolas Afiliadas</a>
                     </div>
                 </li>
                 <li class="item-navegacao <?= $is_noticias ? 'ativo' : '' ?>">
-                    <a href="noticias.php" class="link-navegacao">Notícias</a>
+                    <a href="noticias" class="link-navegacao">Notícias</a>
                 </li>
                 <li class="item-navegacao <?= $is_galeria ? 'ativo' : '' ?>">
-                    <a href="galeria.php" class="link-navegacao">Galeria</a>
+                    <a href="galeria" class="link-navegacao">Galeria</a>
                 </li>
                 <li class="item-navegacao <?= $is_contactos ? 'ativo' : '' ?>">
-                    <a href="contatos.php" class="link-navegacao">Contactos</a>
+                    <a href="contatos" class="link-navegacao">Contactos</a>
                 </li>
                 <li>
-                    <a href="area-restrita.php" class="link-navegacao botao-area-restrita">
+                    <a href="area-restrita" class="link-navegacao botao-area-restrita">
                         <i class="fas fa-lock"></i> Área Restrita
                     </a>
                 </li>
@@ -912,7 +933,7 @@ $is_sobre_active = $is_sobre;
     <nav class="sidebar-nav">
         <!-- INÍCIO -->
         <div class="sidebar-item">
-            <a href="index.php" class="sidebar-link <?= $is_inicio ? 'ativo' : '' ?>">
+            <a href="./" class="sidebar-link <?= $is_inicio ? 'ativo' : '' ?>">
                 <span class="sidebar-icone"><i class="fas fa-home"></i></span>
                 <span>Início</span>
             </a>
@@ -921,7 +942,7 @@ $is_sobre_active = $is_sobre;
         <!-- OFERTA FORMATIVA - com seta separada -->
         <div class="sidebar-item">
             <div style="display: flex; align-items: stretch;">
-                <a href="oferta-formativa.php" class="sidebar-oferta-link <?= $is_oferta_active ? 'ativo' : '' ?>">
+                <a href="oferta-formativa" class="sidebar-oferta-link <?= $is_oferta_active ? 'ativo' : '' ?>">
                     <span class="sidebar-icone"><i class="fas fa-graduation-cap"></i></span>
                     <span>Oferta Formativa</span>
                 </a>
@@ -933,7 +954,7 @@ $is_sobre_active = $is_sobre;
                 <?php foreach($areas as $area_menu): $cursos_area = $cursos_por_area[$area_menu['id']] ?? []; ?>
                 <div class="sidebar-item">
                     <div style="display: flex; align-items: stretch;">
-                        <a href="area.php?slug=<?= $area_menu['slug'] ?>" class="sidebar-sub-link" style="flex: 1; border-radius: 8px 0 0 8px;">
+                        <a href="area?slug=<?= $area_menu['slug'] ?>" class="sidebar-sub-link" style="flex: 1; border-radius: 8px 0 0 8px;">
                             <?= htmlspecialchars($area_menu['nome']) ?>
                         </a>
                         <?php if(count($cursos_area) > 0): ?>
@@ -945,7 +966,7 @@ $is_sobre_active = $is_sobre;
                     <?php if(count($cursos_area) > 0): ?>
                     <div class="sidebar-submenu" id="submenu-<?= $area_menu['id'] ?>">
                         <?php foreach($cursos_area as $curso_menu): ?>
-                        <a href="curso.php?slug=<?= $curso_menu['slug'] ?>" class="sidebar-sub-link">
+                        <a href="curso?slug=<?= $curso_menu['slug'] ?>" class="sidebar-sub-link">
                             <?= htmlspecialchars($curso_menu['nome']) ?>
                         </a>
                         <?php endforeach; ?>
@@ -966,7 +987,7 @@ $is_sobre_active = $is_sobre;
                 <i class="fas fa-chevron-right seta-icon"></i>
             </button>
             <div class="sidebar-submenu" id="submenu-sobre">
-                <a href="sobre-nos.php" class="sidebar-sub-link <?= $arquivo_atual === 'sobre-nos.php' ? 'ativo' : '' ?>">Quem Somos</a>
+                <a href="sobre-nos" class="sidebar-sub-link <?= $arquivo_atual === 'sobre-nos.php' ? 'ativo' : '' ?>">Quem Somos</a>
                 
                 <div class="sidebar-item">
                     <button class="btn-sub-toggle toggle-submenu-btn" data-target="submenu-institucional">
@@ -974,13 +995,13 @@ $is_sobre_active = $is_sobre;
                         <i class="fas fa-chevron-right seta-icon"></i>
                     </button>
                     <div class="sidebar-submenu" id="submenu-institucional">
-                        <a href="diretor.php" class="sidebar-sub-link <?= $arquivo_atual === 'diretor.php' ? 'ativo' : '' ?>">Perfil do Director</a>
-                        <a href="orgaos-diretivos.php" class="sidebar-sub-link <?= $arquivo_atual === 'orgaos-diretivos.php' ? 'ativo' : '' ?>">Órgãos Directivos</a>
-                        <a href="ex-diretores.php" class="sidebar-sub-link <?= $arquivo_atual === 'ex-diretores.php' ? 'ativo' : '' ?>">Ex-Directores</a>
+                        <a href="diretor" class="sidebar-sub-link <?= $arquivo_atual === 'diretor.php' ? 'ativo' : '' ?>">Perfil do Director</a>
+                        <a href="orgaos-diretivos" class="sidebar-sub-link <?= $arquivo_atual === 'orgaos-diretivos.php' ? 'ativo' : '' ?>">Órgãos Directivos</a>
+                        <a href="ex-diretores" class="sidebar-sub-link <?= $arquivo_atual === 'ex-diretores.php' ? 'ativo' : '' ?>">Ex-Directores</a>
                     </div>
                 </div>
                 
-                <a href="normativos.php" class="sidebar-sub-link <?= $arquivo_atual === 'normativos.php' ? 'ativo' : '' ?>">Normativos</a>
+                <a href="normativos" class="sidebar-sub-link <?= $arquivo_atual === 'normativos.php' ? 'ativo' : '' ?>">Normativos</a>
                 
                 <div class="sidebar-item">
                     <button class="btn-sub-toggle toggle-submenu-btn" data-target="submenu-alumni">
@@ -988,19 +1009,19 @@ $is_sobre_active = $is_sobre;
                         <i class="fas fa-chevron-right seta-icon"></i>
                     </button>
                     <div class="sidebar-submenu" id="submenu-alumni">
-                        <a href="percurso.php" class="sidebar-sub-link <?= $arquivo_atual === 'percurso.php' ? 'ativo' : '' ?>">Percurso</a>
-                        <a href="quadro-honra.php" class="sidebar-sub-link <?= $arquivo_atual === 'quadro-honra.php' ? 'ativo' : '' ?>">Quadro de Honra</a>
-                        <a href="funcionario-destacado.php" class="sidebar-sub-link <?= $arquivo_atual === 'funcionario-destacado.php' ? 'ativo' : '' ?>">Funcionário Destacado</a>
+                        <a href="percurso" class="sidebar-sub-link <?= $arquivo_atual === 'percurso.php' ? 'ativo' : '' ?>">Percurso</a>
+                        <a href="quadro-honra" class="sidebar-sub-link <?= $arquivo_atual === 'quadro-honra.php' ? 'ativo' : '' ?>">Quadro de Honra</a>
+                        <a href="funcionario-destacado" class="sidebar-sub-link <?= $arquivo_atual === 'funcionario-destacado.php' ? 'ativo' : '' ?>">Funcionário Destacado</a>
                     </div>
                 </div>
                 
-                <a href="escolas-afiliadas.php" class="sidebar-sub-link <?= $arquivo_atual === 'escolas-afiliadas.php' ? 'ativo' : '' ?>">Escolas Afiliadas</a>
+                <a href="escolas-afiliadas" class="sidebar-sub-link <?= $arquivo_atual === 'escolas-afiliadas.php' ? 'ativo' : '' ?>">Escolas Afiliadas</a>
             </div>
         </div>
         
         <!-- NOTÍCIAS -->
         <div class="sidebar-item">
-            <a href="noticias.php" class="sidebar-link <?= $is_noticias ? 'ativo' : '' ?>">
+            <a href="noticias" class="sidebar-link <?= $is_noticias ? 'ativo' : '' ?>">
                 <span class="sidebar-icone"><i class="fas fa-newspaper"></i></span>
                 <span>Notícias</span>
             </a>
@@ -1008,7 +1029,7 @@ $is_sobre_active = $is_sobre;
         
         <!-- GALERIA -->
         <div class="sidebar-item">
-            <a href="galeria.php" class="sidebar-link <?= $is_galeria ? 'ativo' : '' ?>">
+            <a href="galeria" class="sidebar-link <?= $is_galeria ? 'ativo' : '' ?>">
                 <span class="sidebar-icone"><i class="fas fa-images"></i></span>
                 <span>Galeria</span>
             </a>
@@ -1016,7 +1037,7 @@ $is_sobre_active = $is_sobre;
         
         <!-- CONTACTOS -->
         <div class="sidebar-item">
-            <a href="contatos.php" class="sidebar-link <?= $is_contactos ? 'ativo' : '' ?>">
+            <a href="contatos" class="sidebar-link <?= $is_contactos ? 'ativo' : '' ?>">
                 <span class="sidebar-icone"><i class="fas fa-envelope"></i></span>
                 <span>Contactos</span>
             </a>
@@ -1024,9 +1045,8 @@ $is_sobre_active = $is_sobre;
     </nav>
     
     <div class="sidebar-rodape">
-        <button class="botao-area-restrita-sidebar" onclick="window.location.href='area-restrita.php'">
+        <button class="botao-area-restrita-sidebar" onclick="window.location.href='area-restrita'">
             <i class="fas fa-lock"></i> Área Restrita
         </button>
     </div>
 </aside>
-

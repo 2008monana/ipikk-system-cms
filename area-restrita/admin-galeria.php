@@ -10,7 +10,7 @@ $css_especifico = 'admin-galeria.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -27,7 +27,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -213,10 +213,7 @@ include 'includes/sidebar.php';
                     <span class="contador" id="contadorMidias">(<?= $total_midias ?> itens)</span>
                 </h2>
                 <div class="galeria-acoes">
-                    <button class="btn-acao" id="btnOrdenar" title="Ordenar por arrasto">
-                        <i class="fas fa-arrows-alt"></i> Ordenar
-                    </button>
-                    <button class="btn-acao" id="btnGuardarOrdem" style="display: none;">
+<button class="btn-acao" id="btnGuardarOrdem" style="display: none;">
                         <i class="fas fa-save"></i> Guardar Ordem
                     </button>
                     <button class="btn-acao" id="btnCancelarOrdem" style="display: none;">
@@ -1197,6 +1194,40 @@ include 'includes/sidebar.php';
 }
 
 @media (max-width: 768px) {
+    .secao-categorias {
+        padding: 16px;
+    }
+
+    .secao-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .secao-header-left {
+        width: 100%;
+    }
+
+    .secao-titulo {
+        flex-wrap: wrap;
+        row-gap: 4px;
+    }
+
+    .secao-header-acoes {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        gap: 8px;
+    }
+
+    .btn-adicionar {
+        width: 100%;
+        min-height: 40px;
+        justify-content: center;
+        display: inline-flex;
+        align-items: center;
+    }
+
     .stats-grid { grid-template-columns: 1fr; }
     .galeria-grid { grid-template-columns: 1fr; }
     .grid-categorias { grid-template-columns: 1fr; }
@@ -1339,7 +1370,7 @@ async function salvarMidia(event) {
     }
     
     try {
-        const response = await fetch('processos/processar-galeria.php', {
+        const response = await fetch('processos/processar-galeria', {
             method: 'POST',
             body: formData
         });
@@ -1358,7 +1389,7 @@ async function salvarMidia(event) {
 }
 
 function editarMidia(id) {
-    fetch(`processos/processar-galeria.php?action=buscar&id=${id}`)
+    fetch(`processos/processar-galeria?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -1386,7 +1417,7 @@ function eliminarMidia(id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-galeria.php', {
+            const response = await fetch('processos/processar-galeria', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })
@@ -1472,7 +1503,7 @@ async function salvarCategoria(event) {
     formData.append('ordem', ordem);
     
     try {
-        const response = await fetch('processos/processar-galeria.php', {
+        const response = await fetch('processos/processar-galeria', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData
@@ -1506,7 +1537,7 @@ function abrirModalCategoria(id = null) {
     
     if (id) {
         titulo.innerHTML = '<i class="fas fa-edit"></i> Editar Categoria';
-        fetch(`processos/processar-galeria.php?action=buscar_categoria&id=${id}`)
+        fetch(`processos/processar-galeria?action=buscar_categoria&id=${id}`)
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
@@ -1543,7 +1574,7 @@ function eliminarCategoria(id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-galeria.php', {
+            const response = await fetch('processos/processar-galeria', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar_categoria', id: id })
@@ -1613,12 +1644,12 @@ function limparFiltros() {
 function ordenarGaleria() {
     modoOrdenacao = !modoOrdenacao;
     const cards = document.querySelectorAll('.galeria-card');
-    const btnOrdenar = document.getElementById('btnOrdenar');
+    const btnOrdenar = null;
     const btnGuardar = document.getElementById('btnGuardarOrdem');
     const btnCancelar = document.getElementById('btnCancelarOrdem');
     
     if (modoOrdenacao) {
-        btnOrdenar.style.display = 'none';
+        if (btnOrdenar) btnOrdenar.style.display = 'none';
         btnGuardar.style.display = 'flex';
         btnCancelar.style.display = 'flex';
         cards.forEach(card => {
@@ -1629,7 +1660,7 @@ function ordenarGaleria() {
         });
         iniciarDragDrop();
     } else {
-        btnOrdenar.style.display = 'flex';
+        if (btnOrdenar) btnOrdenar.style.display = 'flex';
         btnGuardar.style.display = 'none';
         btnCancelar.style.display = 'none';
         cards.forEach(card => {
@@ -1643,7 +1674,7 @@ function ordenarGaleria() {
 
 function cancelarOrdenacao() {
     modoOrdenacao = false;
-    document.getElementById('btnOrdenar').style.display = 'flex';
+    if (btnOrdenar) btnOrdenar.style.display = 'flex';
     document.getElementById('btnGuardarOrdem').style.display = 'none';
     document.getElementById('btnCancelarOrdem').style.display = 'none';
     document.querySelectorAll('.galeria-card').forEach(card => {
@@ -1707,7 +1738,7 @@ async function guardarOrdem() {
     });
     
     try {
-        const response = await fetch('processos/processar-galeria.php', {
+        const response = await fetch('processos/processar-galeria', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'ordenar', ordem: ordem })
@@ -1731,7 +1762,7 @@ document.getElementById('btnNovaMidia')?.addEventListener('click', abrirModalMid
 document.getElementById('toggleFiltros')?.addEventListener('click', toggleFiltros);
 document.getElementById('btnAplicarFiltros')?.addEventListener('click', aplicarFiltros);
 document.getElementById('btnLimparFiltros')?.addEventListener('click', limparFiltros);
-document.getElementById('btnOrdenar')?.addEventListener('click', ordenarGaleria);
+
 document.getElementById('btnGuardarOrdem')?.addEventListener('click', guardarOrdem);
 document.getElementById('btnCancelarOrdem')?.addEventListener('click', cancelarOrdenacao);
 document.getElementById('btnCancelarConfirmacao')?.addEventListener('click', () => {

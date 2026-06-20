@@ -10,7 +10,7 @@ $css_especifico = 'admin-plano-curricular.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 require_once __DIR__ . '/includes/verificar-permissao.php';
@@ -1407,12 +1407,12 @@ function mostrarNotificacao(mensagem, tipo = 'sucesso') {
 function mudarCurso() {
     const novoCurso = document.getElementById('seletorCurso').value;
     if (novoCurso) {
-        window.location.href = `admin-planos-curriculares.php?curso_id=${novoCurso}`;
+        window.location.href = `admin-planos-curriculares?curso_id=${novoCurso}`;
     }
 }
 
 function carregarDisciplinas() {
-    fetch(`processos/processar-plano-curricular.php?action=listar&curso_id=${cursoAtual}`)
+    fetch(`processos/processar-plano-curricular?action=listar&curso_id=${cursoAtual}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -1712,7 +1712,7 @@ async function salvarDisciplina(event) {
     formData.append('horas_13a', horas_13a);
 
     try {
-        const response = await fetch('processos/processar-plano-curricular.php', {
+        const response = await fetch('processos/processar-plano-curricular', {
             method: 'POST',
             body: formData
         });
@@ -1740,7 +1740,7 @@ function eliminarDisciplina(id, nome) {
 
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-plano-curricular.php', {
+            const response = await fetch('processos/processar-plano-curricular', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })

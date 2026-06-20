@@ -1,395 +1,74 @@
 <?php
-/**
- * Politica de Privacidade - IPIKK
- * Pagina publica que exibe a politica de privacidade do site
- */
-
 require_once '../config/index.php';
-
 $db = getDB();
-
 $config = $db->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 
-// Buscar areas para o menu
 $areas = $db->query("SELECT * FROM areas WHERE ativo = 1 ORDER BY ordem")->fetchAll();
-
 $todos_cursos = $db->query("SELECT * FROM cursos WHERE estado = 'ativo' ORDER BY nome")->fetchAll();
 $cursos_por_area = [];
 foreach ($todos_cursos as $curso) {
     $cursos_por_area[$curso['area_id']][] = $curso;
 }
-
 $status_inscricoes = $db->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 
-$titulo_pagina = "IPIKK - Politica de Privacidade";
+$texto_padrao = "1. Utilização do Site\nO IPIKK empenha-se em manter a informação disponível neste site atualizada e rigorosa. Ainda assim, não é possível garantir que todos os conteúdos estejam permanentemente atualizados ou isentos de imprecisões.\nEste site é de acesso livre e tem como propósito apresentar a oferta formativa, os valores institucionais, as atividades, projetos, notícias e eventos do IPIKK. Os utilizadores podem descarregar, visualizar ou imprimir conteúdos do site exclusivamente para uso pessoal e não comercial.\n\n2. Propriedade Intelectual\nTodo o conteúdo presente neste site — incluindo textos, imagens, logótipos, vídeos, documentos e outros materiais — é propriedade do IPIKK e está protegido por lei. A sua reprodução, distribuição ou utilização para criação de obras derivadas sem autorização prévia e por escrito do IPIKK é proibida, podendo dar origem a responsabilidade civil ou criminal. Esta proteção abrange igualmente o design, a estrutura, o layout e o código fonte do site.\n\n3. Condutas Não Permitidas\nEste site não pode ser utilizado para fins ilegais, abusivos ou difamatórios, nem para a transmissão de vírus ou qualquer código malicioso que possa prejudicar outros utilizadores ou o funcionamento do site. O IPIKK reserva-se o direito de recorrer às vias legais disponíveis contra quem viole estas condições.\n\n4. Dados Pessoais e Privacidade\nO IPIKK respeita a privacidade dos seus utilizadores. Os dados pessoais recolhidos através do site — como nome, email, telefone e mensagens enviadas pelo formulário de contacto — são utilizados exclusivamente para responder a pedidos de informação sobre cursos e inscrições, prestar esclarecimentos institucionais e melhorar a qualidade dos serviços.\nEstes dados não são partilhados com terceiros sem o consentimento do titular, salvo quando exigido por lei. Qualquer utilizador pode, a qualquer momento, aceder, corrigir, atualizar ou solicitar a eliminação dos seus dados, através dos contactos indicados no site.\n\n5. Cookies\nO site do IPIKK pode utilizar cookies para melhorar a experiência de navegação e as funcionalidades disponibilizadas. Os cookies não são utilizados para criar perfis de utilizadores. Caso prefira não autorizar o uso de cookies, algumas funcionalidades do site poderão não funcionar corretamente. Para gerir ou remover cookies, consulte as definições do seu navegador.\n\n6. Estatísticas de Navegação\nO IPIKK recolhe dados estatísticos de navegação — como número de visitas, páginas mais acedidas e tempo de permanência — com o único objetivo de melhorar o desempenho e a experiência no site. Estes dados são tratados de forma anónima e agregada, não permitindo identificar individualmente nenhum utilizador.\n\n7. Links para Sites Externos\nEste site pode conter ligações para sites de terceiros que não são geridos pelo IPIKK. O Instituto não se responsabiliza pelo conteúdo, políticas de privacidade ou práticas desses sites. A presença de uma ligação não implica qualquer aprovação ou recomendação por parte do IPIKK.\n\n8. Limitação de Responsabilidade\nO IPIKK não se responsabiliza por danos diretos ou indiretos resultantes da utilização ou impossibilidade de utilização deste site, incluindo perda de dados, interrupção de atividades ou danos causados por vírus informáticos. Cabe ao utilizador adotar as medidas de segurança adequadas para proteger os seus equipamentos e dados.\n\n9. Alterações a esta Política\nO IPIKK pode atualizar esta Política a qualquer momento. As alterações entram em vigor imediatamente após publicação no site. Recomendamos que consulte esta página periodicamente para se manter informado.\n\n10. Legislação Aplicável\nEsta Política é regida pela legislação da República de Angola. Qualquer litígio será submetido à jurisdição dos tribunais da comarca de Luanda.\n\n11. Contactos\nPara questões relacionadas com esta Política ou para exercer os seus direitos sobre os seus dados pessoais, entre em contacto connosco.\n\nÚltima actualização: 24 de Maio de 2026";
+
+$texto = $texto_padrao;
+try {
+    $stmt = $db->query("SELECT titulo, texto, ultima_actualizacao FROM politica_privacidade WHERE ativo = 1 ORDER BY id DESC LIMIT 1");
+    $politica = $stmt->fetch();
+    if (!empty($politica['texto'])) {
+        $texto = trim($politica['texto']);
+    }
+} catch (Throwable $e) {
+    $stmt = $db->prepare("SELECT conteudo FROM conteudo_paginas WHERE slug = 'politica-privacidade' LIMIT 1");
+    $stmt->execute();
+    $registo = $stmt->fetch();
+    $dados = $registo && !empty($registo['conteudo']) ? json_decode($registo['conteudo'], true) : [];
+    if (!empty($dados['texto'])) {
+        $texto = trim($dados['texto']);
+    }
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $titulo_pagina ?></title>
-    
-    <meta name="description" content="Politica de Privacidade e Protecao de Dados Pessoais do IPIKK - Instituto Medio Politecnico Industrial do Kilamba Kiaxi">
-    <meta name="keywords" content="IPIKK, politica de privacidade, protecao de dados, cookies, termos de uso">
-    
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
-    <link href="<?= $config['favicon_url'] ?? 'foto/ipikk_new_logo.png' ?>" rel="icon">
-    
-    <link rel="stylesheet" href="css/header-footer.css">
-    
-    <style>
-        :root {
-            --azul-principal: #003072;
-            --azul-claro: #2e86c1;
-            --azul-escuro: #001a40;
-            --verde-acento: #0a9396;
-            --verde-claro: #94d2bd;
-            --branco: #ffffff;
-            --cinza-claro: #f8f9fa;
-            --cinza: #6c757d;
-            --cinza-escuro: #212529;
-            --sombra: 0 10px 30px rgba(0, 48, 114, 0.1);
-            --borda-raio: 12px;
-            --transicao: all 0.3s ease;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: var(--cinza-claro);
-            color: var(--cinza-escuro);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            line-height: 1.2;
-        }
-        a { text-decoration: none; color: inherit; transition: var(--transicao); }
-
-        .cabecalho-pagina {
-            background: var(--branco);
-            padding: 55px 20px 40px;
-            text-align: center;
-            position: relative;
-            border-bottom: 1px solid rgba(0,48,114,0.08);
-        }
-        .titulo-pagina {
-            font-size: 2.6rem;
-            color: var(--azul-principal);
-            margin-bottom: 14px;
-            animation: deslizarCima 0.6s ease both;
-        }
-        .titulo-pagina span { color: var(--verde-acento); }
-        .linha-decorativa-titulo {
-            width: 80px; height: 4px;
-            background: linear-gradient(to right, var(--verde-acento), var(--verde-claro));
-            margin: 0 auto;
-            border-radius: 50px;
-            animation: expandir 0.8s ease 0.3s both;
-        }
-        @keyframes deslizarCima {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes expandir {
-            from { width: 0; }
-            to { width: 80px; }
-        }
-
-        .corpo-politica {
-            max-width: 900px;
-            margin: 50px auto 60px;
-            padding: 0 20px;
-        }
-
-        .documento-container {
-            background: var(--branco);
-            border-radius: 18px;
-            padding: 50px 55px;
-            box-shadow: var(--sombra);
-            animation: deslizarCima 0.6s ease 0.1s both;
-        }
-
-        .documento-container > p:first-child {
-            color: var(--cinza);
-            line-height: 1.8;
-            margin-bottom: 36px;
-            font-size: 0.97rem;
-            border-left: 4px solid var(--verde-acento);
-            padding-left: 18px;
-        }
-
-        .titulo-seccao {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-size: 1.25rem;
-            color: var(--azul-principal);
-            margin: 36px 0 14px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--cinza-claro);
-        }
-
-        .icone-seccao {
-            width: 42px; height: 42px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--azul-principal), var(--verde-acento));
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .icone-seccao i { color: var(--branco); font-size: 1rem; }
-
-        .documento-container p {
-            color: var(--cinza);
-            line-height: 1.8;
-            margin-bottom: 14px;
-            font-size: 0.96rem;
-        }
-
-        .lista-politica {
-            list-style: none;
-            padding: 0;
-            margin: 12px 0 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .lista-politica li {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            background: var(--cinza-claro);
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: var(--cinza-escuro);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .numero-item {
-            min-width: 28px; height: 28px;
-            border-radius: 50%;
-            background: var(--azul-principal);
-            color: var(--branco);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; font-weight: 700;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        .separador {
-            height: 1px;
-            background: linear-gradient(to right, transparent, var(--cinza-claro), transparent);
-            margin: 28px 0;
-        }
-
-        .caixa-destaque-alerta {
-            background: rgba(10, 147, 150, 0.07);
-            border: 1.5px solid rgba(10, 147, 150, 0.35);
-            border-left: 5px solid var(--verde-acento);
-            border-radius: 10px;
-            padding: 18px 22px;
-            margin: 22px 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-        }
-        .caixa-destaque-alerta .icone-alerta {
-            color: var(--verde-acento);
-            font-size: 1.25rem;
-            margin-top: 2px;
-            flex-shrink: 0;
-        }
-        .caixa-destaque-alerta p {
-            color: var(--azul-principal) !important;
-            font-weight: 500;
-            font-size: 0.94rem !important;
-            margin: 0 !important;
-            line-height: 1.7;
-        }
-
-        .caixa-assinatura {
-            background: var(--cinza-claro);
-            border-radius: 12px;
-            padding: 26px 30px;
-            margin: 22px 0;
-            border-left: 5px solid var(--azul-principal);
-        }
-        .caixa-assinatura .data-assinatura {
-            font-style: italic;
-            color: var(--cinza);
-            font-size: 0.92rem;
-            margin-bottom: 8px;
-        }
-        .caixa-assinatura .organizacao-assinatura {
-            font-style: italic;
-            color: var(--azul-claro);
-            font-size: 0.95rem;
-            margin-bottom: 6px;
-        }
-        .caixa-assinatura .departamento-assinatura {
-            font-weight: 700;
-            color: var(--azul-principal);
-            font-size: 0.93rem;
-        }
-
-        .ultima-atualizacao {
-            text-align: right;
-            font-size: 0.8rem;
-            color: var(--cinza);
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid var(--cinza-claro);
-        }
-
-        @media (max-width: 992px) {
-            .menu-navegacao { display: none; }
-            .botao-menu-mobile { display: block; }
-        }
-        @media (max-width: 768px) {
-            .conteudo-superior { flex-direction: column; gap: 10px; text-align: center; }
-            .conteudo-cabecalho { padding: 10px 20px; }
-            .documento-container { padding: 30px 22px; }
-            .titulo-pagina { font-size: 2rem; }
-            .container-rodape { padding: 0 20px; }
-        }
-        @media (max-width: 480px) {
-            .titulo-pagina { font-size: 1.7rem; }
-            .botoes-flutuantes { bottom: 20px; right: 20px; }
-        }
-    </style>
-</head>
-<body>
-
-
-    <!-- ===== CABECALHO ===== -->
-
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPIKK - Política de Privacidade</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap">
+<link href="<?= $config['favicon_url'] ?? 'foto/ipikk_new_logo.png' ?>" rel="icon">
+<link rel="stylesheet" href="css/header-footer.css">
+<style>
+:root{--azul-principal:#003072;--verde-acento:#0a9396;--cinza:#6c757d;--texto-principal:#2c3e50;}
+body{font-family:'Montserrat',sans-serif;background:#f8f9fa;color:var(--texto-principal);line-height:1.6}
+.cabecalho-pagina{max-width:1200px;margin:40px auto 0;padding:0 20px;text-align:center}
+.titulo-pagina{font-family:'Poppins',sans-serif;font-size:2.5rem;color:var(--azul-principal);margin-bottom:15px}
+.subtitulo-pagina{font-size:1.1rem;color:var(--cinza);max-width:700px;margin:0 auto 20px}
+.linha-decorativa-titulo{width:80px;height:4px;background:linear-gradient(90deg,var(--azul-principal),var(--verde-acento));margin:0 auto 30px;border-radius:2px}
+.corpo-politica{max-width:960px;margin:0 auto 40px;padding:0 20px}
+.corpo-politica h1{font-family:'Poppins',sans-serif;font-size:2rem;margin:0 0 18px;color:var(--azul-principal)}
+.corpo-politica h2{font-family:'Poppins',sans-serif;font-size:1.15rem;margin:18px 0 8px;color:var(--azul-principal)}
+.corpo-politica p,.corpo-politica h2,.corpo-politica h1{text-align:justify}.corpo-politica p{line-height:1.7;margin-bottom:10px}
+</style>
+</head><body>
 <?php include __DIR__ . '/includes/header.php'; ?>
-    
-    <!-- ===== TITULO DA PAGINA ===== -->
-    <section class="cabecalho-pagina">
-        <h1 class="titulo-pagina"> <span>Politicas de Privacidade</span></h1>
-        <div class="linha-decorativa-titulo"></div>
-    </section>
-
-    <!-- ===== CONTEUDO PRINCIPAL ===== -->
-    <main class="corpo-politica">
-        <div class="documento-container">
-
-            <p>A Politica de Privacidade e Protecao de Dados Pessoais, complementares aos Termos e Condicoes de Utilizacao, destina-se a regular o processo de tratamento de dados pessoais a realizar pelo IPIKK por conta da utilizacao deste website.</p>
-
-            <h2 class="titulo-seccao">
-                <span class="icone-seccao"><i class="fas fa-clipboard"></i></span>
-                Dados Recolhidos
-            </h2>
-            <p>Constituem dados recolhidos, os seguintes:</p>
-            <ul class="lista-politica">
-                <li><span class="numero-item">1</span>Dados fornecidos diretamente pelo titular</li>
-                <li><span class="numero-item">2</span>Dados recolhidos no âmbito de relacao constituida com o titular desses dados</li>
-                <li><span class="numero-item">3</span>Dados pessoais solicitados ao titular tratados com o seu consentimento</li>
-            </ul>
-
-            <h2 class="titulo-seccao">
-                <span class="icone-seccao"><i class="fas fa-globe"></i></span>
-                Finalidades
-            </h2>
-            <p>A utilizacao dos dados recolhidos deve ter como finalidades:</p>
-            <ul class="lista-politica">
-                <li><span class="numero-item">1</span>A prestacao de servicos solicitados pelo titular</li>
-                <li><span class="numero-item">2</span>Fornecer informacao sobre produtos, servicos, atividades de marketing, campanhas, promocoes, fins estatisticos e conteudos personalizados, mediante o consentimento previo para o efeito</li>
-            </ul>
-
-            <div class="separador"></div>
-
-            <div class="caixa-destaque-alerta">
-                <i class="fas fa-triangle-exclamation icone-alerta"></i>
-                <p>Além das obrigacoes referidas na Lei aplicavel a protecao de dados ou a salvaguarda e protecao dos seus proprios interesses, o IPIKK nao partilhara quaisquer dados pessoais com entidades terceiras.</p>
-            </div>
-
-            <p>E proibido o uso deste site para quaisquer fins ilegais, abusivos, difamatorios ou que ameacem a transmissao de qualquer virus ou outro tipo de codigo informatico, ficheiros ou programas desenhados para interromper, destruir ou danificar intencionalmente hardware ou software ou que interfira no funcionamento normal do site.</p>
-
-            <div class="separador"></div>
-
-            <h2 class="titulo-seccao">
-                <span class="icone-seccao"><i class="fas fa-cookie-bite"></i></span>
-                Cookies
-            </h2>
-            <p>O IPIKK podera utilizar cookies no seu website com o objetivo de melhorar a qualidade do servico, as funcionalidades disponibilizadas e a experiencia do utilizador, nao sendo utilizadas para definicao de perfis.</p>
-            <p>Se nao permitir a utilizacao de cookies alguns servicos e/ou funcionalidades poderao nao corresponder ao nivel de servico esperado.</p>
-            <p>Caso pretenda remover cookies deve consultar a secao "Ajuda" do seu navegador de internet.</p>
-
-            <div class="separador"></div>
-
-            <h2 class="titulo-seccao">
-                <span class="icone-seccao"><i class="fas fa-balance-scale"></i></span>
-                Autoridade de Controlo
-            </h2>
-            <p>A autoridade de controlo e a Agencia de Protecao de Dados (APD), a quem compete velhar pelo cumprimento da legislacao sobre protecao de dados pessoais.</p>
-
-            <h2 class="titulo-seccao">
-                <span class="icone-seccao"><i class="fas fa-edit"></i></span>
-                Alteracao
-            </h2>
-            <p>As disposicoes do presente termo de uso e privacidade pode ser alterada, sempre que se justificar ou sempre que se registe qualquer alteracao na legislacao em vigor sobre a materia.</p>
-
-            <div class="caixa-assinatura">
-                <div class="data-assinatura"><i>Luanda, 22 de Abril de 2022</i></div>
-                <div class="organizacao-assinatura"><em>Instituto Nacional de Fomento da Sociedade de Informacao</em></div>
-                <div class="departamento-assinatura">Departamento de Ciberseguranca, Chaves Publicas e Carimbo do Tempo</div>
-            </div>
-
-            <div class="separador"></div>
-
-            <h2 class="titulo-seccao">
-                <span class="icone-seccao"><i class="fas fa-triangle-exclamation"></i></span>
-                Limitacoes de Tratamento
-            </h2>
-            <p>O IPIKK nao efectuara o tratamento de dados pessoais que revelem a origem racial ou etnica, as opinioes politicas, as conviccoes religiosas ou filosoficas, ou a filiacao sindical, bem como o tratamento de dados geneticos, dados biometricos para identificar uma pessoa de forma inequivoca, dados relativos a saude ou genero.</p>
-            <p>Os dados pessoais apenas poderao ser recolhidos caso:</p>
-            <ul class="lista-politica">
-                <li><span class="numero-item">1</span>O utilizador efectue registo no website</li>
-                <li><span class="numero-item">2</span>O titular dos dados solicite um envio, respondendo a um inquerito, ou mais informacoes sobre um programa atraves de formulario e/ou outro meio de comunicacao eletronica com o IPIKK</li>
-            </ul>
-            <p>A receita de informacao pessoal esta limitada aos visitantes que se registam voluntariamente.</p>
-
-            <h2 class="titulo-seccao">
-                <span class="icone-seccao"><i class="fas fa-envelope-open-text"></i></span>
-                Consentimento para a Recepcao de Informacoes
-            </h2>
-            <p>O IPIKK sera o seu consentimento previo relativamente a rececao de comunicacoes comerciais para fins de marketing, sendo-lhe conferida a faculdade de oposicao, a todo o tempo, mediante comunicacao dirigida ao IPIKK.</p>
-            <p>As referidas informacoes comerciais, poderao ser enviadas pelo IPIKK atraves de correio eletronico, telefone, SMS ou qualquer outro meio de comunicacao electronica, websites de redes sociais, Web 2.0, qualquer canal de telemovel ou metodo.</p>
-
-            <div class="ultima-atualizacao">
-                <i class="fas fa-clock"></i> Ultima atualizacao: <?= date('d/m/Y') ?>
-            </div>
-        </div>
-    </main>
-
-    <!-- ===== BOTOES FLUTUANTES ===== -->
-    <div class="botoes-flutuantes">
-        <button class="botao-flutuante" id="botaoTopo" title="Voltar ao topo">
-            <i class="fas fa-chevron-up"></i>
-        </button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank" rel="noopener" title="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-        </a>
-        <?php endif; ?>
-    </div>
-
-    <!-- ===== RODAPE ===== -->
-
+<section class="cabecalho-pagina">
+    <h1 class="titulo-pagina">Política de Privacidade</h1>
+    <p class="subtitulo-pagina">Conheça os termos de utilização e privacidade do IPIKK</p>
+    <div class="linha-decorativa-titulo"></div>
+</section>
+<main class="corpo-politica">
+<?php
+$linhas = preg_split('/\R/', $texto);
+foreach ($linhas as $linha) {
+    $linha = trim($linha);
+    if ($linha === '' || $linha === 'Política de Privacidade e Utilização do Site') { continue; }
+    if (preg_match('/^\d+\.\s+/', $linha)) echo '<h2>' . htmlspecialchars($linha) . '</h2>';
+    else echo '<p>' . htmlspecialchars($linha) . '</p>';
+}
+?>
+</main>
 <?php include __DIR__ . '/includes/footer.php'; ?>
-
-    <script src="js/header-footer.js"></script>
-</body>
-</html>
+<script src="js/header-footer.js"></script>
+</body></html>

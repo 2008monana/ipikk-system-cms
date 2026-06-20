@@ -9,6 +9,13 @@ require_once '../config/index.php';
 // Buscar configurações do site
 $config = getDB()->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 
+// Se o modo de manutenção estiver desativado, a página de manutenção
+// não deve continuar visível para visitantes.
+if (empty($config['modo_manutencao'])) {
+    header('Location: ./');
+    exit;
+}
+
 // Buscar dados da manutenção
 $manutencao_titulo = $config['manutencao_titulo'] ?? 'Site em Manutenção';
 $manutencao_mensagem = $config['manutencao_mensagem_principal'] ?? 'Estamos realizando melhorias para lhe servir melhor.';
@@ -17,6 +24,7 @@ $manutencao_previsao = $config['manutencao_previsao'] ?? 'em breve';
 $manutencao_telefone = $config['manutencao_telefone'] ?? $config['telefone'] ?? '';
 $manutencao_whatsapp = $config['manutencao_whatsapp'] ?? $config['whatsapp_numero'] ?? '';
 $manutencao_email = $config['manutencao_email'] ?? $config['email_geral'] ?? '';
+$manutencao_whatsapp_link = montarLinkWhatsApp($manutencao_whatsapp);
 
 // Converter detalhes em array de parágrafos
 $detalhes_array = explode("\n", $manutencao_detalhes);
@@ -371,11 +379,13 @@ $detalhes_array = array_filter($detalhes_array, function($line) {
                 <a href="javascript:void(0)" class="btn btn-primario" id="btnAtualizar">
                     <i class="fas fa-sync-alt"></i> Tentar novamente
                 </a>
-                <?php if (!empty($manutencao_whatsapp)): ?>
-                <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $manutencao_whatsapp) ?>" class="btn btn-contato" target="_blank">
-                    <i class="fab fa-whatsapp"></i> Contactar via WhatsApp
-                </a>
-                <?php endif; ?>
+                <?php
+                $whatsapp_valor = $manutencao_whatsapp;
+                $whatsapp_classe = 'btn btn-contato';
+                $whatsapp_titulo = 'Contactar via WhatsApp';
+                $whatsapp_conteudo = '<i class="fab fa-whatsapp"></i> Contactar via WhatsApp';
+                include __DIR__ . '/includes/botao-whatsapp.php';
+                ?>
             </div>
 
             <?php if (!empty($manutencao_telefone) || !empty($manutencao_email)): ?>

@@ -20,7 +20,7 @@ foreach ($todos_cursos as $curso_item) {
 
 // Verificar status das inscrições
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 
 // Buscar conteúdo da página (JSON)
 $pagina = getPagina('noticias');
@@ -387,6 +387,7 @@ $outras_noticias = array_slice($todas_noticias, 1);
             font-size: 0.85rem;
             color: var(--cinza);
             line-height: 1.5;
+            text-align: justify;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -746,11 +747,7 @@ $outras_noticias = array_slice($todas_noticias, 1);
         <button class="botao-flutuante" id="botaoTopo" title="Voltar ao topo">
             <i class="fas fa-chevron-up"></i>
         </button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank" rel="noopener" title="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-        </a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
     <!-- ===== RODAPÉ ===== -->
@@ -766,6 +763,49 @@ const pageDataEl = document.getElementById('noticiasPageData');
 function normalizarUrlNoticia(url){ if(!url) return ''; const u=String(url).trim(); if(/^https?:\/\//i.test(u)) return u; return '..'+(u.startsWith('/')?u:'/'+u); }
 
 const noticiasData = JSON.parse(pageDataEl?.dataset.noticias || '[]');
+
+
+function incrementarVisualizacaoNoticia(id) {
+    const noticiaId = Number(id || 0);
+    if (!noticiaId) return;
+    const chaveSessao = `noticia_vista_${noticiaId}`;
+    if (sessionStorage.getItem(chaveSessao)) return;
+    sessionStorage.setItem(chaveSessao, '1');
+
+    fetch(`../incrementar-visualizacao?tipo=noticia&id=${noticiaId}`)
+        .then(() => {
+            const noticia = noticiasData.find(n => Number(n.id) === noticiaId);
+            if (noticia) {
+                noticia.visualizacoes = Number(noticia.visualizacoes || 0) + 1;
+                const campo = document.getElementById('modalVisualizacoes');
+                if (campo) campo.textContent = `${noticia.visualizacoes} visualizações`;
+            }
+        })
+        .catch(() => {});
+}
+
+function initNotificacoesNoticiasPagina() {
+    if (!noticiasData.length) return;
+    const noticiaRecente = [...noticiasData].sort((a,b)=>Number(b.id)-Number(a.id))[0];
+    const pref = localStorage.getItem('ipikk_news_notif_enabled');
+    if (pref !== '1') return;
+    const seen = Number(localStorage.getItem('ipikk_news_last_seen_id') || 0);
+    if (!noticiaRecente || Number(noticiaRecente.id) <= seen) return;
+
+    const resumo = String(noticiaRecente.resumo || noticiaRecente.conteudo || '').replace(/<[^>]*>/g, '').slice(0, 140);
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-fundo visivel';
+    overlay.style.zIndex = '100000';
+    overlay.innerHTML = `<div class="modal-conteudo" style="max-width:560px;"><button class="btn-fechar-modal" data-close="1"><i class="fas fa-times"></i></button><div class="modal-corpo"><h2 class="modal-titulo" style="font-size:1.6rem;"><i class="fas fa-newspaper"></i> Nova Notícia</h2><p><strong>${escapeHtml(noticiaRecente.titulo || 'Nova notícia')}</strong></p><p>${escapeHtml(resumo)}${resumo.length>=140?'...':''}</p><div style="display:flex;gap:10px;"><button id="irNoticia" class="botao-filtro" style="background:#003072;color:#fff;">Ver notícia</button><button id="fecharNotif" class="botao-filtro">Fechar</button></div></div></div>`;
+    document.body.appendChild(overlay);
+    document.body.style.overflow='hidden';
+    const marcar = ()=> localStorage.setItem('ipikk_news_last_seen_id', String(noticiaRecente.id));
+    const fechar = ()=>{overlay.remove(); document.body.style.overflow='';};
+    overlay.querySelector('#irNoticia')?.addEventListener('click', ()=>{ marcar(); fechar(); abrirModalNoticia(noticiaRecente.id); });
+    overlay.querySelector('#fecharNotif')?.addEventListener('click', ()=>{ marcar(); fechar(); });
+    overlay.querySelector('[data-close]')?.addEventListener('click', ()=>{ marcar(); });
+    
+}
 
 function normalizarDataNoticia(noticia) {
     const referencia = noticia.created_at || noticia.data_publicacao;
@@ -944,7 +984,7 @@ const noticiaController = {
     },
 
     abrirModal(id) {
-        fetch(`incrementar-visualizacao.php?tipo=noticia&id=${id}`).catch(() => {});
+        incrementarVisualizacaoNoticia(id);
         const noticia = this.filaNoticias.find(n => Number(n.id) === Number(id));
         if (!noticia) return;
 
@@ -1035,6 +1075,7 @@ function fecharModalNoticia() {
 // ===== INICIALIZAÇÃO =====
 document.addEventListener('DOMContentLoaded', function() {
     noticiaController.init();
+    initNotificacoesNoticiasPagina();
 });
     
 

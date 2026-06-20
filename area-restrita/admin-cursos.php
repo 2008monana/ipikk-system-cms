@@ -1,6 +1,6 @@
 <?php
 /**
- * Cursos - Area Restrita IPIKK
+ * Cursos - Área Restrita IPIKK
  */
 
 $titulo_pagina = 'Cursos';
@@ -10,7 +10,7 @@ $base_path = dirname(__DIR__);
 require_once $base_path . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -27,7 +27,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -47,7 +47,7 @@ $stmt = $db->query("
            c.estado, c.destaque, c.icone_classe, c.cor,
            c.imagem_hero, c.subtitulo_hero, c.descricao_curta,
            c.descricao_completa, c.sobre_descricao, c.objetivo,
-           c.competencias_descricao, c.certificacao_descricao,
+           c.competencias_descricao, c.competencias_card, c.certificacao_descricao,
            c.programa_pdf_url, c.ordem,
            a.nome AS area_nome, a.cor_primaria AS area_cor, a.icone_classe AS area_icone
     FROM cursos c
@@ -141,7 +141,7 @@ unset($curso);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Area Restrita - Cursos</title>
+    <title>Área Restrita - Cursos</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -275,6 +275,20 @@ unset($curso);
         .btn-acao:hover:not(:disabled) { background: var(--azul-primario); border-color: var(--azul-primario); color: var(--branco); }
         .btn-acao:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 
+        .modal-confirmacao {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 30000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-confirmacao.ativo,
+        .modal-confirmacao.show {
+            display: flex;
+        }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,30,70,0.75); backdrop-filter: blur(6px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
         .conteudo-modal { background: var(--branco); border-radius: 16px; max-width: 1000px; width: 100%; max-height: 92vh; overflow-y: auto; animation: slideInModal 0.35s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 25px 60px rgba(0,30,70,0.35); }
         @keyframes slideInModal { from { opacity: 0; transform: translateY(-60px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -302,6 +316,12 @@ unset($curso);
         .controle-form { padding: 12px 14px; border: 2px solid var(--cinza-medio); border-radius: 8px; font-size: 14px; font-family: inherit; transition: var(--transicao); background: var(--branco); width: 100%; }
         .controle-form:focus { outline: none; border-color: var(--verde-acento); box-shadow: 0 0 0 4px rgba(10,147,150,0.12); }
         textarea.controle-form { resize: vertical; min-height: 100px; }
+        .competencias-card-editor { border: 1px solid var(--cinza-medio); border-radius: 10px; background: #f8fafc; padding: 12px; }
+        .competencias-card-lista { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .competencia-card-item { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; }
+        .competencia-card-item input { flex: 1; border: 1px solid #d1d9e6; border-radius: 6px; padding: 8px 10px; font-size: 13px; }
+        .btn-remover-competencia { width: 34px; height: 34px; border: none; border-radius: 8px; background: #fee2e2; color: #b91c1c; cursor: pointer; }
+        .btn-adicionar-competencia { border: 1px dashed #94a3b8; border-radius: 8px; background: #fff; color: #334155; padding: 8px 10px; font-size: 13px; cursor: pointer; width: 100%; }
 
         .sugestoes-icones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .sugestao-icone { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--cinza-claro); border: 1px solid var(--cinza-medio); border-radius: 20px; font-size: 12px; cursor: pointer; transition: var(--transicao); }
@@ -314,7 +334,7 @@ unset($curso);
         .area-upload-arquivo:hover { border-color: var(--verde-acento); background: var(--cinza-claro); }
         .preview-arquivo { margin-top: 15px; padding: 15px; background: var(--branco); border-radius: var(--borda-arredondada); border: 1px solid var(--cinza-medio); display: none; align-items: center; justify-content: space-between; }
         .preview-arquivo.ativo { display: flex; }
-        .preview-arquivo img { max-width: 100px; max-height: 100px; border-radius: var(--borda-arredondada); }
+        .preview-arquivo img { width: 140px; height: 92px; max-width: 140px; max-height: 92px; object-fit: cover; border-radius: var(--borda-arredondada); border: 1px solid var(--cinza-medio); background: var(--cinza-claro); }
         .wrapper-toggle { display: flex; align-items: center; gap: 10px; }
         .toggle-switch { position: relative; width: 44px; height: 24px; display: inline-block; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
@@ -344,9 +364,9 @@ unset($curso);
         .preview-conteudo { display: none; }
         .preview-conteudo.ativo { display: block; }
 
-        #modalPreviewArea .conteudo-modal,
+        #modalPreviewÁrea .conteudo-modal,
         #modalPreviewCurso .conteudo-modal { max-width: 900px !important; width: 90% !important; max-height: 85vh !important; }
-        #modalPreviewArea .corpo-modal,
+        #modalPreviewÁrea .corpo-modal,
         #modalPreviewCurso .corpo-modal { max-height: calc(85vh - 80px); overflow-y: auto; padding: 20px; }
         .preview-conteudo { max-height: 70vh; overflow-y: auto; }
 
@@ -381,10 +401,10 @@ unset($curso);
     <div class="wrapper-conteudo">
         <section class="secao-conteudo">
             <div class="cabecalho-secao">
-                <h2 class="titulo-secao"><i class="fas fa-layer-group"></i> Areas de Formacao</h2>
-                <button class="btn-primario" onclick="abrirModalArea()" style="padding: 8px 15px;"><i class="fas fa-plus"></i> Nova Area</button>
+                <h2 class="titulo-secao"><i class="fas fa-layer-group"></i> Áreas de Formacao</h2>
+                <button class="btn-primario" onclick="abrirModalÁrea()" style="padding: 8px 15px;"><i class="fas fa-plus"></i> Nova Área</button>
             </div>
-            <div class="grade-areas" id="containerAreas"></div>
+            <div class="grade-areas" id="containerÁreas"></div>
         </section>
 
         <section class="secao-conteudo">
@@ -394,7 +414,7 @@ unset($curso);
                 <div class="item-estatistica"><i class="fas fa-check-circle"></i><div class="info-estatistica"><h3>Ativos</h3><p id="estatisticaAtivos"><?= count(array_filter($cursos_db, fn($c) => $c['estado'] === 'ativo')) ?></p></div></div>
                 <div class="item-estatistica"><i class="fas fa-pause-circle"></i><div class="info-estatistica"><h3>Pausados</h3><p id="estatisticaPausados"><?= count(array_filter($cursos_db, fn($c) => $c['estado'] === 'pausado')) ?></p></div></div>
                 <div class="item-estatistica"><i class="fas fa-archive"></i><div class="info-estatistica"><h3>Arquivados</h3><p id="estatisticaArquivados"><?= count(array_filter($cursos_db, fn($c) => $c['estado'] === 'arquivado')) ?></p></div></div>
-                <div class="item-estatistica"><i class="fas fa-star"></i><div class="info-estatistica"><h3>Em Destaque</h3><p id="estatisticaDestaques"><?= count(array_filter($cursos_db, fn($c) => $c['destaque'] == 1)) ?></p></div></div>
+                
             </div>
         </section>
 
@@ -402,7 +422,7 @@ unset($curso);
             <h2 class="titulo-secao"><i class="fas fa-filter"></i> Filtros</h2>
             <div class="grade-filtros">
                 <div class="item-filtro largura-total"><div class="caixa-busca"><i class="fas fa-search"></i><input type="text" id="campoBusca" placeholder="Buscar curso por nome ou descricao..."></div></div>
-                <div class="item-filtro"><label>Area</label><select class="selecao-form" id="filtroArea"><option value="">Todas</option><?php foreach ($areas_db as $area): ?><option value="<?= $area['id'] ?>"><?= htmlspecialchars($area['nome']) ?></option><?php endforeach; ?></select></div>
+                <div class="item-filtro"><label>Área</label><select class="selecao-form" id="filtroÁrea"><option value="">Todas</option><?php foreach ($areas_db as $area): ?><option value="<?= $area['id'] ?>"><?= htmlspecialchars($area['nome']) ?></option><?php endforeach; ?></select></div>
                 <div class="item-filtro"><label>Estado</label><select class="selecao-form" id="filtroEstado"><option value="">Todos</option><option value="ativo">Ativos</option><option value="pausado">Pausados</option><option value="arquivado">Arquivados</option></select></div>
             </div>
         </section>
@@ -422,46 +442,66 @@ unset($curso);
     </div>
 </main>
 
+<!-- MODAL DE CONFIRMAÇÃO -->
+<div id="modalConfirmacao" class="modal-confirmacao">
+    <div class="modal-confirmacao-caixa">
+        <div class="modal-confirmacao-icone" id="modalConfirmacaoÍconeWrapper">
+            <i class="fas fa-exclamation-triangle" id="modalConfirmacaoÍcone"></i>
+        </div>
+        <h3 id="modalConfirmacaoTitulo">Confirmar ação</h3>
+        <p id="modalConfirmacaoTexto">Tem certeza que deseja continuar?</p>
+        <div class="modal-confirmacao-botoes">
+            <button type="button" class="botao-cancelar botao-cancelar-modal" id="botaoCancelarConfirmacao">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="botao-perigo-confirmacao botao-confirmar-modal" id="botaoConfirmarAcao">
+                <i class="fas fa-exclamation-triangle" id="modalConfirmacaoBotaoÍcone"></i> <span id="modalConfirmacaoBotaoTexto">Confirmar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
 <!-- MODAL AREA -->
-<div id="modalArea" class="modal">
+<div id="modalÁrea" class="modal">
     <div class="conteudo-modal" style="max-width: 750px;">
         <div class="cabecalho-modal">
-            <div class="esquerda-cabecalho"><div class="icone-cabecalho"><i class="fas fa-layer-group"></i></div><div class="texto-cabecalho"><h2 id="tituloModalArea">Nova Area</h2><p id="subtituloModalArea">Preencha os dados da area de formacao</p></div></div>
-            <button class="btn-fechar" onclick="fecharModalArea()"><i class="fas fa-times"></i></button>
+            <div class="esquerda-cabecalho"><div class="icone-cabecalho"><i class="fas fa-layer-group"></i></div><div class="texto-cabecalho"><h2 id="tituloModalÁrea">Nova Área</h2><p id="subtituloModalÁrea">Preencha os dados da area de formacao</p></div></div>
+            <button class="btn-fechar" onclick="fecharModalÁrea()"><i class="fas fa-times"></i></button>
         </div>
         <div class="corpo-modal">
-            <form id="formularioArea" onsubmit="return salvarArea(event)">
+            <form id="formularioÁrea" onsubmit="return salvarÁrea(event)">
                 <input type="hidden" id="areaId" name="area_id">
                 <div class="secao-form">
                     <h3><i class="fas fa-info-circle"></i> Informacoes Basicas</h3>
-                    <div class="grupo-form"><label>Nome da Area *</label><input type="text" id="areaNome" class="controle-form" required placeholder="Ex: Construcao Civil"></div>
-                    <div class="grupo-form"><label>Descricao Curta</label><textarea id="areaDescricaoCurta" class="controle-form" rows="2" placeholder="Breve descricao que aparece nos cards"></textarea></div>
-                    <div class="grupo-form"><label>Descricao Completa</label><textarea id="areaDescricaoCompleta" class="controle-form" rows="4" placeholder="Descricao detalhada que aparece na pagina da area"></textarea></div>
+                    <div class="grupo-form"><label>Nome da Área *</label><input type="text" id="areaNome" class="controle-form" required placeholder="Ex: Construcao Civil"></div>
+                    <div class="grupo-form"><label>Descrição Curta</label><textarea id="areaDescriçãoCurta" class="controle-form" rows="2" placeholder="Breve descricao que aparece nos cards"></textarea></div>
+                    <div class="grupo-form"><label>Descrição Completa</label><textarea id="areaDescriçãoCompleta" class="controle-form" rows="4" placeholder="Descrição detalhada que aparece na pagina da area"></textarea></div>
                 </div>
                 <div class="secao-form">
                     <h3><i class="fas fa-palette"></i> Aparencia</h3>
-                    <div class="linha-form"><div class="grupo-form"><label>Cor Primaria</label><div class="grupo-seletor-cor"><input type="color" id="areaCor" class="controle-form" value="#6c757d"><div class="preview-cor" id="previewCor" style="background: #6c757d;"></div></div></div><div class="grupo-form"><label>Icone (Font Awesome)</label><div class="icone-input-wrapper"><div class="icone-preview" id="iconePreview"><i class="fas fa-layer-group" id="iconePreviewIcon"></i></div><input type="text" id="areaIcone" class="controle-form" placeholder="Ex: fa-helmet-safety, fa-bolt" value="fa-layer-group"></div></div></div>
-                    <div class="sugestoes-icones"><button type="button" class="sugestao-icone" data-icone="fa-helmet-safety"><i class="fas fa-helmet-safety"></i> Capacete</button><button type="button" class="sugestao-icone" data-icone="fa-bolt"><i class="fas fa-bolt"></i> Raio</button><button type="button" class="sugestao-icone" data-icone="fa-gear"><i class="fas fa-gear"></i> Engrenagem</button><button type="button" class="sugestao-icone" data-icone="fa-laptop-code"><i class="fas fa-laptop-code"></i> Computador</button><button type="button" class="sugestao-icone" data-icone="fa-couch"><i class="fas fa-couch"></i> Sofa</button><button type="button" class="sugestao-icone" data-icone="fa-graduation-cap"><i class="fas fa-graduation-cap"></i> Capelo</button><button type="button" class="sugestao-icone" data-icone="fa-tools"><i class="fas fa-tools"></i> Ferramentas</button><button type="button" class="sugestao-icone" data-icone="fa-wrench"><i class="fas fa-wrench"></i> Chave</button><button type="button" class="sugestao-icone" data-icone="fa-hammer"><i class="fas fa-hammer"></i> Martelo</button></div>
-                    <div class="grupo-form" style="margin-top: 20px;"><label>Imagem da Area (Capa)</label><div class="area-upload-arquivo" onclick="document.getElementById('areaImagemInput').click()"><i class="fas fa-cloud-upload-alt"></i><p><strong>Clique para fazer upload</strong></p><small>JPG, PNG | 1200x800px</small></div><input type="file" id="areaImagemInput" accept="image/*" style="display: none;"><div class="preview-arquivo" id="previewAreaImagem"><div><img id="miniaturaAreaImagem" style="max-width: 100px;"></div><button type="button" class="btn-icone" onclick="removerAreaImagem()"><i class="fas fa-trash"></i></button></div></div>
+                    <div class="linha-form"><div class="grupo-form"><label>Cor Primaria</label><div class="grupo-seletor-cor"><input type="color" id="areaCor" class="controle-form" value="#6c757d"><div class="preview-cor" id="previewCor" style="background: #6c757d;"></div></div></div><div class="grupo-form"><label>Ícone (Font Awesome)</label><div class="icone-input-wrapper"><div class="icone-preview" id="iconePreview"><i class="fas fa-layer-group" id="iconePreviewIcon"></i></div><input type="text" id="areaÍcone" class="controle-form" placeholder="Ex: fa-helmet-safety, fa-bolt" value="fa-layer-group"></div></div></div>
+                    <div class="sugestoes-icones"><button type="button" class="sugestao-icone" data-icone="fa-helmet-safety"><i class="fas fa-helmet-safety"></i> Capacete</button><button type="button" class="sugestao-icone" data-icone="fa-bolt"><i class="fas fa-bolt"></i> Raio</button><button type="button" class="sugestao-icone" data-icone="fa-gear"><i class="fas fa-gear"></i> Engrenagem</button><button type="button" class="sugestao-icone" data-icone="fa-laptop-code"><i class="fas fa-laptop-code"></i> Computador</button><button type="button" class="sugestao-icone" data-icone="fa-couch"><i class="fas fa-couch"></i> Sofá</button><button type="button" class="sugestao-icone" data-icone="fa-graduation-cap"><i class="fas fa-graduation-cap"></i> Capelo</button><button type="button" class="sugestao-icone" data-icone="fa-tools"><i class="fas fa-tools"></i> Ferramentas</button><button type="button" class="sugestao-icone" data-icone="fa-wrench"><i class="fas fa-wrench"></i> Chave</button><button type="button" class="sugestao-icone" data-icone="fa-hammer"><i class="fas fa-hammer"></i> Martelo</button></div>
+                    <div class="grupo-form" style="margin-top: 20px;"><label>Imagem da Área (Capa)</label><div class="area-upload-arquivo" onclick="document.getElementById('areaImagemInput').click()"><i class="fas fa-cloud-upload-alt"></i><p><strong>Clique para fazer upload</strong></p><small>JPG, PNG | 1200x800px</small></div><input type="file" id="areaImagemInput" accept="image/*" style="display: none;"><div class="preview-arquivo" id="previewÁreaImagem"><div><img id="miniaturaÁreaImagem" style="max-width: 100px;"></div><button type="button" class="btn-icone" onclick="removerÁreaImagem()"><i class="fas fa-trash"></i></button></div></div>
                 </div>
                 <div class="secao-form">
-                    <h3><i class="fas fa-cog"></i> Configuracoes</h3>
-                    <div class="linha-form"><div class="grupo-form"><label>Ordem de Exibicao</label><input type="number" id="areaOrdem" class="controle-form" value="0" min="0"></div><div class="grupo-form"><label>Status</label><div class="wrapper-toggle"><label class="toggle-switch"><input type="checkbox" id="areaAtivo" checked><span class="toggle-slider"></span></label><span>Ativo (visivel no site)</span></div></div></div>
+                    <h3><i class="fas fa-cog"></i> Configurações</h3>
+                    <div class="linha-form"><div class="grupo-form"><label>Ordem de Exibição</label><input type="number" id="areaOrdem" class="controle-form" value="0" min="0"></div><div class="grupo-form"><label>Status</label><div class="wrapper-toggle"><label class="toggle-switch"><input type="checkbox" id="areaAtivo" checked><span class="toggle-slider"></span></label><span>Ativo (visível no site)</span></div></div></div>
                 </div>
-                <div class="acoes-form"><button type="button" class="btn-cancelar" onclick="fecharModalArea()">Cancelar</button><button type="submit" class="btn-salvar"><i class="fas fa-save"></i> Salvar Area</button></div>
+                <div class="acoes-form"><button type="button" class="btn-cancelar" onclick="fecharModalÁrea()">Cancelar</button><button type="submit" class="btn-salvar"><i class="fas fa-save"></i> Salvar Área</button></div>
             </form>
         </div>
     </div>
 </div>
 
 <!-- MODAL PREVIEW AREA -->
-<div id="modalPreviewArea" class="modal">
+<div id="modalPreviewÁrea" class="modal">
     <div class="conteudo-modal">
-        <div class="cabecalho-modal"><div class="esquerda-cabecalho"><div class="icone-cabecalho"><i class="fas fa-eye"></i></div><div class="texto-cabecalho"><h2>Pre-visualizacao da Area</h2><p>Veja como ficara no site publico</p></div></div><button class="btn-fechar" onclick="fecharModalPreview()"><i class="fas fa-times"></i></button></div>
+        <div class="cabecalho-modal"><div class="esquerda-cabecalho"><div class="icone-cabecalho"><i class="fas fa-eye"></i></div><div class="texto-cabecalho"><h2>Pre-visualizacao da Área</h2><p>Veja como ficara no site publico</p></div></div><button class="btn-fechar" onclick="fecharModalPreview()"><i class="fas fa-times"></i></button></div>
         <div class="corpo-modal">
-            <div class="preview-tabs"><button class="preview-tab ativo" onclick="mudarPreviewAreaTab('card')">Card na Oferta Formativa</button><button class="preview-tab" onclick="mudarPreviewAreaTab('pagina')">Pagina da Area</button></div>
-            <div id="previewCardArea" class="preview-conteudo ativo"></div>
-            <div id="previewPaginaArea" class="preview-conteudo"></div>
+            <div class="preview-tabs"><button class="preview-tab ativo" onclick="mudarPreviewÁreaTab('card')">Card na Oferta Formativa</button><button class="preview-tab" onclick="mudarPreviewÁreaTab('pagina')">Pagina da Área</button></div>
+            <div id="previewCardÁrea" class="preview-conteudo ativo"></div>
+            <div id="previewPaginaÁrea" class="preview-conteudo"></div>
         </div>
         <div class="acoes-form" style="margin-top:0; border-top:none;"><button type="button" class="btn-cancelar" onclick="fecharModalPreview()">Fechar</button></div>
     </div>
@@ -501,7 +541,7 @@ unset($curso);
                 <div class="aba-modal" data-aba="curricular">Plano Curricular</div>
                 <div class="aba-modal" data-aba="saidas">Saidas</div>
                 <div class="aba-modal" data-aba="projectos">Projectos</div>
-                <div class="aba-modal" data-aba="config">Configuracoes</div>
+                <div class="aba-modal" data-aba="config">Configurações</div>
             </div>
 
             <form id="formularioCurso" onsubmit="return salvarCurso(event)">
@@ -516,8 +556,8 @@ unset($curso);
                         </div>
                         <div class="linha-form">
                             <div class="grupo-form">
-                                <label>Area *</label>
-                                <select id="cursoAreaId" class="controle-form" required>
+                                <label>Área *</label>
+                                <select id="cursoÁreaId" class="controle-form" required>
                                     <option value="">Selecione...</option>
                                     <?php foreach ($areas_db as $area): ?>
                                     <option value="<?= $area['id'] ?>"><?= htmlspecialchars($area['nome']) ?></option>
@@ -530,17 +570,23 @@ unset($curso);
                             </div>
                         </div>
                         <div class="grupo-form">
-                            <label>Descricao Curta *</label>
-                            <textarea id="cursoDescricaoCurta" class="controle-form" rows="2" maxlength="200" required></textarea>
-                            <div class="contador-caracteres" id="contadorDescricaoCurta">0 / 200</div>
+                            <label>Descrição Curta *</label>
+                            <textarea id="cursoDescriçãoCurta" class="controle-form" rows="2" maxlength="200" required></textarea>
+                            <div class="contador-caracteres" id="contadorDescriçãoCurta">0 / 200</div>
                         </div>
                         <div class="grupo-form">
                             <label><i class="fas fa-align-left"></i> Sobre o Curso </label>
-                            <textarea id="cursoSobreDescricao" class="controle-form" rows="2" placeholder="Tudo sobre o curso"></textarea>
+                            <textarea id="cursoSobreDescrição" class="controle-form" rows="2" placeholder="Tudo sobre o curso"></textarea>
                         </div>
                         <div class="grupo-form">
                             <label><i class="fas fa-list-check"></i> Competências em Destaque (Card)</label>
-                            <textarea id="cursoCompetenciasCard" class="controle-form" rows="4" placeholder="Uma competência por linha&#10;Ex: Formação técnica especializada"></textarea>
+                            <div class="competencias-card-editor">
+                                <div class="competencias-card-lista" id="competenciasCardLista"></div>
+                                <button type="button" class="btn-adicionar-competencia" onclick="adicionarLinhaCompetenciaCard()">
+                                    <i class="fas fa-plus"></i> Adicionar competência
+                                </button>
+                            </div>
+                            <textarea id="cursoCompetênciasCard" class="controle-form" rows="4" placeholder="Uma competência por linha&#10;Ex: Formação técnica especializada" style="display:none;"></textarea>
                             <small style="color:#6c757d;">Estas linhas serão exibidas nos cards dos cursos da página da área.</small>
                         </div>
                     </div>
@@ -550,7 +596,7 @@ unset($curso);
                     <div class="secao-form">
                         <h3><i class="fas fa-book-open"></i> Detalhes do Curso</h3>
                         <div class="grupo-form"><label>Objetivo</label><textarea id="cursoObjetivo" class="controle-form" rows="3"></textarea></div>
-                        <div class="grupo-form"><label>Competencias</label><textarea id="cursoCompetencias" class="controle-form" rows="3"></textarea></div>
+                        <div class="grupo-form"><label>Competências</label><textarea id="cursoCompetências" class="controle-form" rows="3"></textarea></div>
                         <div class="grupo-form"><label>Certificacao</label><input type="text" id="cursoCertificacao" class="controle-form"></div>
                     </div>
                 </div>
@@ -630,9 +676,9 @@ unset($curso);
 
                 <div class="conteudo-aba" data-aba="config">
                     <div class="secao-form">
-                        <h3><i class="fas fa-cog"></i> Configuracoes</h3>
+                        <h3><i class="fas fa-cog"></i> Configurações</h3>
                         <div class="linha-form"><div class="grupo-form"><label>Estado</label><select id="cursoEstado" class="controle-form"><option value="ativo">Ativo</option><option value="pausado">Pausado</option><option value="arquivado">Arquivado</option></select></div><div class="grupo-form"><label>Cor</label><input type="color" id="cursoCor" value="#003072" class="controle-form"></div></div>
-                        <div class="linha-form"><div class="grupo-form"><label>Destaque</label><div class="wrapper-toggle"><label class="toggle-switch"><input type="checkbox" id="cursoDestaque"><span class="toggle-slider"></span></label><span>Destacar na pagina inicial</span></div></div><div class="grupo-form"><label><i class="fas fa-icons"></i> Icone (Font Awesome)</label><div class="icone-input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;"><div class="icone-preview" id="iconePreviewCurso" style="width: 48px; height: 48px; background: var(--cinza-claro); border: 2px solid var(--cinza-medio); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--azul-primario); flex-shrink: 0;"><i class="fas fa-graduation-cap" id="iconePreviewIconCurso"></i></div><input type="text" id="cursoIcone" class="controle-form" placeholder="Ex: fa-graduation-cap, fa-helmet-safety, fa-laptop-code" value="fa-graduation-cap" style="flex: 1;"></div><div class="sugestoes-icones"><span style="font-size: 12px; color: #666; margin-right: 5px;">Sugestoes:</span><button type="button" class="sugestao-icone" data-icone="fa-graduation-cap"><i class="fas fa-graduation-cap"></i> Capelo</button><button type="button" class="sugestao-icone" data-icone="fa-helmet-safety"><i class="fas fa-helmet-safety"></i> Capacete</button><button type="button" class="sugestao-icone" data-icone="fa-laptop-code"><i class="fas fa-laptop-code"></i> Computador</button><button type="button" class="sugestao-icone" data-icone="fa-bolt"><i class="fas fa-bolt"></i> Raio</button><button type="button" class="sugestao-icone" data-icone="fa-gear"><i class="fas fa-gear"></i> Engrenagem</button><button type="button" class="sugestao-icone" data-icone="fa-couch"><i class="fas fa-couch"></i> Sofa</button><button type="button" class="sugestao-icone" data-icone="fa-wrench"><i class="fas fa-wrench"></i> Chave</button><button type="button" class="sugestao-icone" data-icone="fa-hammer"><i class="fas fa-hammer"></i> Martelo</button><button type="button" class="sugestao-icone" data-icone="fa-drafting-compass"><i class="fas fa-drafting-compass"></i> Compasso</button><button type="button" class="sugestao-icone" data-icone="fa-microchip"><i class="fas fa-microchip"></i> Chip</button><button type="button" class="sugestao-icone" data-icone="fa-database"><i class="fas fa-database"></i> Base Dados</button><button type="button" class="sugestao-icone" data-icone="fa-cloud"><i class="fas fa-cloud"></i> Nuvem</button><button type="button" class="sugestao-icone" data-icone="fa-rocket"><i class="fas fa-rocket"></i> Foguete</button><button type="button" class="sugestao-icone" data-icone="fa-paintbrush"><i class="fas fa-paintbrush"></i> Pintura</button></div></div></div>
+                        <div class="linha-form"><div class="grupo-form"><label><i class="fas fa-icons"></i> Ícone (Font Awesome)</label><div class="icone-input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;"><div class="icone-preview" id="iconePreviewCurso" style="width: 48px; height: 48px; background: var(--cinza-claro); border: 2px solid var(--cinza-medio); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--azul-primario); flex-shrink: 0;"><i class="fas fa-graduation-cap" id="iconePreviewIconCurso"></i></div><input type="text" id="cursoIcone" class="controle-form" placeholder="Ex: fa-graduation-cap, fa-helmet-safety, fa-laptop-code" value="fa-graduation-cap" style="flex: 1;"></div><div class="sugestoes-icones"><span style="font-size: 12px; color: #666; margin-right: 5px;">Sugestões:</span><button type="button" class="sugestao-icone" data-icone="fa-graduation-cap"><i class="fas fa-graduation-cap"></i> Capelo</button><button type="button" class="sugestao-icone" data-icone="fa-helmet-safety"><i class="fas fa-helmet-safety"></i> Capacete</button><button type="button" class="sugestao-icone" data-icone="fa-laptop-code"><i class="fas fa-laptop-code"></i> Computador</button><button type="button" class="sugestao-icone" data-icone="fa-bolt"><i class="fas fa-bolt"></i> Raio</button><button type="button" class="sugestao-icone" data-icone="fa-gear"><i class="fas fa-gear"></i> Engrenagem</button><button type="button" class="sugestao-icone" data-icone="fa-couch"><i class="fas fa-couch"></i> Sofá</button><button type="button" class="sugestao-icone" data-icone="fa-wrench"><i class="fas fa-wrench"></i> Chave</button><button type="button" class="sugestao-icone" data-icone="fa-hammer"><i class="fas fa-hammer"></i> Martelo</button><button type="button" class="sugestao-icone" data-icone="fa-drafting-compass"><i class="fas fa-drafting-compass"></i> Compasso</button><button type="button" class="sugestao-icone" data-icone="fa-microchip"><i class="fas fa-microchip"></i> Chip</button><button type="button" class="sugestao-icone" data-icone="fa-database"><i class="fas fa-database"></i> Base de Dados</button><button type="button" class="sugestao-icone" data-icone="fa-cloud"><i class="fas fa-cloud"></i> Nuvem</button><button type="button" class="sugestao-icone" data-icone="fa-rocket"><i class="fas fa-rocket"></i> Foguete</button><button type="button" class="sugestao-icone" data-icone="fa-paintbrush"><i class="fas fa-paintbrush"></i> Pintura</button></div></div></div>
                         <div class="grupo-form"><label>Imagem de Capa</label><div class="area-upload-arquivo" onclick="document.getElementById('imagemInput').click()"><i class="fas fa-cloud-upload-alt"></i><p>Clique para fazer upload da imagem</p></div><input type="file" id="imagemInput" accept="image/*" style="display: none;"><div class="preview-arquivo" id="previewImagem"><div><img id="miniaturaImagem" style="max-width: 100px;"></div><button type="button" class="btn-icone" onclick="removerImagem()"><i class="fas fa-trash"></i></button></div></div>
                     </div>
                 </div>
@@ -661,43 +707,212 @@ let cursos           = window.ADMIN_CURSOS_DATA.cursos   || [];
 let planosPorCurso   = window.ADMIN_CURSOS_DATA.planos   || {};
 let saidasPorCurso   = window.ADMIN_CURSOS_DATA.saidas   || {};
 let projetosPorCurso = window.ADMIN_CURSOS_DATA.projetos || {};
-let filtroAreaAtual  = null;
+let filtroÁreaAtual  = null;
 let urlCursoAtual    = '';
 
-function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
-    if (typeof window.abrirModalConfirmacao === 'function') {
-        window.abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
-        return;
+let acaoPendenteConfirmacao = null;
+
+function obterConfigModalConfirmacao(tipoAcao = 'eliminar') {
+    const configs = {
+        eliminar: {
+            iconeClasse: 'fa-exclamation-triangle',
+            botaoTexto: 'Eliminar',
+            corPrimaria: '#dc2626',
+            corSecundaria: '#b91c1c',
+            fundoÍcone: 'linear-gradient(135deg, #fee2e2, #fff1f2)'
+        },
+        publicar: {
+            iconeClasse: 'fa-paper-plane',
+            botaoTexto: 'Confirmar',
+            corPrimaria: '#16a34a',
+            corSecundaria: '#15803d',
+            fundoÍcone: 'linear-gradient(135deg, #dcfce7, #f0fdf4)'
+        },
+        arquivar: {
+            iconeClasse: 'fa-box-archive',
+            botaoTexto: 'Arquivar',
+            corPrimaria: '#d97706',
+            corSecundaria: '#b45309',
+            fundoÍcone: 'linear-gradient(135deg, #fef3c7, #fff7ed)'
+        },
+        restaurar: {
+            iconeClasse: 'fa-rotate-left',
+            botaoTexto: 'Restaurar',
+            corPrimaria: '#2563eb',
+            corSecundaria: '#1d4ed8',
+            fundoÍcone: 'linear-gradient(135deg, #dbeafe, #eff6ff)'
+        }
+    };
+
+    return configs[tipoAcao] || configs.eliminar;
+}
+
+
+function aplicarEstilosCriticosModalConfirmacao(modal) {
+    Object.assign(modal.style, {
+        alignItems: 'center',
+        backdropFilter: 'blur(4px)',
+        background: 'linear-gradient(135deg, rgba(5, 19, 43, 0.84), rgba(0, 0, 0, 0.88))',
+        display: 'flex',
+        inset: '0',
+        justifyContent: 'center',
+        padding: '20px',
+        position: 'fixed',
+        zIndex: '30000'
+    });
+
+    const caixa = modal.querySelector('.modal-confirmacao-caixa');
+    if (caixa) {
+        Object.assign(caixa.style, {
+            background: '#ffffff',
+            border: '1px solid rgba(226, 232, 240, 0.95)',
+            borderRadius: '22px',
+            boxShadow: '0 28px 58px rgba(0, 0, 0, 0.36)',
+            maxWidth: '450px',
+            padding: '30px',
+            position: 'relative',
+            textAlign: 'center',
+            width: 'min(92vw, 450px)'
+        });
     }
 
-    const overlay = document.createElement('div');
-    overlay.className = 'ipikk-confirm-overlay ativo';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:20px;';
-    overlay.innerHTML = `
-        <div class="ipikk-confirm-box">
-            <div class="ipikk-confirm-icon eliminar"><i class="fas fa-exclamation-triangle"></i></div>
-            <h3 class="ipikk-confirm-title">${escapeHtml(titulo)}</h3>
-            <p class="ipikk-confirm-body">${escapeHtml(texto)}</p>
-            <div class="ipikk-confirm-actions">
-                <button type="button" class="ipikk-confirm-btn ipikk-confirm-cancel" data-confirm-cancel>Cancelar</button>
-                <button type="button" class="ipikk-confirm-btn ipikk-confirm-action ${tipoAcao}">Eliminar</button>
-            </div>
-        </div>
-    `;
-    const caixa = overlay.querySelector('.ipikk-confirm-box');
-    if (caixa) {
-        caixa.style.cssText = 'background:#fff;border-radius:28px;box-shadow:0 20px 40px -12px rgba(0,0,0,.2);max-width:400px;padding:32px;position:relative;text-align:center;width:90%;';
+    const icone = modal.querySelector('.modal-confirmacao-icone');
+    if (icone) {
+        Object.assign(icone.style, {
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #fee2e2, #fff1f2)',
+            borderRadius: '50%',
+            boxShadow: '0 10px 24px rgba(220, 38, 38, 0.18)',
+            color: '#dc2626',
+            display: 'flex',
+            fontSize: '1.55rem',
+            height: '66px',
+            justifyContent: 'center',
+            margin: '0 auto 18px',
+            width: '66px'
+        });
     }
-    const fechar = () => overlay.remove();
-    overlay.addEventListener('click', (event) => {
-        if (event.target === overlay || event.target.closest('[data-confirm-cancel]')) fechar();
-        if (event.target.closest('.ipikk-confirm-action')) {
-            fechar();
-            if (typeof callbackConfirmar === 'function') callbackConfirmar();
+
+
+    const botaoCancelar = modal.querySelector('#botaoCancelarConfirmacao');
+    if (botaoCancelar) {
+        Object.assign(botaoCancelar.style, {
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #ffffff, #f1f5f9)',
+            border: '1px solid #dbe3ee',
+            borderRadius: '40px',
+            boxShadow: '0 6px 16px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+            color: '#334155',
+            display: 'inline-flex',
+            fontSize: '0.9rem',
+            fontWeight: '800',
+            gap: '9px',
+            justifyContent: 'center',
+            minHeight: '46px',
+            minWidth: '138px',
+            padding: '13px 26px'
+        });
+    }
+
+    const botaoConfirmar = modal.querySelector('#botaoConfirmarAcao');
+    if (botaoConfirmar) {
+        Object.assign(botaoConfirmar.style, {
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 48%, #991b1b 100%)',
+            border: '1px solid rgba(185, 28, 28, 0.35)',
+            borderRadius: '40px',
+            boxShadow: '0 10px 22px rgba(220, 38, 38, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.24)',
+            color: '#ffffff',
+            display: 'inline-flex',
+            fontSize: '0.9rem',
+            fontWeight: '800',
+            gap: '9px',
+            justifyContent: 'center',
+            minHeight: '46px',
+            minWidth: '138px',
+            padding: '13px 26px'
+        });
+    }
+}
+
+function abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    const modal = document.getElementById('modalConfirmacao');
+    const tituloEl = document.getElementById('modalConfirmacaoTitulo');
+    const textoEl = document.getElementById('modalConfirmacaoTexto');
+    const iconeEl = document.getElementById('modalConfirmacaoÍcone');
+    const botaoÍconeEl = document.getElementById('modalConfirmacaoBotaoÍcone');
+    const botaoTextoEl = document.getElementById('modalConfirmacaoBotaoTexto');
+    const iconeWrapper = document.getElementById('modalConfirmacaoÍconeWrapper');
+    const botaoConfirmar = document.getElementById('botaoConfirmarAcao');
+    const config = obterConfigModalConfirmacao(tipoAcao);
+
+    if (!modal) return;
+
+    aplicarEstilosCriticosModalConfirmacao(modal);
+
+    if (tituloEl) tituloEl.textContent = titulo;
+    if (textoEl) textoEl.textContent = texto;
+    if (iconeEl) iconeEl.className = `fas ${config.iconeClasse}`;
+    if (botaoÍconeEl) botaoÍconeEl.className = `fas ${config.iconeClasse}`;
+    if (botaoTextoEl) botaoTextoEl.textContent = config.botaoTexto;
+    if (iconeWrapper) {
+        iconeWrapper.style.background = config.fundoÍcone;
+        iconeWrapper.style.color = config.corPrimaria;
+    }
+    if (botaoConfirmar) {
+        const gradienteConfirmar = tipoAcao === 'eliminar'
+            ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 48%, #991b1b 100%)'
+            : `linear-gradient(135deg, ${config.corPrimaria}, ${config.corSecundaria})`;
+        botaoConfirmar.style.background = gradienteConfirmar;
+        botaoConfirmar.style.boxShadow = tipoAcao === 'eliminar'
+            ? '0 10px 22px rgba(220, 38, 38, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.24)'
+            : `0 8px 18px ${config.corPrimaria}55`;
+    }
+
+    acaoPendenteConfirmacao = callbackConfirmar;
+    modal.classList.add('ativo');
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharModalConfirmacao() {
+    const modal = document.getElementById('modalConfirmacao');
+    if (modal) {
+        modal.classList.remove('ativo');
+        modal.style.display = 'none';
+    }
+    acaoPendenteConfirmacao = null;
+    document.body.style.overflow = '';
+}
+
+function confirmarAcao(titulo, texto, callbackConfirmar, tipoAcao = 'eliminar') {
+    abrirModalConfirmacao(titulo, texto, callbackConfirmar, tipoAcao);
+}
+
+function inicializarModalConfirmacao() {
+    document.getElementById('botaoCancelarConfirmacao')?.addEventListener('click', fecharModalConfirmacao);
+    document.getElementById('botaoConfirmarAcao')?.addEventListener('click', function() {
+        if (typeof acaoPendenteConfirmacao === 'function') {
+            acaoPendenteConfirmacao();
+        }
+        fecharModalConfirmacao();
+    });
+    document.getElementById('modalConfirmacao')?.addEventListener('click', function(e) {
+        if (e.target === this) fecharModalConfirmacao();
+    });
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('modalConfirmacao');
+        if (e.key === 'Escape' && modal?.classList.contains('ativo')) {
+            fecharModalConfirmacao();
         }
     });
-    document.body.appendChild(overlay);
 }
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarModalConfirmacao);
+} else {
+    inicializarModalConfirmacao();
+}
+
 
 // Objeto para armazenar arquivos PDF selecionados (incluindo classe 0)
 let pdfFiles = {
@@ -736,7 +951,7 @@ function eliminarCursosSelecionados() {
             const ids = Array.from(cursosSelecionados);
             let processados = 0, erros = 0;
             ids.forEach(id => {
-        fetch('processos/processar-curso.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `action=delete_curso&curso_id=${id}` })
+        fetch('processos/processar-curso', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `action=delete_curso&curso_id=${id}` })
             .then(r => r.json())
             .then(data => {
                 processados++;
@@ -758,7 +973,7 @@ function eliminarCursosSelecionados() {
 }
 
 function exportarCursosCompleto() {
-    const csv = [['ID', 'Nome', 'Area', 'Duracao', 'Estado', 'Destaque', 'Cor', 'Icone', 'Descricao Curta', 'Descricao Completa', 'Objetivo', 'Competencias', 'Certificacao', 'Imagem URL', 'PDF 10a', 'PDF 11a', 'PDF 12a', 'PDF 13a', 'PDF Resumo']];
+    const csv = [['ID', 'Nome', 'Área', 'Duracao', 'Estado', 'Destaque', 'Cor', 'Ícone', 'Descrição Curta', 'Descrição Completa', 'Objetivo', 'Competências', 'Certificacao', 'Imagem URL', 'PDF 10a', 'PDF 11a', 'PDF 12a', 'PDF 13a', 'PDF Resumo']];
     cursos.forEach(curso => {
         const area = areas.find(a => a.id == curso.area_id);
         const pdfs = planosPorCurso[curso.id] || {};
@@ -806,7 +1021,7 @@ function importarCursos() {
                 if (valores.length < 2) continue;
                 const nome = valores[nomeIdx];
                 if (!nome) continue;
-                const areaNome = headers.findIndex(h => h === 'Area') !== -1 ? valores[headers.findIndex(h => h === 'Area')] : '';
+                const areaNome = headers.findIndex(h => h === 'Área') !== -1 ? valores[headers.findIndex(h => h === 'Área')] : '';
                 const area = areas.find(a => a.nome === areaNome);
                 const duracao = headers.findIndex(h => h === 'Duracao') !== -1 ? valores[headers.findIndex(h => h === 'Duracao')] : '4 anos';
                 const estado = headers.findIndex(h => h === 'Estado') !== -1 ? valores[headers.findIndex(h => h === 'Estado')] : 'ativo';
@@ -818,11 +1033,11 @@ function importarCursos() {
                 formData.append('area_id', area?.id || '');
                 formData.append('duracao', duracao);
                 formData.append('estado', estado);
-                formData.append('destaque', '0');
-                formData.append('descricao_curta', headers.findIndex(h => h === 'Descricao Curta') !== -1 ? valores[headers.findIndex(h => h === 'Descricao Curta')] : '');
-                formData.append('descricao_completa', headers.findIndex(h => h === 'Descricao Completa') !== -1 ? valores[headers.findIndex(h => h === 'Descricao Completa')] : '');
+                
+                formData.append('descricao_curta', headers.findIndex(h => h === 'Descrição Curta') !== -1 ? valores[headers.findIndex(h => h === 'Descrição Curta')] : '');
+                formData.append('descricao_completa', headers.findIndex(h => h === 'Descrição Completa') !== -1 ? valores[headers.findIndex(h => h === 'Descrição Completa')] : '');
                 try {
-                    const response = await fetch('processos/processar-curso.php', { method: 'POST', body: formData });
+                    const response = await fetch('processos/processar-curso', { method: 'POST', body: formData });
                     const data = await response.json();
                     if (data.success) { if (cursoExistente) atualizados++; else importados++; }
                     else erros++;
@@ -841,36 +1056,65 @@ function atualizarEstatisticas() {
     document.getElementById('estatisticaAtivos').textContent    = cursos.filter(c => c.estado === 'ativo').length;
     document.getElementById('estatisticaPausados').textContent  = cursos.filter(c => c.estado === 'pausado').length;
     document.getElementById('estatisticaArquivados').textContent= cursos.filter(c => c.estado === 'arquivado').length;
-    document.getElementById('estatisticaDestaques').textContent = cursos.filter(c => c.destaque == 1).length;
+    
 }
 
 function escapeHtml(t) { if (t === null || t === undefined) return ''; const d = document.createElement('div'); d.textContent = String(t); return d.innerHTML; }
 
 function mostrarNotificacao(msg, tipo = 'success') {
     const n = document.createElement('div'); n.className = 'notificacao';
-    n.innerHTML = `<i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${escapeHtml(msg)}`;
-    n.style.cssText = `position:fixed;top:20px;right:20px;padding:14px 24px;border-radius:12px;z-index:99999;font-weight:600;display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;color:#fff;background:${tipo === 'success' ? 'linear-gradient(135deg,#28a745,#218838)' : 'linear-gradient(135deg,#dc3545,#c82333)'};box-shadow:0 8px 24px rgba(0,0,0,.2);`;
+    const icone = tipo === 'success' ? 'check-circle' : (tipo === 'info' ? 'info-circle' : 'exclamation-circle');
+    const fundo = tipo === 'success'
+        ? 'linear-gradient(135deg,#28a745,#218838)'
+        : (tipo === 'info' ? 'linear-gradient(135deg,#2563eb,#1d4ed8)' : 'linear-gradient(135deg,#dc3545,#c82333)');
+    n.innerHTML = `<i class="fas fa-${icone}"></i> ${escapeHtml(msg)}`;
+    n.style.cssText = `position:fixed;top:20px;right:20px;padding:14px 24px;border-radius:12px;z-index:99999;font-weight:600;display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;color:#fff;background:${fundo};box-shadow:0 8px 24px rgba(0,0,0,.2);`;
     document.body.appendChild(n); setTimeout(() => n.remove(), 3000);
 }
 
 function criarOverlayGradiente(hex) { hex = (hex || '#003072').replace('#', ''); const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16); return `linear-gradient(to bottom,rgba(${r},${g},${b},.25),rgba(${Math.round(r*.4)},${Math.round(g*.4)},${Math.round(b*.4)},.85))`; }
-function normalizarUrlMidiaAdmin(url){ if(!url) return ''; const u=String(url).trim(); if(/^https?:\/\//i.test(u)) return u; return '../'+u.replace(/^\/+/, ''); }
-function getImagemArea(area) { const pad = { 'construcao-civil':'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80','eletricidade':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80','mecanica':'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80','informatica':'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80','tecnologia-moveis':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80','alfaiataria':'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&q=80' }; if (!area.imagem_url) return pad[area.slug] || pad['informatica']; return normalizarUrlMidiaAdmin(area.imagem_url); }
-function getImagemCurso(curso) { const pad = { 'construcao-civil-obras':'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80','construcao-civil-desenhador':'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800&q=80','eletricidade-instalacoes':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80','mecanica-climatizacao':'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80','informatica-gestao-sistemas':'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80','informatica-tecnico':'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80','tecnologia-moveis-curso':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80' }; if (!curso.imagem_hero) return pad[curso.slug] || pad['construcao-civil-obras']; return normalizarUrlMidiaAdmin(curso.imagem_hero); }
-function getOverlayCurso(curso, corAreaFallback) { const map = { 'construcao-civil-obras':'linear-gradient(to bottom,rgba(42,46,51,.25) 0%,rgba(36,37,39,.78) 100%)','construcao-civil-desenhador':'linear-gradient(to bottom,rgba(180,110,0,.45) 0%,rgba(140,80,0,.92) 100%)','eletricidade-instalacoes':'linear-gradient(135deg,rgba(15,23,42,.8),rgba(46,134,193,.6))','mecanica-climatizacao':'linear-gradient(to bottom,rgba(224,123,42,.3),rgba(184,94,26,.9))','informatica-gestao-sistemas':'linear-gradient(to bottom,rgba(46,134,193,.3),rgba(26,90,140,.9))','informatica-tecnico':'linear-gradient(to bottom,rgba(45,122,58,.3),rgba(30,85,39,.9))','tecnologia-moveis-curso':'linear-gradient(to bottom,rgba(192,57,43,.3),rgba(150,45,34,.9))' }; return map[curso.slug] || criarOverlayGradiente(corAreaFallback); }
-function getCorCurso(curso, corAreaFallback) { const map = { 'construcao-civil-obras':'#6c757d','construcao-civil-desenhador':'#b46e00','eletricidade-instalacoes':'#2e86c1','mecanica-climatizacao':'#e07b2a','informatica-gestao-sistemas':'#1a5a8c','informatica-tecnico':'#2d7a3a','tecnologia-moveis-curso':'#c0392b' }; return map[curso.slug] || curso.cor || corAreaFallback || '#003072'; }
+function normalizarUrlMidiaAdmin(url){
+    if(!url) return '';
+    let u = String(url).trim().replace(/\\/g, '/');
+    if(/^(https?:)?\/\//i.test(u) || /^(data|blob):/i.test(u)) return u;
+    u = u.replace(/^\/+/, '');
+    if(u.startsWith('../')) return u;
+    if(u.startsWith('area-publica/')) return '../' + u;
+    if(/^(uploads|foto)\//i.test(u)) return '../area-publica/' + u;
+    return '../area-publica/uploads/' + u;
+}
+function getImagemÁrea(area) {
+    const pad = { 'construcao-civil':'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80','eletricidade':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80','mecanica':'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80','informatica':'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80','tecnologia-moveis':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80','alfaiataria':'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&q=80' };
+    if (!area.imagem_url) return pad[area.slug] || pad['informatica'];
+    const img = String(area.imagem_url).trim();
+    if (!/^(https?:)?\/\//i.test(img) && !img.includes('/') && !img.startsWith('../')) {
+        return normalizarUrlMidiaAdmin('uploads/areas/' + img);
+    }
+    return normalizarUrlMidiaAdmin(img);
+}
+function getImagemCurso(curso) {
+    const pad = { 'construcao-civil-obras':'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80','construcao-civil-desenhador':'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800&q=80','eletricidade-instalacoes':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80','mecanica-climatizacao':'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80','informatica-gestao-sistemas':'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80','informatica-tecnico':'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80','tecnologia-moveis-curso':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80' };
+    if (!curso.imagem_hero) return pad[curso.slug] || pad['construcao-civil-obras'];
+    const img = String(curso.imagem_hero).trim();
+    if (!/^(https?:)?\/\//i.test(img) && !img.includes('/') && !img.startsWith('../')) {
+        return normalizarUrlMidiaAdmin('uploads/cursos/' + img);
+    }
+    return normalizarUrlMidiaAdmin(img);
+}
+function getOverlayCurso(curso, corÁreaFallback) { const map = { 'construcao-civil-obras':'linear-gradient(to bottom,rgba(42,46,51,.25) 0%,rgba(36,37,39,.78) 100%)','construcao-civil-desenhador':'linear-gradient(to bottom,rgba(180,110,0,.45) 0%,rgba(140,80,0,.92) 100%)','eletricidade-instalacoes':'linear-gradient(135deg,rgba(15,23,42,.8),rgba(46,134,193,.6))','mecanica-climatizacao':'linear-gradient(to bottom,rgba(224,123,42,.3),rgba(184,94,26,.9))','informatica-gestao-sistemas':'linear-gradient(to bottom,rgba(46,134,193,.3),rgba(26,90,140,.9))','informatica-tecnico':'linear-gradient(to bottom,rgba(45,122,58,.3),rgba(30,85,39,.9))','tecnologia-moveis-curso':'linear-gradient(to bottom,rgba(192,57,43,.3),rgba(150,45,34,.9))' }; return map[curso.slug] || criarOverlayGradiente(corÁreaFallback); }
+function getCorCurso(curso, corÁreaFallback) { return curso.cor || corÁreaFallback || '#6c757d'; }
 function getBotaoCores(curso) { const map = { 'construcao-civil-obras':{ bg:'#6c757d',hov:'#444' },'construcao-civil-desenhador':{ bg:'#e6a817',hov:'#c9920e' },'eletricidade-instalacoes':{ bg:'#2e86c1',hov:'#1f5a8a' },'mecanica-climatizacao':{ bg:'#e07b2a',hov:'#c95a0e' },'informatica-gestao-sistemas':{ bg:'#2e86c1',hov:'#1f5a8a' },'informatica-tecnico':{ bg:'#2d7a3a',hov:'#1e5527' },'tecnologia-moveis-curso':{ bg:'#c0392b',hov:'#a83224' } }; return map[curso.slug] || { bg:'#003072',hov:'#001a40' }; }
 
-function renderizarAreas() {
-    const c = document.getElementById('containerAreas'); if (!c) return;
+function renderizarÁreas() {
+    const c = document.getElementById('containerÁreas'); if (!c) return;
     c.innerHTML = '';
     if (!areas.length) { c.innerHTML = '<div class="sem-resultados"><i class="fas fa-info-circle"></i> Nenhuma area cadastrada.</div>'; return; }
     areas.forEach(area => {
         const total = cursos.filter(x => x.area_id == area.id).length;
         const card = document.createElement('div');
-        card.className = `card-area ${filtroAreaAtual == area.id ? 'ativo' : ''}`;
+        card.className = `card-area ${filtroÁreaAtual == area.id ? 'ativo' : ''}`;
         card.dataset.areaId = area.id;
-        card.innerHTML = `<div class="barra-cor-area" style="background:${area.cor_primaria||'#6c757d'};"></div><div class="icone-area" style="background:${area.cor_primaria||'#6c757d'};margin-left:10px;"><i class="fas ${area.icone_classe||'fa-layer-group'}"></i></div><div class="info-area" onclick="filtrarPorArea(${area.id})"><h4>${escapeHtml(area.nome)}</h4><p>${escapeHtml((area.descricao_curta||'').substring(0,60))}${(area.descricao_curta?.length>60)?'...':''}</p><small class="contador-cursos">${total} curso${total!==1?'s':''}</small></div><div class="acoes-area"><button class="btn-icone-area" onclick="editarArea(${area.id})" title="Editar"><i class="fas fa-edit"></i></button><button class="btn-icone-area btn-perigo" onclick="eliminarArea(${area.id})" title="Eliminar"><i class="fas fa-trash"></i></button></div>`;
+        card.innerHTML = `<div class="barra-cor-area" style="background:${area.cor_primaria||'#6c757d'};"></div><div class="icone-area" style="background:${area.cor_primaria||'#6c757d'};margin-left:10px;"><i class="fas ${area.icone_classe||'fa-layer-group'}"></i></div><div class="info-area" onclick="filtrarPorÁrea(${area.id})"><h4>${escapeHtml(area.nome)}</h4><p>${escapeHtml((area.descricao_curta||'').substring(0,60))}${(area.descricao_curta?.length>60)?'...':''}</p><small class="contador-cursos">${total} curso${total!==1?'s':''}</small></div><div class="acoes-area"><button class="btn-icone-area" onclick="editarÁrea(${area.id})" title="Editar"><i class="fas fa-edit"></i></button><button class="btn-icone-area btn-perigo" onclick="eliminarÁrea(${area.id})" title="Eliminar"><i class="fas fa-trash"></i></button></div>`;
         c.appendChild(card);
     });
 }
@@ -878,7 +1122,7 @@ function renderizarAreas() {
 function visualizarCurso(cursoId) {
     const curso = cursos.find(c => c.id == cursoId);
     if (!curso) { mostrarNotificacao('Curso nao encontrado', 'error'); return; }
-    const url = '../area-publica/curso.php?slug=' + curso.slug;
+    const url = '../area-publica/curso?slug=' + curso.slug;
     urlCursoAtual = url;
     document.getElementById('iframeCursoTitulo').textContent = curso.nome;
     document.getElementById('iframeCursoSubtitulo').innerHTML = '<i class="fas fa-link"></i> ' + url;
@@ -892,7 +1136,7 @@ function renderizarCursos() {
     const c = document.getElementById('containerCursos'); if (!c) return;
     c.innerHTML = '';
     let filtrados = [...cursos];
-    if (filtroAreaAtual) filtrados = filtrados.filter(x => x.area_id == filtroAreaAtual);
+    if (filtroÁreaAtual) filtrados = filtrados.filter(x => x.area_id == filtroÁreaAtual);
     const est = document.getElementById('filtroEstado')?.value || '';
     if (est) filtrados = filtrados.filter(x => x.estado === est);
     const bsc = (document.getElementById('campoBusca')?.value||'').toLowerCase();
@@ -912,51 +1156,54 @@ function renderizarCursos() {
     document.getElementById('contadorCursos').innerHTML = `(${filtrados.length} cursos)`;
 }
 
-function filtrarPorArea(id) { filtroAreaAtual = filtroAreaAtual == id ? null : id; renderizarAreas(); renderizarCursos(); }
+function filtrarPorÁrea(id) { filtroÁreaAtual = filtroÁreaAtual == id ? null : id; renderizarÁreas(); renderizarCursos(); }
 
-function abrirModalArea(id = null) {
-    const modal = document.getElementById('modalArea');
-    document.getElementById('formularioArea').reset();
+function abrirModalÁrea(id = null) {
+    const modal = document.getElementById('modalÁrea');
+    document.getElementById('formularioÁrea').reset();
     document.getElementById('areaId').value = '';
-    document.getElementById('tituloModalArea').innerHTML = 'Nova Area';
-    document.getElementById('previewAreaImagem').classList.remove('ativo');
+    document.getElementById('tituloModalÁrea').innerHTML = 'Nova Área';
+    document.getElementById('previewÁreaImagem').classList.remove('ativo');
     document.getElementById('areaAtivo').checked = true;
     document.getElementById('areaOrdem').value = '0';
-    document.getElementById('areaIcone').value = 'fa-layer-group';
+    document.getElementById('areaÍcone').value = 'fa-layer-group';
     document.getElementById('iconePreviewIcon').className = 'fas fa-layer-group';
     document.getElementById('areaCor').value = '#6c757d';
     document.getElementById('previewCor').style.background = '#6c757d';
     if (id) {
         const area = areas.find(a => a.id == id);
         if (area) {
-            document.getElementById('tituloModalArea').innerHTML = 'Editar Area';
+            document.getElementById('tituloModalÁrea').innerHTML = 'Editar Área';
             document.getElementById('areaId').value = area.id;
             document.getElementById('areaNome').value = area.nome||'';
-            document.getElementById('areaDescricaoCurta').value = area.descricao_curta||'';
-            document.getElementById('areaDescricaoCompleta').value = area.descricao_completa||'';
+            document.getElementById('areaDescriçãoCurta').value = area.descricao_curta||'';
+            document.getElementById('areaDescriçãoCompleta').value = area.descricao_completa||'';
             document.getElementById('areaCor').value = area.cor_primaria||'#6c757d';
             document.getElementById('previewCor').style.background = area.cor_primaria||'#6c757d';
-            document.getElementById('areaIcone').value = area.icone_classe||'fa-layer-group';
+            document.getElementById('areaÍcone').value = area.icone_classe||'fa-layer-group';
             document.getElementById('iconePreviewIcon').className = 'fas '+(area.icone_classe||'fa-layer-group');
             document.getElementById('areaOrdem').value = area.ordem||0;
             document.getElementById('areaAtivo').checked = area.ativo==1;
-            if (area.imagem_url) { document.getElementById('miniaturaAreaImagem').src = normalizarUrlMidiaAdmin(area.imagem_url); document.getElementById('previewAreaImagem').classList.add('ativo'); }
+            if (area.imagem_url) {
+                document.getElementById('miniaturaÁreaImagem').src = getImagemÁrea(area);
+                document.getElementById('previewÁreaImagem').classList.add('ativo');
+            }
         }
     }
     modal.style.display = 'flex';
 }
-function fecharModalArea() { document.getElementById('modalArea').style.display='none'; }
-function editarArea(id) { abrirModalArea(id); }
+function fecharModalÁrea() { document.getElementById('modalÁrea').style.display='none'; }
+function editarÁrea(id) { abrirModalÁrea(id); }
 
-function eliminarArea(id) {
+function eliminarÁrea(id) {
     const area = areas.find(a=>a.id==id);
     const tot = cursos.filter(c=>c.area_id==id).length;
-    if (tot) { mostrarNotificacao(`Nao pode eliminar "${area.nome}" — tem ${tot} curso(s).`,'error'); return; }
+    if (tot) { mostrarNotificacao(`Não pode eliminar "${area.nome}" — tem ${tot} curso(s).`,'error'); return; }
     confirmarAcao(
         'Confirmar eliminação',
         `Eliminar a area "${area.nome}"?`,
         () => {
-            fetch('processos/processar-curso.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`action=delete_area&area_id=${id}`})
+            fetch('processos/processar-curso',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`action=delete_area&area_id=${id}`})
                 .then(r=>r.json()).then(d=>{ if(d.success){mostrarNotificacao(d.message,'success');location.reload();}else mostrarNotificacao(d.message,'error'); })
                 .catch(()=>mostrarNotificacao('Erro ao comunicar','error'));
         },
@@ -964,23 +1211,23 @@ function eliminarArea(id) {
     );
 }
 
-function salvarArea(e) {
+function salvarÁrea(e) {
     e.preventDefault();
     const fd = new FormData();
     const id = document.getElementById('areaId').value;
     fd.append('action', id?'update_area':'create_area');
     fd.append('area_id', id);
     fd.append('nome', document.getElementById('areaNome').value);
-    fd.append('descricao_curta', document.getElementById('areaDescricaoCurta').value);
-    fd.append('descricao_completa', document.getElementById('areaDescricaoCompleta').value);
+    fd.append('descricao_curta', document.getElementById('areaDescriçãoCurta').value);
+    fd.append('descricao_completa', document.getElementById('areaDescriçãoCompleta').value);
     fd.append('cor_primaria', document.getElementById('areaCor').value);
-    fd.append('icone_classe', document.getElementById('areaIcone').value);
+    fd.append('icone_classe', document.getElementById('areaÍcone').value);
     fd.append('ordem', document.getElementById('areaOrdem').value);
     fd.append('ativo', document.getElementById('areaAtivo').checked?'1':'0');
     const img = document.getElementById('areaImagemInput');
     if (img?.files.length) fd.append('imagem_url', img.files[0]);
     mostrarNotificacao('A processar...','info');
-    fetch('processos/processar-curso.php',{method:'POST',body:fd})
+    fetch('processos/processar-curso',{method:'POST',body:fd})
         .then(r=>r.json()).then(d=>{ if(d.success){mostrarNotificacao(d.message,'success');setTimeout(()=>location.reload(),1000);}else mostrarNotificacao(d.message||'Erro ao salvar','error'); })
         .catch(()=>mostrarNotificacao('Erro ao comunicar','error'));
 }
@@ -988,47 +1235,47 @@ function salvarArea(e) {
 function buildPreviewOferta(area) {
     const cor = area.cor_primaria||'#003072';
     const overlay = criarOverlayGradiente(cor);
-    const imagem = getImagemArea(area);
+    const imagem = getImagemÁrea(area);
     const total = cursos.filter(c=>c.area_id==area.id).length;
     const icone = area.icone_classe||'fa-graduation-cap';
     return `<div class="pvof-scene pv-anim"><div class="pvof-label"><i class="fas fa-globe" style="margin-right:5px;"></i> Aspeto na pagina Oferta Formativa</div><a class="pvof-card" href="#" onclick="return false;"><div class="pvof-capa" style="background-image:url('${imagem}')"><div class="pvof-overlay" style="background:${overlay};"></div><div class="pvof-body"><div class="pvof-icon"><i class="fas ${icone}"></i></div><h2 class="pvof-title">${escapeHtml(area.nome)}</h2><p class="pvof-desc">${escapeHtml(area.descricao_curta||'Formacao tecnica especializada')}</p></div></div><div class="pvof-footer"><span class="pvof-count">${total} curso${total!==1?'s':''} disponivel${total!==1?'is':''}</span><span class="pvof-btn" style="color:${cor};border-color:${cor};">Explorar area →</span></div></a><p style="font-size:.72rem;color:rgba(255,255,255,.4);text-align:center;margin-top:4px;"><i class="fas fa-info-circle"></i> Pre-visualizacao fiel ao site publico</p></div>`;
 }
-function buildPreviewPaginaArea(area) {
+function buildPreviewPaginaÁrea(area) {
     const cor = area.cor_primaria||'#003072';
-    const cursosArea = cursos.filter(c=>c.area_id==area.id);
+    const cursosÁrea = cursos.filter(c=>c.area_id==area.id);
     let cursosHtml = '';
-    cursosArea.forEach(curso => {
+    cursosÁrea.forEach(curso => {
         const imgC  = getImagemCurso(curso);
         const overlC= getOverlayCurso(curso, cor);
         const corC  = getCorCurso(curso, cor);
         const btnC  = getBotaoCores(curso);
         const comps = window.COMPS?.[curso.slug]||['Formacao tecnica especializada','Pratica em laboratorios','Preparacao profissional'];
-        cursosHtml += `<article class="pvacard pv-anim"><div class="pvacard-capa"><img src="${imgC}" alt="${escapeHtml(curso.nome)}" class="pvacard-img" loading="lazy"/><div class="pvacard-overlay" style="background:${overlC};"></div><div class="pvacard-infocapa"><div class="pvacard-icon"><i class="fas ${curso.icone_classe||'fa-graduation-cap'}"></i></div><div><div class="pvacard-nome">${escapeHtml(curso.nome)}</div><div class="pvacard-alabel">Area de ${escapeHtml(area.nome)}</div></div></div></div><div class="pvacard-body"><ul class="pvacard-comps">${comps.map(cp=>`<li class="pvacard-comp"><span class="pvacard-check" style="color:${corC};">✓</span>${escapeHtml(cp)}</li>`).join('')}</ul><span class="pvacard-btn" style="background:${btnC.bg};">Ver detalhes do curso →</span></div></article>`;
+        cursosHtml += `<article class="pvacard pv-anim"><div class="pvacard-capa"><img src="${imgC}" alt="${escapeHtml(curso.nome)}" class="pvacard-img" loading="lazy"/><div class="pvacard-overlay" style="background:${overlC};"></div><div class="pvacard-infocapa"><div class="pvacard-icon"><i class="fas ${curso.icone_classe||'fa-graduation-cap'}"></i></div><div><div class="pvacard-nome">${escapeHtml(curso.nome)}</div><div class="pvacard-alabel">Área de ${escapeHtml(area.nome)}</div></div></div></div><div class="pvacard-body"><ul class="pvacard-comps">${comps.map(cp=>`<li class="pvacard-comp"><span class="pvacard-check" style="color:${corC};">✓</span>${escapeHtml(cp)}</li>`).join('')}</ul><span class="pvacard-btn" style="background:${btnC.bg};">Ver detalhes do curso →</span></div></article>`;
     });
     if (!cursosHtml) cursosHtml = '<div class="pv-empty"><i class="fas fa-graduation-cap"></i>Nenhum curso cadastrado nesta area.</div>';
-    return `<div class="pvarea-wrap pv-anim" style="--pv-cor:${cor};"><div class="pvarea-head"><h2 class="pvarea-title">Area de Formacao: ${escapeHtml(area.nome)}</h2><p class="pvarea-desc">${escapeHtml(area.descricao_completa||area.descricao_curta||'Descricao da area de formacao')}</p><span class="pvarea-linha" style="background:${cor};"></span></div><div class="pvarea-grid">${cursosHtml}</div></div>`;
+    return `<div class="pvarea-wrap pv-anim" style="--pv-cor:${cor};"><div class="pvarea-head"><h2 class="pvarea-title">Área de Formacao: ${escapeHtml(area.nome)}</h2><p class="pvarea-desc">${escapeHtml(area.descricao_completa||area.descricao_curta||'Descrição da area de formacao')}</p><span class="pvarea-linha" style="background:${cor};"></span></div><div class="pvarea-grid">${cursosHtml}</div></div>`;
 }
-function previewArea(areaId) {
+function previewÁrea(areaId) {
     const area = areas.find(a=>a.id==areaId);
-    if (!area) { mostrarNotificacao('Area nao encontrada','error'); return; }
-    const modal = document.getElementById('modalPreviewArea');
+    if (!area) { mostrarNotificacao('Área nao encontrada','error'); return; }
+    const modal = document.getElementById('modalPreviewÁrea');
     const corpo = modal.querySelector('.corpo-modal');
-    corpo.innerHTML = `<div class="pv-tab-bar" id="pvAreaTabBar"><button class="pv-tab-btn ativo" onclick="pvAreaTab('oferta',this)"><i class="fas fa-th-large"></i> Card na Oferta Formativa</button><button class="pv-tab-btn" onclick="pvAreaTab('area',this)"><i class="fas fa-layer-group"></i> Pagina da Area</button></div><div id="pvAreaContent"></div>`;
-    document.getElementById('pvAreaContent').innerHTML = buildPreviewOferta(area);
+    corpo.innerHTML = `<div class="pv-tab-bar" id="pvÁreaTabBar"><button class="pv-tab-btn ativo" onclick="pvÁreaTab('oferta',this)"><i class="fas fa-th-large"></i> Card na Oferta Formativa</button><button class="pv-tab-btn" onclick="pvÁreaTab('area',this)"><i class="fas fa-layer-group"></i> Pagina da Área</button></div><div id="pvÁreaContent"></div>`;
+    document.getElementById('pvÁreaContent').innerHTML = buildPreviewOferta(area);
     modal._areaData = area;
     modal.style.display = 'flex';
 }
-function pvAreaTab(tipo, btn) {
-    const modal = document.getElementById('modalPreviewArea');
+function pvÁreaTab(tipo, btn) {
+    const modal = document.getElementById('modalPreviewÁrea');
     const area  = modal._areaData;
-    document.querySelectorAll('#pvAreaTabBar .pv-tab-btn').forEach(b=>b.classList.remove('ativo'));
+    document.querySelectorAll('#pvÁreaTabBar .pv-tab-btn').forEach(b=>b.classList.remove('ativo'));
     btn.classList.add('ativo');
-    const cont = document.getElementById('pvAreaContent');
-    cont.innerHTML = tipo==='oferta' ? buildPreviewOferta(area) : buildPreviewPaginaArea(area);
+    const cont = document.getElementById('pvÁreaContent');
+    cont.innerHTML = tipo==='oferta' ? buildPreviewOferta(area) : buildPreviewPaginaÁrea(area);
     cont.scrollTop = 0;
 }
-function fecharModalPreview() { document.getElementById('modalPreviewArea').style.display='none'; }
-function mudarPreviewAreaTab(tipo) { const btns = document.querySelectorAll('#pvAreaTabBar .pv-tab-btn'); if (!btns.length) return; pvAreaTab(tipo==='card'?'oferta':'area', tipo==='card'?btns[0]:btns[1]); }
+function fecharModalPreview() { document.getElementById('modalPreviewÁrea').style.display='none'; }
+function mudarPreviewÁreaTab(tipo) { const btns = document.querySelectorAll('#pvÁreaTabBar .pv-tab-btn'); if (!btns.length) return; pvÁreaTab(tipo==='card'?'oferta':'area', tipo==='card'?btns[0]:btns[1]); }
 
 function previewCurso(cursoId) {
     const curso = cursos.find(c=>c.id==cursoId);
@@ -1070,7 +1317,7 @@ function previewCurso(cursoId) {
                         </div>
                         <div class="pvcurso-sobre-card" style="border-top-color:${cor};">
                             <div class="pvcurso-sobre-ico" style="background:${getCorAlpha(cor,.09)};color:${cor};"><i class="fas fa-tools"></i></div>
-                            <h4>Competencias</h4>
+                            <h4>Competências</h4>
                             <p>${escapeHtml(curso.competencias_descricao||comps.slice(0,2).join('; '))}</p>
                         </div>
                         <div class="pvcurso-sobre-card" style="border-top-color:${cor};">
@@ -1301,6 +1548,8 @@ function setupPDFUploads() {
 function abrirModalCurso(id = null) {
     const modal = document.getElementById('modalCurso');
     document.getElementById('formularioCurso').reset();
+    const imagemInput = document.getElementById('imagemInput');
+    if (imagemInput) imagemInput.value = '';
     document.getElementById('cursoId').value = '';
     document.getElementById('tituloModalCurso').innerHTML = 'Novo Curso';
 
@@ -1320,12 +1569,13 @@ function abrirModalCurso(id = null) {
     document.getElementById('previewImagem').classList.remove('ativo');
     document.getElementById('containerSaidas').innerHTML = '';
     document.getElementById('containerProjectos').innerHTML = '';
-    document.getElementById('cursoDescricaoCurta').value = '';
-    document.getElementById('cursoSobreDescricao').value = '';
+    document.getElementById('cursoDescriçãoCurta').value = '';
+    document.getElementById('cursoSobreDescrição').value = '';
     document.getElementById('cursoObjetivo').value = '';
-    document.getElementById('cursoCompetencias').value = '';
+    document.getElementById('cursoCompetências').value = '';
     document.getElementById('cursoCertificacao').value = '';
-    document.getElementById('cursoCompetenciasCard').value = '';
+    document.getElementById('cursoCompetênciasCard').value = '';
+    renderCompetenciasCardEditor('');
 
     if(id) {
         const curso = cursos.find(c => c.id == id);
@@ -1334,17 +1584,18 @@ function abrirModalCurso(id = null) {
             document.getElementById('tituloModalCurso').innerHTML = 'Editar Curso';
             document.getElementById('cursoId').value = curso.id;
             document.getElementById('cursoNome').value = curso.nome || '';
-            document.getElementById('cursoAreaId').value = curso.area_id || '';
+            document.getElementById('cursoÁreaId').value = curso.area_id || '';
             document.getElementById('cursoDuracao').value = curso.duracao || '';
             document.getElementById('cursoEstado').value = curso.estado || 'ativo';
-            document.getElementById('cursoDestaque').checked = curso.destaque == 1;
+            
             document.getElementById('cursoCor').value = getCorCurso(curso, area?.cor_primaria);
-            document.getElementById('cursoDescricaoCurta').value = curso.descricao_curta || '';
-            document.getElementById('cursoSobreDescricao').value = curso.sobre_descricao || '';
+            document.getElementById('cursoDescriçãoCurta').value = curso.descricao_curta || '';
+            document.getElementById('cursoSobreDescrição').value = curso.sobre_descricao || '';
             document.getElementById('cursoObjetivo').value = curso.objetivo || '';
-            document.getElementById('cursoCompetencias').value = curso.competencias_descricao || '';
+            document.getElementById('cursoCompetências').value = curso.competencias_descricao || '';
             document.getElementById('cursoCertificacao').value = curso.certificacao_descricao || '';
-            document.getElementById('cursoCompetenciasCard').value = curso.competencias_card || '';
+            document.getElementById('cursoCompetênciasCard').value = curso.competencias_card || '';
+            renderCompetenciasCardEditor(curso.competencias_card || '');
 
             const icone = curso.icone_classe || 'fa-graduation-cap';
             document.getElementById('cursoIcone').value = icone;
@@ -1362,13 +1613,13 @@ function abrirModalCurso(id = null) {
                 projetosPorCurso[curso.id].forEach(p => adicionarProjecto(p));
             }
             if(curso.imagem_hero) {
-                document.getElementById('miniaturaImagem').src = '../uploads/cursos/' + curso.imagem_hero;
+                document.getElementById('miniaturaImagem').src = getImagemCurso(curso);
                 document.getElementById('previewImagem').classList.add('ativo');
             }
         }
     }
 
-    const sel = document.getElementById('cursoAreaId');
+    const sel = document.getElementById('cursoÁreaId');
     if(sel) {
         const val = sel.value;
         sel.innerHTML = '<option value="">Selecione...</option>';
@@ -1379,6 +1630,47 @@ function abrirModalCurso(id = null) {
 
     modal.style.display = 'flex';
     setupPDFUploads();
+}
+
+function adicionarLinhaCompetenciaCard(valor = '') {
+    const lista = document.getElementById('competenciasCardLista');
+    if (!lista) return;
+    const item = document.createElement('div');
+    item.className = 'competencia-card-item';
+    item.innerHTML = `
+        <input type="text" class="input-competencia-card" placeholder="Ex: Formação técnica especializada" value="${escapeHtml(valor)}">
+        <button type="button" class="btn-remover-competencia" title="Remover competência"><i class="fas fa-trash"></i></button>
+    `;
+    item.querySelector('input')?.addEventListener('input', syncCompetenciasCardTextarea);
+    item.querySelector('.btn-remover-competencia')?.addEventListener('click', () => {
+        item.remove();
+        syncCompetenciasCardTextarea();
+    });
+    lista.appendChild(item);
+    syncCompetenciasCardTextarea();
+}
+
+function renderCompetenciasCardEditor(valor = '') {
+    const lista = document.getElementById('competenciasCardLista');
+    if (!lista) return;
+    lista.innerHTML = '';
+    const linhas = (valor || '')
+        .split(/\r?\n/)
+        .map(l => l.trim())
+        .filter(Boolean);
+    if (!linhas.length) {
+        adicionarLinhaCompetenciaCard('');
+        return;
+    }
+    linhas.forEach(linha => adicionarLinhaCompetenciaCard(linha));
+    syncCompetenciasCardTextarea();
+}
+
+function syncCompetenciasCardTextarea() {
+    const inputs = Array.from(document.querySelectorAll('.input-competencia-card'));
+    const valor = inputs.map(i => i.value.trim()).filter(Boolean).join('\n');
+    const textarea = document.getElementById('cursoCompetênciasCard');
+    if (textarea) textarea.value = valor;
 }
 
 function fecharModalCurso() {
@@ -1394,7 +1686,7 @@ function eliminarCurso(id) {
         'Confirmar eliminação',
         'Eliminar este curso?',
         () => {
-            fetch('processos/processar-curso.php',{
+            fetch('processos/processar-curso',{
                 method:'POST',
                 headers:{'Content-Type':'application/x-www-form-urlencoded'},
                 body:`action=delete_curso&curso_id=${id}`
@@ -1419,22 +1711,23 @@ function eliminarCurso(id) {
 // ============================================
 async function salvarCurso(event) {
     if (event) event.preventDefault();
+    syncCompetenciasCardTextarea();
 
     console.log("=== INICIANDO SALVAMENTO DO CURSO ===");
 
     const id = document.getElementById('cursoId').value;
     const nome = document.getElementById('cursoNome').value.trim();
-    const area_id = document.getElementById('cursoAreaId').value;
+    const area_id = document.getElementById('cursoÁreaId').value;
     const duracao = document.getElementById('cursoDuracao').value;
     const estado = document.getElementById('cursoEstado').value;
     const cor = document.getElementById('cursoCor').value;
-    const descricao_curta = document.getElementById('cursoDescricaoCurta').value;
-    const sobre_descricao = document.getElementById('cursoSobreDescricao').value;
+    const descricao_curta = document.getElementById('cursoDescriçãoCurta').value;
+    const sobre_descricao = document.getElementById('cursoSobreDescrição').value;
     const objetivo = document.getElementById('cursoObjetivo').value;
-    const competencias = document.getElementById('cursoCompetencias').value;
-    const competencias_card = document.getElementById('cursoCompetenciasCard').value;
+    const competencias = document.getElementById('cursoCompetências').value;
+    const competencias_card = document.getElementById('cursoCompetênciasCard').value;
     const certificacao = document.getElementById('cursoCertificacao').value;
-    const destaque = document.getElementById('cursoDestaque').checked ? 1 : 0;
+    
     const icone_classe = document.getElementById('cursoIcone').value;
 
     // Validação básica
@@ -1467,7 +1760,7 @@ async function salvarCurso(event) {
     formData.append('competencias_descricao', competencias);
     formData.append('competencias_card', competencias_card);
     formData.append('certificacao_descricao', certificacao);
-    formData.append('destaque', destaque);
+    
     formData.append('icone_classe', icone_classe);
 
     // Imagem de capa
@@ -1536,7 +1829,7 @@ async function salvarCurso(event) {
     mostrarNotificacao('A guardar curso...', 'info');
 
     try {
-        const response = await fetch('processos/processar-curso.php', {
+        const response = await fetch('processos/processar-curso', {
             method: 'POST',
             body: formData
         });
@@ -1544,6 +1837,16 @@ async function salvarCurso(event) {
         console.log("Resposta do servidor:", data);
 
         if (data.success) {
+            if (data.imagem_hero) {
+                const cursoAtual = cursos.find(c => c.id == (data.id || id));
+                if (cursoAtual) cursoAtual.imagem_hero = data.imagem_hero;
+                const miniatura = document.getElementById('miniaturaImagem');
+                const preview = document.getElementById('previewImagem');
+                if (miniatura && preview) {
+                    miniatura.src = normalizarUrlMidiaAdmin(data.imagem_hero);
+                    preview.classList.add('ativo');
+                }
+            }
             mostrarNotificacao(data.message, 'success');
             setTimeout(() => {
                 location.reload();
@@ -1603,28 +1906,28 @@ function adicionarSaida(dados = null) {
             </div>
         </div>
         <div class="grupo-form">
-            <label>Descricao</label>
+            <label>Descrição</label>
             <textarea class="controle-form saida-descricao" rows="2">${escapeHtml(dados?.descricao || '')}</textarea>
         </div>
         <div class="grupo-form">
-            <label>Competencias (separadas por virgula)</label>
+            <label>Competências (separadas por virgula)</label>
             <input type="text" class="controle-form saida-competencias" placeholder="Ex: CAD, BIM, Projetos" value="${escapeHtml(dados?.competencias ? dados.competencias.join(', ') : '')}">
         </div>
     `;
     container.appendChild(div);
 
-    const uploadArea = div.querySelector('.area-upload-imagem');
+    const uploadÁrea = div.querySelector('.area-upload-imagem');
     const fileInput = div.querySelector('.upload-imagem-saida');
     const previewDiv = div.querySelector('.preview-imagem-saida');
     const previewImg = previewDiv.querySelector('img');
     const urlInput = div.querySelector('.saida-imagem-url');
 
-    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadÁrea.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', async function(e) {
         const file = e.target.files[0]; if(!file) return;
         const fd = new FormData(); fd.append('action','upload_imagem_saida'); fd.append('imagem',file);
         try {
-            const r = await fetch('processos/processar-curso.php',{method:'POST',body:fd});
+            const r = await fetch('processos/processar-curso',{method:'POST',body:fd});
             const d = await r.json();
             if(d.success){
                 previewImg.src=normalizarUrlMidiaAdmin(d.url);
@@ -1701,24 +2004,24 @@ function adicionarProjecto(dados = null) {
             </div>
         </div>
         <div class="grupo-form">
-            <label>Descricao</label>
+            <label>Descrição</label>
             <textarea class="controle-form projeto-descricao" rows="2">${escapeHtml(dados?.descricao || '')}</textarea>
         </div>
     `;
     container.appendChild(div);
 
-    const uploadArea = div.querySelector('.area-upload-imagem-projeto');
+    const uploadÁrea = div.querySelector('.area-upload-imagem-projeto');
     const fileInput = div.querySelector('.upload-imagem-projeto');
     const previewDiv = div.querySelector('.preview-imagem-projeto');
     const previewImg = previewDiv.querySelector('img');
     const urlInput = div.querySelector('.projeto-imagem-url');
 
-    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadÁrea.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', async function(e) {
         const file = e.target.files[0]; if(!file) return;
         const fd = new FormData(); fd.append('action','upload_imagem_projeto'); fd.append('imagem',file);
         try {
-            const r = await fetch('processos/processar-curso.php',{method:'POST',body:fd});
+            const r = await fetch('processos/processar-curso',{method:'POST',body:fd});
             const d = await r.json();
             if(d.success){
                 previewImg.src=normalizarUrlMidiaAdmin(d.url);
@@ -1748,9 +2051,9 @@ function removerImagem() {
     document.getElementById('previewImagem').classList.remove('ativo');
 }
 
-function removerAreaImagem(){
+function removerÁreaImagem(){
     document.getElementById('areaImagemInput').value='';
-    document.getElementById('previewAreaImagem').classList.remove('ativo');
+    document.getElementById('previewÁreaImagem').classList.remove('ativo');
 }
 
 function gerarRelatorio(){ alert(`RELATORIO DE CURSOS\n\nTotal: ${cursos.length} cursos`); }
@@ -1761,12 +2064,12 @@ function imprimirCatalogo(){ window.print(); }
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function () {
-    renderizarAreas();
+    renderizarÁreas();
     renderizarCursos();
     setupPDFUploads();
 
     document.getElementById('btnNovoCurso')?.addEventListener('click', ()=>abrirModalCurso());
-    document.getElementById('filtroArea')?.addEventListener('change', function(){ filtroAreaAtual=this.value||null; renderizarAreas(); renderizarCursos(); });
+    document.getElementById('filtroÁrea')?.addEventListener('change', function(){ filtroÁreaAtual=this.value||null; renderizarÁreas(); renderizarCursos(); });
     document.getElementById('filtroEstado')?.addEventListener('change', renderizarCursos);
     document.getElementById('campoBusca')?.addEventListener('input', renderizarCursos);
     document.getElementById('btnSelecionarTodosCursos')?.addEventListener('click', selecionarTodosCursos);
@@ -1797,8 +2100,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.getElementById('cursoDescricaoCurta')?.addEventListener('input',function(){
-        document.getElementById('contadorDescricaoCurta').innerHTML=this.value.length+' / 200';
+    document.getElementById('cursoDescriçãoCurta')?.addEventListener('input',function(){
+        document.getElementById('contadorDescriçãoCurta').innerHTML=this.value.length+' / 200';
     });
 
     document.getElementById('imagemInput')?.addEventListener('change',e=>{
@@ -1815,13 +2118,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const f=e.target.files[0]; if(!f)return;
         const r=new FileReader();
         r.onload=ev=>{
-            document.getElementById('miniaturaAreaImagem').src=ev.target.result;
-            document.getElementById('previewAreaImagem').classList.add('ativo');
+            document.getElementById('miniaturaÁreaImagem').src=ev.target.result;
+            document.getElementById('previewÁreaImagem').classList.add('ativo');
         };
         r.readAsDataURL(f);
     });
 
-    document.getElementById('areaIcone')?.addEventListener('input',function(){
+    document.getElementById('areaÍcone')?.addEventListener('input',function(){
         document.getElementById('iconePreviewIcon').className='fas '+this.value.trim();
     });
 
@@ -1832,7 +2135,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.sugestao-icone').forEach(btn=>{
         btn.addEventListener('click',function(){
             const ic=this.dataset.icone;
-            document.getElementById('areaIcone').value=ic;
+            document.getElementById('areaÍcone').value=ic;
             document.getElementById('iconePreviewIcon').className='fas '+ic;
         });
     });
@@ -1851,7 +2154,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    ['modalArea','modalCurso','modalPreviewArea','modalPreviewCurso','modalIframeCurso'].forEach(id=>{
+    ['modalÁrea','modalCurso','modalPreviewÁrea','modalPreviewCurso','modalIframeCurso'].forEach(id=>{
         const m=document.getElementById(id);
         if(m) m.addEventListener('click',e=>{
             if(e.target===m){
@@ -1863,7 +2166,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.addEventListener('keydown',e=>{
         if(e.key!=='Escape')return;
-        ['modalArea','modalCurso','modalPreviewArea','modalPreviewCurso','modalIframeCurso'].forEach(id=>{
+        ['modalÁrea','modalCurso','modalPreviewÁrea','modalPreviewCurso','modalIframeCurso'].forEach(id=>{
             const m=document.getElementById(id);
             if(m?.style.display==='flex'){
                 if(id==='modalIframeCurso') fecharModalIframe();

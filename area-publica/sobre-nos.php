@@ -167,6 +167,7 @@ img {
     font-size: 0.97rem;
     color: var(--cinzento);
     line-height: 1.75;
+    text-align: justify;
 }
 
 /* =========== SECÇÃO HISTÓRIA ================ */
@@ -211,6 +212,7 @@ img {
     color: var(--texto);
     line-height: 1.8;
     margin-bottom: 18px;
+    text-align: justify;
 }
 
 /* — Linha do tempo — */
@@ -276,6 +278,7 @@ img {
     font-size: 0.82rem;
     color: var(--cinzento);
     line-height: 1.5;
+    text-align: justify;
 }
 
 /* — Bloco compromisso — */
@@ -355,8 +358,18 @@ img {
     font-size: 0.75rem;
     color: var(--cinzento);
     line-height: 1.5;
-    text-align: center;
+    text-align: justify;
     padding: 0 4px;
+}
+
+/* Regra geral: conteúdos (não títulos) justificados */
+.secao-hero-quem-somos p,
+.secao-historia p,
+.secao-historia li,
+.secao-historia .bloco-compromisso,
+.secao-historia .descricao-evento,
+.secao-historia .legenda-imagem {
+    text-align: justify;
 }
 
 .legenda-imagem i {
@@ -678,11 +691,7 @@ img {
         <button class="botao-flutuante" id="botaoTopo" title="Voltar ao topo">
             <i class="fas fa-chevron-up"></i>
         </button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank" rel="noopener" title="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-        </a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

@@ -3,7 +3,7 @@
  * Pagina de Curso - IPIKK
  * UMA pagina para TODOS os cursos
  * O conteudo e filtrado pelo parametro 'slug' na URL
- * Ex: curso.php?slug=construcao-civil-obras
+ * Ex: curso?slug=construcao-civil-obras
  */
 
 require_once '../config/index.php';
@@ -13,7 +13,7 @@ $config = getDB()->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 $curso_slug = $_GET['slug'] ?? null;
 
 if (!$curso_slug) {
-    header('Location: oferta-formativa.php');
+    header('Location: oferta-formativa');
     exit;
 }
 
@@ -202,7 +202,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($curso['nome']);
         }
         
         .subtitulo-secao {
-            text-align: center;
+            text-align: justify;
             color: var(--cor-texto-clara);
             font-size: 1.1rem;
             max-width: 700px;
@@ -473,6 +473,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($curso['nome']);
             line-height: 1.7;
             margin-bottom: 16px;
             flex-grow: 1;
+            text-align: justify;
         }
 
         .competencias-saida {
@@ -533,8 +534,16 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($curso['nome']);
             margin-bottom: var(--espaco-sm);
         }
         
-        .titulo-projecto { font-family: var(--fonte-titulo); font-size: 1.4rem; color: var(--cor-institucional); margin-bottom: var(--espaco-sm); line-height: 1.3; }
-        .descricao-projecto { color: var(--cor-texto-clara); line-height: 1.7; margin-bottom: var(--espaco-md); }
+        .titulo-projecto { font-family: var(--fonte-titulo); font-size: 1.4rem; color: var(--cor-institucional); margin-bottom: var(--espaco-sm); line-height: 1.3; text-align: center; }
+        .descricao-projecto { color: var(--cor-texto-clara); line-height: 1.7; margin-bottom: var(--espaco-md); text-align: justify; }
+
+        .grade-sobre .cartao-sobre p,
+        .secao#sobre p,
+        .secao#saidas p,
+        .secao#projetos p,
+        .competencias-saida {
+            text-align: justify;
+        }
         
         .metadados-projecto {
             display: flex;
@@ -901,9 +910,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($curso['nome']);
     <!-- BOTOES FLUTUANTES -->
     <div class="botoes-flutuantes">
         <button class="botao-flutuante" id="botaoTopo" title="Voltar ao topo"><i class="fas fa-chevron-up"></i></button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
     <!-- RODAPE -->

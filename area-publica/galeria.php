@@ -44,7 +44,7 @@ $subtitulo_pagina = $pagina['subtitulo'] ?? 'Conheça as imagens e vídeos do no
 
 // Verificar status das inscrições para o botão de matrícula
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 
 // Mapeamento de cores das categorias (para uso no JavaScript)
 $cores_categorias_json = [];
@@ -100,32 +100,53 @@ foreach ($categorias as $cat) {
 
         /* ===== CABEÇALHO DA PÁGINA ===== */
         .cabecalho-pagina {
-            max-width: 1200px;
-            margin: 40px auto 0;
-            padding: 0 20px;
+            background: linear-gradient(155deg, var(--azul-principal) 0%, var(--verde-acento) 100%);
+            padding: 64px 24px 52px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            color: var(--branco);
+            box-shadow: 0 10px 30px rgba(0, 48, 114, 0.1);
+        }
+
+        .cabecalho-pagina::before,
+        .cabecalho-pagina::after {
+            content: '';
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.09);
+            pointer-events: none;
+        }
+
+        .cabecalho-pagina::before {
+            top: -90px;
+            left: -70px;
+        }
+
+        .cabecalho-pagina::after {
+            right: -80px;
+            bottom: -110px;
         }
 
         .titulo-pagina {
             font-family: 'Poppins', sans-serif;
             font-size: 2.5rem;
-            color: var(--azul-principal);
+            color: var(--branco);
             margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
         }
 
         .subtitulo-pagina {
             font-size: 1.1rem;
-            color: var(--cinza);
-            max-width: 700px;
-            margin: 0 auto 20px;
-        }
-
-        .linha-decorativa-titulo {
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--azul-principal), var(--verde-acento));
-            margin: 0 auto 30px;
-            border-radius: 2px;
+            color: var(--branco);
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         /* ===== FILTRO COM CSS MELHORADO ===== */
@@ -372,9 +393,8 @@ foreach ($categorias as $cat) {
 
     <!-- ===== CONTEÚDO PRINCIPAL ===== -->
     <section class="cabecalho-pagina">
-        <h1 class="titulo-pagina"><?= htmlspecialchars($titulo_pagina) ?></h1>
+        <h1 class="titulo-pagina"><i class="fas fa-images"></i> <?= htmlspecialchars($titulo_pagina) ?></h1>
         <p class="subtitulo-pagina"><?= htmlspecialchars($subtitulo_pagina) ?></p>
-        <div class="linha-decorativa-titulo"></div>
     </section>
 
     <!-- FILTRO -->
@@ -417,9 +437,7 @@ foreach ($categorias as $cat) {
         <button class="botao-flutuante" id="botaoTopo" title="Voltar ao topo">
             <i class="fas fa-chevron-up"></i>
         </button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

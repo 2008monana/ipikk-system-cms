@@ -10,7 +10,7 @@ $css_especifico = 'admin-quadro-honra.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -65,7 +65,7 @@ $cursos = $db->query("SELECT id, nome FROM cursos WHERE estado = 'ativo' ORDER B
 // Cores padrão para cursos
 $cores_cursos = [];
 $stmt = $db->query("
-    SELECT c.nome, COALESCE(c.cor, a.cor_primaria, '#003072') as cor
+    SELECT c.nome, COALESCE(NULLIF(TRIM(c.cor), ''), NULLIF(TRIM(a.cor_primaria), ''), '#6c757d') as cor
     FROM cursos c
     LEFT JOIN areas a ON c.area_id = a.id
     WHERE c.estado = 'ativo'
@@ -828,7 +828,7 @@ const coresCursos = <?php echo json_encode($cores_cursos, JSON_UNESCAPED_UNICODE
 let classeFotos = {};
 
 function getCorCurso(cursoNome) {
-    return coresCursos[cursoNome] || '#003072';
+    return coresCursos[cursoNome] || '#6c757d';
 }
 
 function mostrarNotificacao(mensagem, tipo = 'sucesso') {
@@ -967,7 +967,7 @@ async function salvarQuadroHonra() {
     mostrarNotificacao('A processar...', 'info');
     
     try {
-        const response = await fetch('processos/processar-quadro-honra.php', {
+        const response = await fetch('processos/processar-quadro-honra', {
             method: 'POST',
             body: formData
         });
@@ -985,7 +985,7 @@ async function salvarQuadroHonra() {
 }
 
 function previewQuadroHonra() {
-    window.open('../area-publica/quadro-honra.php', '_blank');
+    window.open('../area-publica/quadro-honra', '_blank');
 }
 
 // Atualizar cores dos previews

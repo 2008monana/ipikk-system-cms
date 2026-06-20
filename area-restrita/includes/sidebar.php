@@ -40,7 +40,7 @@ function isActivePage($pages) {
             <!-- DASHBOARD -->
             <?php if (podeVerItem('dashboard', $is_admin, $permissoes_usuario)): ?>
             <li class="<?= $pagina_atual == 'admin-dashboard.php' ? 'active' : '' ?>">
-                <a href="admin-dashboard.php">
+                <a href="admin-dashboard">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
@@ -49,7 +49,7 @@ function isActivePage($pages) {
 
             <!-- CONTEÚDO DO SITE -->
             <?php if (podeVerItem('conteudo_site', $is_admin, $permissoes_usuario)): ?>
-            <li class="menu-item-has-children has-submenu <?= isActivePage(['admin-inicio.php', 'admin-sobre.php', 'admin-perfil-director.php', 'admin-orgaos.php', 'admin-ex-directores.php', 'admin-normativos.php', 'admin-percurso.php', 'admin-quadro-honra.php', 'admin-funcionario-destacado.php', 'admin-escolas-afiliadas.php']) ? 'active open' : '' ?>">
+            <li class="menu-item-has-children has-submenu <?= isActivePage(['admin-inicio.php', 'admin-sobre.php', 'admin-perfil-director.php', 'admin-orgaos.php', 'admin-ex-directores.php', 'admin-normativos.php', 'admin-percurso.php', 'admin-quadro-honra.php', 'admin-funcionario-destacado.php', 'admin-escolas-afiliadas.php', 'admin-politica-privacidade.php']) ? 'active open' : '' ?>">
                 <a href="javascript:void(0)" class="submenu-toggle menu-link-parent">
                     <i class="fas fa-file-alt"></i>
                     <span>Conteúdo do Site</span>
@@ -57,10 +57,10 @@ function isActivePage($pages) {
                 </a>
                 <ul class="submenu">
                     <li class="<?= $pagina_atual == 'admin-inicio.php' ? 'active' : '' ?>">
-                        <a href="admin-inicio.php"><i class="fas fa-home"></i> Início</a>
+                        <a href="admin-inicio"><i class="fas fa-home"></i> Início</a>
                     </li>
                     <li class="<?= $pagina_atual == 'admin-sobre.php' ? 'active' : '' ?>">
-                        <a href="admin-sobre.php"><i class="fas fa-building"></i> Quem Somos</a>
+                        <a href="admin-sobre"><i class="fas fa-building"></i> Quem Somos</a>
                     </li>
                     <li class="submenu-item-has-children has-submenu-level2">
                         <a href="javascript:void(0)" class="submenu-toggle-level2 menu-link-parent">
@@ -69,16 +69,16 @@ function isActivePage($pages) {
                         </a>
                         <ul class="submenu-level2">
                             <li class="<?= $pagina_atual == 'admin-perfil-director.php' ? 'active' : '' ?>">
-                                <a href="admin-perfil-director.php"><i class="fas fa-user-tie"></i> Director</a>
+                                <a href="admin-perfil-director"><i class="fas fa-user-tie"></i> Director</a>
                             </li>
                             <li class="<?= $pagina_atual == 'admin-orgaos.php' ? 'active' : '' ?>">
-                                <a href="admin-orgaos.php"><i class="fas fa-users-cog"></i> Órgãos</a>
+                                <a href="admin-orgaos"><i class="fas fa-users-cog"></i> Órgãos</a>
                             </li>
                             <li class="<?= $pagina_atual == 'admin-ex-directores.php' ? 'active' : '' ?>">
-                                <a href="admin-ex-diretores.php"><i class="fas fa-history"></i> Ex-Directores</a>
+                                <a href="admin-ex-diretores"><i class="fas fa-history"></i> Ex-Directores</a>
                             </li>
                             <li class="<?= $pagina_atual == 'admin-normativos.php' ? 'active' : '' ?>">
-                                <a href="admin-normativos.php"><i class="fas fa-file-pdf"></i> Normativos</a>
+                                <a href="admin-normativos"><i class="fas fa-file-pdf"></i> Normativos</a>
                             </li>
                         </ul>
                     </li>
@@ -89,18 +89,21 @@ function isActivePage($pages) {
                         </a>
                         <ul class="submenu-level2">
                             <li class="<?= $pagina_atual == 'admin-percurso.php' ? 'active' : '' ?>">
-                                <a href="admin-percurso.php"><i class="fas fa-chart-line"></i> Sucesso</a>
+                                <a href="admin-percurso"><i class="fas fa-chart-line"></i> Sucesso</a>
                             </li>
                             <li class="<?= $pagina_atual == 'admin-quadro-honra.php' ? 'active' : '' ?>">
-                                <a href="admin-quadro-honra.php"><i class="fas fa-trophy"></i> Quadro de Honra</a>
+                                <a href="admin-quadro-honra"><i class="fas fa-trophy"></i> Quadro de Honra</a>
                             </li>
                             <li class="<?= $pagina_atual == 'admin-funcionario-destacado.php' ? 'active' : '' ?>">
-                                <a href="admin-funcionario-destacado.php"><i class="fas fa-star"></i> Funcionários</a>
+                                <a href="admin-funcionario-destacado"><i class="fas fa-star"></i> Funcionários</a>
                             </li>
                         </ul>
                     </li>
                     <li class="<?= $pagina_atual == 'admin-escolas-afiliadas.php' ? 'active' : '' ?>">
-                        <a href="admin-escolas-afiliadas.php"><i class="fas fa-school"></i> Escolas Afiliadas</a>
+                        <a href="admin-escolas-afiliadas"><i class="fas fa-school"></i> Escolas Afiliadas</a>
+                    </li>
+                    <li class="<?= $pagina_atual == 'admin-politica-privacidade.php' ? 'active' : '' ?>">
+                        <a href="admin-politica-privacidade"><i class="fas fa-file-contract"></i> Política e Privacidade</a>
                     </li>
                 </ul>
             </li>
@@ -116,13 +119,13 @@ function isActivePage($pages) {
                 </a>
                 <ul class="submenu">
                     <li class="<?= $pagina_atual == 'admin-cursos.php' ? 'active' : '' ?>">
-                        <a href="admin-cursos.php"><i class="fas fa-book-open"></i> Cursos</a>
+                        <a href="admin-cursos"><i class="fas fa-book-open"></i> Cursos</a>
                     </li>
                     <li class="<?= $pagina_atual == 'admin-planos-curriculares.php' ? 'active' : '' ?>">
-                        <a href="admin-planos-curriculares.php"><i class="fas fa-calendar-alt"></i> Planos</a>
+                        <a href="admin-planos-curriculares"><i class="fas fa-calendar-alt"></i> Planos</a>
                     </li>
                     <li class="<?= $pagina_atual == 'admin-depoimentos.php' ? 'active' : '' ?>">
-                        <a href="admin-depoimentos.php"><i class="fas fa-quote-right"></i> Depoimentos</a>
+                        <a href="admin-depoimentos"><i class="fas fa-quote-right"></i> Depoimentos</a>
                     </li>
                 </ul>
             </li>
@@ -131,7 +134,7 @@ function isActivePage($pages) {
             <!-- NOTÍCIAS -->
             <?php if (podeVerItem('noticias', $is_admin, $permissoes_usuario)): ?>
             <li class="<?= $pagina_atual == 'admin-noticias.php' ? 'active' : '' ?>">
-                <a href="admin-noticias.php">
+                <a href="admin-noticias">
                     <i class="fas fa-newspaper"></i>
                     <span>Notícias</span>
                 </a>
@@ -141,7 +144,7 @@ function isActivePage($pages) {
             <!-- GALERIA -->
             <?php if (podeVerItem('galeria', $is_admin, $permissoes_usuario)): ?>
             <li class="<?= $pagina_atual == 'admin-galeria.php' ? 'active' : '' ?>">
-                <a href="admin-galeria.php">
+                <a href="admin-galeria">
                     <i class="fas fa-images"></i>
                     <span>Galeria</span>
                 </a>
@@ -151,7 +154,7 @@ function isActivePage($pages) {
             <!-- INSCRIÇÕES -->
             <?php if (podeVerItem('inscricoes', $is_admin, $permissoes_usuario)): ?>
             <li class="<?= $pagina_atual == 'admin-inscricoes.php' ? 'active' : '' ?>">
-                <a href="admin-inscricoes.php">
+                <a href="admin-inscricoes">
                     <i class="fas fa-file-signature"></i>
                     <span>Inscrições</span>
                 </a>
@@ -161,7 +164,7 @@ function isActivePage($pages) {
             <!-- CONTACTOS -->
             <?php if (podeVerItem('contactos', $is_admin, $permissoes_usuario)): ?>
             <li class="<?= $pagina_atual == 'admin-contactos.php' ? 'active' : '' ?>">
-                <a href="admin-contactos.php">
+                <a href="admin-contactos">
                     <i class="fas fa-envelope"></i>
                     <span>Contactos</span>
                 </a>
@@ -171,7 +174,7 @@ function isActivePage($pages) {
             <!-- UTILIZADORES -->
             <?php if (podeVerItem('utilizadores', $is_admin, $permissoes_usuario)): ?>
             <li class="<?= $pagina_atual == 'admin-utilizadores.php' ? 'active' : '' ?>">
-                <a href="admin-utilizadores.php">
+                <a href="admin-utilizadores">
                     <i class="fas fa-users"></i>
                     <span>Utilizadores</span>
                 </a>
@@ -181,7 +184,7 @@ function isActivePage($pages) {
             <!-- CONFIGURAÇÕES -->
             <?php if (podeVerItem('configuracoes', $is_admin, $permissoes_usuario)): ?>
             <li class="<?= $pagina_atual == 'admin-configuracoes.php' ? 'active' : '' ?>">
-                <a href="admin-configuracoes.php">
+                <a href="admin-configuracoes">
                     <i class="fas fa-cog"></i>
                     <span>Configurações</span>
                 </a>
@@ -191,7 +194,7 @@ function isActivePage($pages) {
             <!-- LIXEIRA -->
             <?php if (podeVerItem('lixeira', $is_admin, $permissoes_usuario)): ?>
             <li class="<?= $pagina_atual == 'admin-lixeira.php' ? 'active' : '' ?>">
-                <a href="admin-lixeira.php">
+                <a href="admin-lixeira">
                     <i class="fas fa-trash-alt"></i>
                     <span>Lixeira</span>
                 </a>
@@ -201,7 +204,7 @@ function isActivePage($pages) {
             <!-- LOGS -->
             <?php if (podeVerItem('logs', $is_admin, $permissoes_usuario)): ?>
             <li class="<?= $pagina_atual == 'admin-logs.php' ? 'active' : '' ?>">
-                <a href="admin-logs.php">
+                <a href="admin-logs">
                     <i class="fas fa-history"></i>
                     <span>Logs</span>
                 </a>
@@ -210,7 +213,7 @@ function isActivePage($pages) {
 
             <!-- MEU PERFIL -->
             <li class="<?= $pagina_atual == 'admin-perfil.php' ? 'active' : '' ?>">
-                <a href="admin-perfil.php">
+                <a href="admin-perfil">
                     <i class="fas fa-user"></i>
                     <span>Meu Perfil</span>
                 </a>
@@ -219,7 +222,7 @@ function isActivePage($pages) {
     </nav>
 
     <div class="sidebar-footer">
-        <a href="logout.php" class="logout-btn">
+        <a href="logout" class="logout-btn">
             <i class="fas fa-sign-out-alt"></i>
             <span>Sair</span>
         </a>

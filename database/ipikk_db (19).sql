@@ -120,7 +120,7 @@ CREATE TABLE `configuracoes` (
   `telefone_alternativo` varchar(20) DEFAULT NULL,
   `email_geral` varchar(100) DEFAULT 'geral@ipikk.ao',
   `email_inscricoes` varchar(100) DEFAULT 'inscricoes@ipikk.ao',
-  `whatsapp_numero` varchar(20) DEFAULT '244933096705',
+  `whatsapp_numero` varchar(255) DEFAULT '244933096705',
   `horario_funcionamento` varchar(200) DEFAULT 'Segunda a Sexta: 7:00 - 17:40',
   `horario_inscricoes` varchar(200) DEFAULT 'Segunda a Sexta, das 8h às 16h',
   `logo_url` varchar(255) DEFAULT 'foto/ipikk_new_logo.png',

@@ -10,8 +10,28 @@ if (!isset($areas) || !is_array($areas)) {
 }
 if (!isset($link_inscricao)) {
     $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-    $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+    $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 }
+
+if (!function_exists('urlPublicaLimpa')) {
+    function urlPublicaLimpa($url) {
+        $url = (string) $url;
+        if ($url === '' || preg_match('/^(mailto:|tel:|javascript:|#)/i', $url)) {
+            return $url;
+        }
+
+        $partes = parse_url($url);
+        $host = $partes['host'] ?? '';
+        if ($host !== '' && !preg_match('/(^|\.)ipikk\.(it\.)?ao$/i', $host)) {
+            return $url;
+        }
+
+        $url = preg_replace('/\.php(?=($|[?#]))/i', '', $url);
+        return in_array($url, ['index', './index'], true) ? './' : $url;
+    }
+}
+
+$link_inscricao = urlPublicaLimpa($link_inscricao);
 $links_ipikk = array_filter(array_map('trim', explode("\n", (string)($config['rodape_links_ipikk'] ?? ''))));
 $links_rapidos = array_filter(array_map('trim', explode("\n", (string)($config['rodape_links_rapidos'] ?? ''))));
 ?>
@@ -34,13 +54,13 @@ $links_rapidos = array_filter(array_map('trim', explode("\n", (string)($config['
                 <h4 class="titulo-rodape">IPIKK</h4>
                 <div class="links-rodape">
                     <?php if (!empty($links_ipikk)): foreach ($links_ipikk as $linha): $partes = array_map('trim', explode('|', $linha, 2)); if (count($partes) < 2) continue; ?>
-                    <a href="<?= htmlspecialchars($partes[1]) ?>" class="link-rodape"><?= htmlspecialchars($partes[0]) ?></a>
+                    <a href="<?= htmlspecialchars(urlPublicaLimpa($partes[1])) ?>" class="link-rodape"><?= htmlspecialchars($partes[0]) ?></a>
                     <?php endforeach; else: ?>
-                    <a href="sobre-nos.php" class="link-rodape">Sobre Nós</a>
+                    <a href="sobre-nos" class="link-rodape">Sobre Nós</a>
                     <a href="<?= $link_inscricao ?>" class="link-rodape">Inscrição</a>
-                    <a href="contatos.php" class="link-rodape">Contactos</a>
-                    <a href="area-restrita.php" class="link-rodape">Área Restrita</a>
-                    <a href="politica-privacidade.php" class="link-rodape">Políticas de Privacidade</a>
+                    <a href="contatos" class="link-rodape">Contactos</a>
+                    <a href="area-restrita" class="link-rodape">Área Restrita</a>
+                    <a href="politica-privacidade" class="link-rodape">Políticas de Privacidade</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -49,9 +69,9 @@ $links_rapidos = array_filter(array_map('trim', explode("\n", (string)($config['
             <div class="coluna-links">
                 <h4 class="titulo-rodape">Oferta Formativa</h4>
                 <div class="links-rodape">
-                    <a href="oferta-formativa.php" class="link-rodape">Ver Todos os Cursos</a>
+                    <a href="oferta-formativa" class="link-rodape">Ver Todos os Cursos</a>
                     <?php foreach($areas as $area_rodape): ?>
-                    <a href="area.php?slug=<?= $area_rodape['slug'] ?>" class="link-rodape"><?= htmlspecialchars($area_rodape['nome']) ?></a>
+                    <a href="area?slug=<?= $area_rodape['slug'] ?>" class="link-rodape"><?= htmlspecialchars($area_rodape['nome']) ?></a>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -61,7 +81,7 @@ $links_rapidos = array_filter(array_map('trim', explode("\n", (string)($config['
                 <h4 class="titulo-rodape">Links Rápidos</h4>
                 <div class="links-rodape">
                     <?php if (!empty($links_rapidos)): foreach ($links_rapidos as $linha): $partes = array_map('trim', explode('|', $linha, 2)); if (count($partes) < 2) continue; ?>
-                    <a href="<?= htmlspecialchars($partes[1]) ?>" class="link-rodape" target="_blank" rel="noopener noreferrer"><?= htmlspecialchars($partes[0]) ?></a>
+                    <a href="<?= htmlspecialchars(urlPublicaLimpa($partes[1])) ?>" class="link-rodape" target="_blank" rel="noopener noreferrer"><?= htmlspecialchars($partes[0]) ?></a>
                     <?php endforeach; else: ?>
                     <a href="https://governo.gov.ao/" class="link-rodape" target="_blank" rel="noopener noreferrer">Governo de Angola</a>
                     <a href="https://luanda.gov.ao/" class="link-rodape" target="_blank" rel="noopener noreferrer">Governo Provincial de Luanda</a>

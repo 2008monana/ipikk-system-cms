@@ -47,6 +47,23 @@ if (!defined('UPLOAD_PERFIS')) {
     define('UPLOAD_PERFIS', UPLOAD_PATH . '/perfis');
 }
 
+
+// ============================================
+// CLOUDINARY (UPLOAD EM NUVEM)
+// ============================================
+
+if (!defined('CLOUDINARY_CLOUD_NAME')) {
+    define('CLOUDINARY_CLOUD_NAME', getenv('CLOUDINARY_CLOUD_NAME') ?: '');
+}
+
+if (!defined('CLOUDINARY_UPLOAD_PRESET')) {
+    define('CLOUDINARY_UPLOAD_PRESET', getenv('CLOUDINARY_UPLOAD_PRESET') ?: '');
+}
+
+if (!defined('CLOUDINARY_FOLDER')) {
+    define('CLOUDINARY_FOLDER', getenv('CLOUDINARY_FOLDER') ?: 'ipikk');
+}
+
 // ============================================
 // LIMITES DE ARQUIVOS
 // ============================================

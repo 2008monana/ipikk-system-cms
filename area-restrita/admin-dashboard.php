@@ -14,7 +14,7 @@ session_start();
 
 // Verificar se está logado
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -31,7 +31,7 @@ $usuario = $stmt->fetch();
 
 if (!$usuario) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 $permissoes = isset($_SESSION['utilizador_permissoes'])     ? (is_array($_SESSION['utilizador_permissoes']) ? $_SESSION['utilizador_permissoes'] : json_decode($_SESSION['utilizador_permissoes'], true))
@@ -39,7 +39,7 @@ $permissoes = isset($_SESSION['utilizador_permissoes'])     ? (is_array($_SESSIO
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
 
 if ($nivel !== 'admin' && !in_array('dashboard', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
+    header('Location: admin-dashboard?erro=permissao');
     exit;
 }
 
@@ -158,7 +158,7 @@ include 'includes/sidebar.php';
         <section class="secao-conteudo">
             <div class="cabecalho-secao">
                 <h2 class="titulo-secao"><i class="fas fa-inbox"></i> Contactos Recentes</h2>
-                <a href="admin-contactos.php" class="link-ver-todos">Ver Todos <i class="fas fa-arrow-right"></i></a>
+                <a href="admin-contactos" class="link-ver-todos">Ver Todos <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="tabela-responsiva">
                 <table class="tabela-dados">
@@ -174,7 +174,7 @@ include 'includes/sidebar.php';
                               </td>
                               <td><strong><?php echo htmlspecialchars($c['assunto']); ?></strong></td>
                               <td><strong><?php echo formatarData($c['data_envio']); ?></strong></td>
-                              <td><button class="botao-icone" onclick="window.location.href='admin-contactos.php?ver=<?php echo $c['id']; ?>'"><i class="fas fa-eye"></i></button></td>
+                              <td><button class="botao-icone" onclick="window.location.href='admin-contactos?ver=<?php echo $c['id']; ?>'"><i class="fas fa-eye"></i></button></td>
                           </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -186,7 +186,7 @@ include 'includes/sidebar.php';
         <section class="secao-conteudo">
             <div class="cabecalho-secao">
                 <h2 class="titulo-secao"><i class="fas fa-newspaper"></i> Últimas Notícias</h2>
-                <a href="admin-noticias.php" class="link-ver-todos">Ver Todas <i class="fas fa-arrow-right"></i></a>
+                <a href="admin-noticias" class="link-ver-todos">Ver Todas <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="tabela-responsiva">
                 <table class="tabela-dados">
@@ -203,7 +203,7 @@ include 'includes/sidebar.php';
                                 <?php echo htmlspecialchars($n['titulo']); ?>
                               </td>
                               <td><?php echo $n['estado'] == 'publicada' ? 'Publicada: ' : 'Salvo: '; ?><?php echo formatarData($n['data_publicacao']); ?></td>
-                              <td><button class="botao-icone" onclick="window.location.href='admin-noticias.php?editar=<?php echo $n['id']; ?>'"><i class="fas fa-edit"></i></button></td>
+                              <td><button class="botao-icone" onclick="window.location.href='admin-noticias?editar=<?php echo $n['id']; ?>'"><i class="fas fa-edit"></i></button></td>
                           </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -215,7 +215,7 @@ include 'includes/sidebar.php';
 <section class="secao-conteudo">
     <div class="cabecalho-secao">
         <h2 class="titulo-secao"><i class="fas fa-graduation-cap"></i> Cursos Mais Visitados</h2>
-        <a href="admin-cursos.php" class="link-ver-todos">Gerir Cursos <i class="fas fa-arrow-right"></i></a>
+        <a href="admin-cursos" class="link-ver-todos">Gerir Cursos <i class="fas fa-arrow-right"></i></a>
     </div>
     <div class="grade-cursos">
                 <?php 
@@ -252,7 +252,7 @@ include 'includes/sidebar.php';
             }
         ?>
 
-        <div class="cartao-curso" style="border-left-color: <?php echo $cor_hex; ?>;" onclick="window.location.href='admin-cursos.php?editar=<?php echo $c['id']; ?>'">
+        <div class="cartao-curso" style="border-left-color: <?php echo $cor_hex; ?>;" onclick="window.location.href='admin-cursos?editar=<?php echo $c['id']; ?>'">
             <div class="numero-curso" style="background: <?php echo $cor_hex; ?>20; color: <?php echo $cor_hex; ?>;">
                 <i class="<?php echo $icone; ?>"></i>
             </div>
@@ -269,12 +269,23 @@ include 'includes/sidebar.php';
         <section class="secao-conteudo">
             <div class="cabecalho-secao">
                 <h2 class="titulo-secao"><i class="fas fa-bolt"></i> Actividade Recente</h2>
-                <a href="admin-logs.php" class="link-ver-todos">Ver Logs <i class="fas fa-arrow-right"></i></a>
+                <a href="admin-logs" class="link-ver-todos">Ver Logs <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="lista-atividades">
+                <?php
+                    $timezone_origem_logs = new DateTimeZone('America/Los_Angeles');
+                    $timezone_destino_logs = new DateTimeZone('Africa/Luanda');
+                ?>
                 <?php foreach($atividades as $a): ?>
+                <?php
+                    $dt_atividade = DateTime::createFromFormat('Y-m-d H:i:s', $a['data_hora'], $timezone_origem_logs);
+                    if (!$dt_atividade) {
+                        $dt_atividade = new DateTime($a['data_hora'], $timezone_origem_logs);
+                    }
+                    $dt_atividade->setTimezone($timezone_destino_logs);
+                ?>
                 <div class="item-atividade">
-                    <span class="hora-atividade">[<?php echo date('H:i', strtotime($a['data_hora'])); ?>]</span>
+                    <span class="hora-atividade">[<?php echo $dt_atividade->format('H:i'); ?>]</span>
                     <i class="fas fa-<?php echo $a['acao'] == 'login' ? 'sign-in-alt' : ($a['acao'] == 'criou' ? 'plus-circle' : 'edit'); ?>"></i>
                     <span><?php echo htmlspecialchars($a['detalhes'] ?? $a['acao'] . ' em ' . $a['tabela']); ?></span>
                 </div>

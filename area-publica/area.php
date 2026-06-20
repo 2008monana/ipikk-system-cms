@@ -2,7 +2,7 @@
 /**
  * Página de Área de Formação - IPIKK
  * UMA página para TODAS as áreas
- * Ex: area.php?slug=construcao-civil
+ * Ex: area?slug=construcao-civil
  */
 
 require_once '../config/index.php';
@@ -12,7 +12,7 @@ $config = getDB()->query("SELECT * FROM configuracoes WHERE id = 1")->fetch();
 $area_slug = $_GET['slug'] ?? null;
 
 if (!$area_slug) {
-    header('Location: oferta-formativa.php');
+    header('Location: oferta-formativa');
     exit;
 }
 
@@ -113,12 +113,12 @@ $imagens_padrao = [
     'alfaiataria' => 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80'
 ];
 
-$link_inscricao = 'inscricoes.php';
+$link_inscricao = 'inscricoes';
 $controle_inscricao = getDB()->query("SELECT * FROM controle_inscricoes WHERE id = 1")->fetch();
 if ($controle_inscricao && $controle_inscricao['status'] === 'abertas') {
-    $link_inscricao = 'inscricoes.php';
+    $link_inscricao = 'inscricoes';
 } else {
-    $link_inscricao = 'inscricoes-indisponiveis.php';
+    $link_inscricao = 'inscricoes-indisponiveis';
 }
 
 $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
@@ -516,7 +516,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
                     
                     // Imagem do curso ou padrão da área
                     $imagem_curso = !empty($curso['imagem_hero']) 
-                        ? (strpos($curso['imagem_hero'], 'http') === 0 ? $curso['imagem_hero'] : '../uploads/cursos/' . $curso['imagem_hero'])
+                        ? normalizarUrlMidia($curso['imagem_hero'], '')
                         : ($imagens_padrao[$area_slug] ?? 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80');
                 ?>
                 <article class="cartao-curso" data-curso-id="<?= $curso['id'] ?>" style="--curso-cor: <?= htmlspecialchars($cor_curso) ?>;">
@@ -551,70 +551,27 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
                                 endif;
                                 ?>
                             <?php else: ?>
-                                <!-- COMPETÊNCIAS PADRÃO POR CURSO -->
-                                <?php if($curso['id'] == 1): // Técnico de Obras ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Planeamento e gestão de obras</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Fiscalização e controle de qualidade</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Leitura e interpretação de projetos</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Gestão de materiais e equipamentos</li>
-                                
-                                <?php elseif($curso['id'] == 2): // Desenhador Projectista ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Desenho técnico arquitetônico</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Projetos estruturais e de instalações</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Softwares CAD e BIM</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Modelagem 3D e representação gráfica</li>
-                                
-                                <?php elseif($curso['id'] == 3): // Energia e Instalações ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Projetos de instalações elétricas</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Manutenção de sistemas elétricos</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Energias renováveis e eficiência energética</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Automação e comandos elétricos</li>
-                                
-                                <?php elseif($curso['id'] == 4): // Frio e Climatização ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Instalação de sistemas de refrigeração</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Manutenção de equipamentos de climatização</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Dimensionamento de sistemas HVAC</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Diagnóstico de falhas em sistemas frigoríficos</li>
-                                
-                                <?php elseif($curso['id'] == 5): // Gestão de Sistemas ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Administração de servidores e redes</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Gestão de bases de dados</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Segurança informática</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Desenvolvimento de software</li>
-                                
-                                <?php elseif($curso['id'] == 6): // Técnico de Informática ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Montagem e manutenção de computadores</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Instalação e configuração de sistemas operativos</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Redes de computadores e conectividade</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Suporte técnico a utilizadores</li>
-                                
-                                <?php elseif($curso['id'] == 8): // Tecnologias de Móveis ?>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Design de móveis e modelagem 3D</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Processos de produção moveleira</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Gestão da indústria moveleira</li>
-                                <li class="item-competencia"><span class="icone-check">✓</span> Softwares CAD específicos para móveis</li>
-                                
-                                <?php else: ?>
                                 <?php
                                     $competencias_card = [];
                                     if (!empty($curso['competencias_card'])) {
                                         $competencias_card = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $curso['competencias_card']))));
                                     }
-                                    if (empty($competencias_card)) {
-                                        $competencias_card = [
-                                            'Formação técnica especializada',
-                                            'Prática em laboratórios modernos',
-                                            'Preparação para o mercado de trabalho'
-                                        ];
+
+                                    if (empty($competencias_card) && !empty($curso['competencias_descricao'])) {
+                                        $competencias_card = array_slice(array_values(array_filter(array_map('trim', preg_split('/;|\r\n|\r|\n/', $curso['competencias_descricao'])))), 0, 4);
                                     }
+
+                                    if (empty($competencias_card)) {
+                                        $competencias_card = ['Competências em atualização.'];
+                                    }
+
                                     foreach ($competencias_card as $item):
                                 ?>
                                 <li class="item-competencia"><span class="icone-check">✓</span> <?= htmlspecialchars($item) ?></li>
                                 <?php endforeach; ?>
-                                <?php endif; ?>
                             <?php endif; ?>
                         </ul>
-                        <a href="curso.php?slug=<?= $curso['slug'] ?>" class="botao-detalhes" style="--botao-cor: <?= htmlspecialchars($cor_curso) ?>;">
+                        <a href="curso?slug=<?= $curso['slug'] ?>" class="botao-detalhes" style="--botao-cor: <?= htmlspecialchars($cor_curso) ?>;">
                             Ver detalhes do curso →
                         </a>
                     </div>
@@ -630,7 +587,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
 
                 <div class="grade-outras-areas">
                     <?php foreach($outras_areas as $outra_area): ?>
-                    <a href="area.php?slug=<?= $outra_area['slug'] ?>" class="cartao-area" style="--area-cor: <?= $outra_area['cor_primaria'] ?? '#6c757d' ?>;">
+                    <a href="area?slug=<?= $outra_area['slug'] ?>" class="cartao-area" style="--area-cor: <?= $outra_area['cor_primaria'] ?? '#6c757d' ?>;">
                         <div class="topo-cartao-area">
                             <div class="icone-area">
                                 <i class="fas <?= $outra_area['icone_classe'] ?? 'fa-graduation-cap' ?>"></i>
@@ -650,9 +607,7 @@ $titulo_pagina = "IPIKK - " . htmlspecialchars($area['nome']);
     <!-- ===== BOTÕES FLUTUANTES ===== -->
     <div class="botoes-flutuantes">
         <button class="botao-flutuante" id="botaoTopo"><i class="fas fa-chevron-up"></i></button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

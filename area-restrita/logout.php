@@ -13,7 +13,7 @@ session_start();
 
 // Verificar se o usuário está logado
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: ../area-publica/area-restrita.php');
+    header('Location: ../area-publica/area-restrita');
     exit;
 }
 
@@ -516,7 +516,7 @@ if ($confirmado) {
         await new Promise(resolve => setTimeout(resolve, 5000));
         
         try {
-            const response = await fetch('logout.php', {
+            const response = await fetch('logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -529,7 +529,7 @@ if ($confirmado) {
             if (resultado.success) {
                 mostrarFeedback('success', resultado.message, 'Sessão encerrada com sucesso');
                 setTimeout(() => {
-                    window.location.href = '../area-publica/area-restrita.php';
+                    window.location.href = '../area-publica/area-restrita';
                 }, 2000);
             } else {
                 mostrarFeedback('error', 'Erro ao encerrar sessão', 'Tente novamente');
@@ -547,7 +547,7 @@ if ($confirmado) {
     });
     
     btnNao.addEventListener('click', () => {
-        window.location.href = 'admin-dashboard.php';
+        window.location.href = 'admin-dashboard';
     });
 
     document.body.addEventListener('click', () => {

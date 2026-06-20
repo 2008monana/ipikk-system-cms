@@ -67,23 +67,18 @@ function getImagemArea($area) {
         return $imagens_padrao[$area['slug']] ?? 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80';
     }
     
-    // Se já é uma URL externa (http ou https)
-    if (strpos($area['imagem_url'], 'http') === 0) {
-        return $area['imagem_url'];
+    // Se já é uma URL externa (http, https ou protocol-relative)
+    if (preg_match('/^(https?:)?\/\//i', $area['imagem_url'])) {
+        return normalizarUrlMidia($area['imagem_url'], '');
     }
     
-    // Se já tem o caminho completo começando com ../
-    if (strpos($area['imagem_url'], '../') === 0) {
-        return $area['imagem_url'];
+    // Se já tem um caminho relativo completo (uploads/foto/area-publica), normalizar conforme a página atual.
+    if (preg_match('#^(\.\./|area-publica/|uploads/|foto/)#', $area['imagem_url'])) {
+        return normalizarUrlMidia($area['imagem_url'], '');
     }
     
-    // Se já tem o caminho uploads/ (sem a barra no início)
-    if (strpos($area['imagem_url'], 'uploads/') === 0) {
-        return normalizarUrlMidia($area['imagem_url'], '..');
-    }
-    
-    // Se for apenas o nome do arquivo (ex: 69cc66ecaba9e.png)
-    return '../uploads/areas/' . $area['imagem_url'];
+    // Se for apenas o nome do arquivo (ex: 69cc66ecaba9e.png), considerar a pasta padrão das áreas.
+    return normalizarUrlMidia('uploads/areas/' . $area['imagem_url'], '');
 }
 ?>
 
@@ -204,12 +199,14 @@ function getImagemArea($area) {
 
         .capa-area {
             position: relative;
-            height: 220px;
+            height: 250px;
             background-size: cover;
-            background-position: center;
+            background-position: center center;
+            background-repeat: no-repeat;
             display: flex;
             align-items: flex-end;
             padding: 24px 22px;
+            isolation: isolate;
         }
 
         .overlay-area {
@@ -397,8 +394,8 @@ function getImagemArea($area) {
                     // Criar overlay gradiente com a cor da área
                     $overlay_gradiente = criarOverlayGradiente($cor_area);
                 ?>
-                <a href="area.php?slug=<?= $area['slug'] ?>" class="cartao-area" style="--area-cor: <?= $cor_area ?>;">
-                    <div class="capa-area" style="background-image: url('<?= $imagem_url ?>')">
+                <a href="area?slug=<?= $area['slug'] ?>" class="cartao-area" style="--area-cor: <?= $cor_area ?>;">
+                    <div class="capa-area" style="background-image: url('<?= htmlspecialchars($imagem_url, ENT_QUOTES) ?>')">
                         <div class="overlay-area" style="background: <?= $overlay_gradiente ?>;"></div>
                         <div class="conteudo-capa-area">
                             <div class="icone-area-formativa">
@@ -409,7 +406,7 @@ function getImagemArea($area) {
                         </div>
                     </div>
                     <div class="rodape-area-formativa">
-                        <span class="contagem-cursos"><?= $total_cursos ?> curso<?= $total_cursos != 1 ? 's' : '' ?> disponível<?= $total_cursos != 1 ? 'is' : '' ?></span>
+                        <span class="contagem-cursos"><?= $total_cursos ?> <?= $total_cursos === 1 ? 'curso disponível' : 'cursos disponíveis' ?></span>
                         <span class="botao-ver-area">Explorar área →</span>
                     </div>
                 </a>
@@ -421,9 +418,7 @@ function getImagemArea($area) {
     <!-- ===== BOTÕES FLUTUANTES ===== -->
     <div class="botoes-flutuantes">
         <button class="botao-flutuante" id="botaoTopo"><i class="fas fa-chevron-up"></i></button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

@@ -22,7 +22,7 @@ foreach ($todos_cursos as $curso_item) {
 // Verificar status das inscrições (se estiverem abertas, redirecionar)
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
 if ($status_inscricoes && $status_inscricoes['status'] === 'abertas') {
-    header('Location: inscricoes.php');
+    header('Location: inscricoes');
     exit;
 }
 
@@ -412,7 +412,7 @@ Fique atento às nossas redes sociais e comunicados oficiais para saber quando a
             </div>
 
             <div class="botoes">
-                <a href="contatos.php" class="btn btn-secundario">
+                <a href="contatos" class="btn btn-secundario">
                     <i class="fas fa-envelope"></i> Página de Contactos
                 </a>
             </div>

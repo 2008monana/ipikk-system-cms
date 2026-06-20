@@ -1,0 +1,61 @@
+/* Responsividade dedicada apenas aos modais de criação/edição */
+
+.modal,
+.modal.ativo,
+.modal.show,
+.modal-confirmacao,
+.modal-confirmacao.ativo,
+.modal-confirmacao.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.modal-conteudo,
+.modal-content,
+.modal-caixa,
+.modal-confirmacao-caixa,
+.conteudo-modal {
+  width: 40vw !important;
+  max-width: 40vw !important;
+  max-height: 90vh !important;
+  overflow: auto !important;
+  margin: 0 auto !important;
+  border-radius: 14px !important;
+}
+
+@media (max-width: 768px) {
+  .modal,
+  .modal.ativo,
+  .modal.show,
+  .modal-confirmacao,
+  .modal-confirmacao.ativo,
+  .modal-confirmacao.show {
+    padding: 10px;
+  }
+
+  .modal-conteudo,
+  .modal-content,
+  .modal-caixa,
+  .modal-confirmacao-caixa,
+  .conteudo-modal {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 88vh !important;
+    border-radius: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-conteudo,
+  .modal-content,
+  .modal-caixa,
+  .modal-confirmacao-caixa,
+  .conteudo-modal {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    max-height: 86vh !important;
+    padding: 12px !important;
+  }
+}

@@ -26,7 +26,7 @@ $subtitulo = $pagina['subtitulo'] ?? 'Lista das instituições de ensino parceir
 
 // Verificar status das inscrições para o botão de matrícula
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 ?>
 
 <!DOCTYPE html>
@@ -47,280 +47,197 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
     <link rel="stylesheet" href="css/header-footer.css">
 
     <style>
-        /* ========= CONTAINER DA SEÇÃO ================ */
+        :root {
+            --azul-principal: #003072;
+            --azul-escuro: #001a40;
+            --verde-acento: #0a9396;
+            --branco: #ffffff;
+            --cinza-claro: #f8f9fa;
+            --cinza: #6c757d;
+            --texto-principal: #2c3e50;
+            --borda-raio: 18px;
+            --sombra-card: 0 18px 45px rgba(0, 48, 114, 0.12);
+            --transicao: all 0.3s ease;
+        }
+
+        body {
+            background: var(--cinza-claro);
+        }
+
         .container-escolas {
-            max-width: 800px;
-            margin: 50px auto;
+            max-width: 1200px;
+            margin: 50px auto 70px;
             padding: 0 20px;
         }
 
-        /* Introdução (Título e Texto) */
         .intro-secao {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 42px;
         }
 
         .intro-secao h2 {
-            color: #003366;
-            font-size: 28px;
-            margin-bottom: 10px;
+            color: var(--azul-principal);
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 12px;
             font-weight: 700;
         }
 
         .linha-decorativa {
-            width: 60px;
+            width: 80px;
             height: 4px;
-            background-color: #008080;
-            margin: 0 auto 20px auto;
-            border-radius: 2px;
+            background: linear-gradient(90deg, var(--azul-principal), var(--verde-acento));
+            margin: 0 auto 18px;
+            border-radius: 999px;
         }
 
         .intro-secao p {
-            color: #888;
-            font-size: 14px;
-            max-width: 600px;
+            color: var(--cinza);
+            font-size: 1.05rem;
+            max-width: 740px;
             margin: 0 auto;
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
-        /* ====== ESTRUTURA DO ACORDEÃO ============== */
-        .escola_afiliada {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .grade-escolas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
         }
 
-        .escola_afiliada-item {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        .card-escola {
+            background: var(--branco);
+            border-radius: var(--borda-raio);
+            padding: 34px 26px 28px;
+            text-align: center;
+            box-shadow: var(--sombra-card);
+            border: 1px solid rgba(0, 48, 114, 0.08);
+            position: relative;
             overflow: hidden;
-            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            transition: var(--transicao);
         }
 
-        /* ======== CABEÇALHO (PARTE CLICÁVEL) ========== */
-        .escola_afiliada-cabecalho {
-            padding: 20px 25px;
-            display: flex;
-            justify-content: space-between;
+        .card-escola:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 55px rgba(0, 48, 114, 0.18);
+        }
+
+        .foto-escola {
+            width: 132px;
+            height: 132px;
+            border-radius: 50%;
+            margin: 0 auto 22px;
+            padding: 5px;
+            background: linear-gradient(155deg, var(--azul-principal) 0%, var(--verde-acento) 100%);
+            box-shadow: 0 12px 28px rgba(0, 48, 114, 0.18);
+        }
+
+        .foto-escola img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--branco);
+            border: 4px solid var(--branco);
+        }
+
+        .card-escola h3 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--azul-principal);
+            font-size: 1.22rem;
+            line-height: 1.35;
+            margin-bottom: 12px;
+        }
+
+        .badge-escola {
+            display: inline-flex;
             align-items: center;
-            cursor: pointer;
-            background-color: #fff;
-            user-select: none;
-            transition: background 0.4s ease, color 0.4s ease;
-        }
-
-        .titulo-escola {
-            font-weight: 500;
-            color: #003366;
-            font-size: 16px;
-            flex: 1;
-            margin-right: 15px;
-            transition: color 0.4s ease;
-        }
-
-        .meta-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        /* Badge "Privado" */
-        .badge-privado {
-            background-color: #eef2f5;
-            color: #556b7f;
-            font-size: 12px;
+            justify-content: center;
+            gap: 7px;
+            padding: 7px 16px;
+            border-radius: 999px;
+            font-size: 0.78rem;
             font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 50px;
-            transition: all 0.4s ease;
+            margin-bottom: 20px;
+        }
+
+        .badge-privado {
+            background: rgba(0, 48, 114, 0.08);
+            color: var(--azul-principal);
         }
 
         .badge-publico {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 50px;
-            transition: all 0.4s ease;
+            background: rgba(10, 147, 150, 0.12);
+            color: #08787a;
         }
 
-        /* Seta (Círculo com ícone) */
-        .escola_afiliada-seta {
-            width: 32px;
-            height: 32px;
-            border: 2px solid #ddd;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #888;
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .escola_afiliada-seta svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* ========= CONTEÚDO (ANIMAÇÃO SUAVE) ============= */
-        .escola_afiliada-conteudo {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            padding: 0 25px;
-            background-color: #fff;
-            transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1),
-                        opacity 0.4s ease-in-out,
-                        padding 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            will-change: max-height, opacity, padding;
-        }
-
-        /* Estilização das linhas de informação */
-        .info-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid #f0f0f0;
-            position: relative;
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-        /* Container esquerdo com ícone e texto */
-        .info-row-left {
-            display: flex;
-            align-items: flex-start;
-            flex: 1;
-        }
-
-        .icon-box {
-            color: #008080;
-            margin-right: 15px;
-            min-width: 24px;
-            margin-top: 2px;
-        }
-
-        .icon-box svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .info-text {
+        .info-escola {
             display: flex;
             flex-direction: column;
+            gap: 13px;
+            text-align: left;
         }
 
-        .info-text strong {
-            color: #006680;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
+        .info-item {
+            display: grid;
+            grid-template-columns: 34px 1fr;
+            gap: 12px;
+            align-items: flex-start;
+            color: var(--texto-principal);
         }
 
-        .info-text span {
-            color: #555;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
-        /* ===== CÍRCULO COM LOGO DA ESCOLA ===== */
-        .circulo-logo {
-            width: 80px;
-            height: 80px;
+        .info-item i {
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            overflow: hidden;
-            background: linear-gradient(135deg, #003366, #008080);
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            margin-left: 15px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border: 2px solid rgba(255,255,255,0.5);
+            background: rgba(10, 147, 150, 0.11);
+            color: var(--verde-acento);
+            font-size: 0.95rem;
         }
 
-        .circulo-logo:hover {
-            transform: scale(1.08);
-            box-shadow: 0 4px 12px rgba(0,51,102,0.3);
-            border-color: #ffc107;
+        .info-item strong {
+            display: block;
+            color: var(--azul-principal);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 2px;
         }
 
-        .circulo-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .info-item span,
+        .info-item a {
+            color: #55606b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            text-decoration: none;
+            word-break: break-word;
         }
 
-        /* Para as outras info-rows (email, telefone, endereço) não terem o círculo */
-        .info-row:not(:first-child) .circulo-logo {
-            display: none;
+        .info-item a:hover {
+            color: var(--verde-acento);
         }
 
-        /* ============= ESTADO ATIVO (QUANDO ABERTO) ====================== */
-        .escola_afiliada-item.active {
-            box-shadow: 0 15px 30px rgba(0, 51, 102, 0.15);
+        .link-site-escola {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 11px 20px;
+            border-radius: 999px;
+            color: var(--branco);
+            background: linear-gradient(155deg, var(--azul-principal) 0%, var(--verde-acento) 100%);
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transicao);
+        }
+
+        .link-site-escola:hover {
             transform: translateY(-2px);
-        }
-
-        .escola_afiliada-item.active .escola_afiliada-cabecalho {
-            background: linear-gradient(135deg, #003366 0%, #006680 100%);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .escola_afiliada-item.active .titulo-escola {
-            color: #ffffff;
-        }
-
-        .escola_afiliada-item.active .badge-privado,
-        .escola_afiliada-item.active .badge-publico {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-        }
-
-        .escola_afiliada-item.active .escola_afiliada-seta {
-            transform: rotate(180deg);
-            border-color: rgba(255,255,255,0.5);
-            color: #ffffff;
-            background-color: rgba(255,255,255,0.1);
-        }
-
-        .escola_afiliada-item.active .escola_afiliada-conteudo {
-            opacity: 1;
-            padding-top: 20px;
-            padding-bottom: 25px;
-        }
-
-        /* ================== RESPONSIVIDADE ======================= */
-        @media (max-width: 600px) {
-            .escola_afiliada-cabecalho {
-                flex-wrap: wrap;
-            }
-            .titulo-escola {
-                width: 100%;
-                margin-bottom: 10px;
-                margin-right: 0;
-            }
-            .meta-info {
-                width: 100%;
-                justify-content: space-between;
-            }
-            .circulo-logo {
-                width: 40px;
-                height: 40px;
-            }
-            .info-row {
-                flex-wrap: wrap;
-            }
-            .info-row-left {
-                flex: 1;
-            }
+            box-shadow: 0 12px 24px rgba(0, 48, 114, 0.2);
         }
 
         .mensagem-vazia {
@@ -339,9 +256,28 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
 
         .mensagem-vazia i {
             display: block;
-            color: #0a9396;
+            color: var(--verde-acento);
             font-size: 2rem;
             margin-bottom: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .container-escolas {
+                margin-top: 34px;
+            }
+
+            .intro-secao h2 {
+                font-size: 2rem;
+            }
+
+            .card-escola {
+                padding: 30px 22px 24px;
+            }
+
+            .foto-escola {
+                width: 116px;
+                height: 116px;
+            }
         }
     </style>
 </head>
@@ -363,96 +299,72 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
             Sem informações de escolas afiliadas no momento.
         </div>
         <?php else: ?>
-        <div class="escola_afiliada">
+        <div class="grade-escolas">
             <?php foreach($escolas as $index => $escola):
-                $badge_class = ($escola['tipo'] ?? 'Privado') == 'Privado' ? 'badge-privado' : 'badge-publico';
+                $tipo_escola = $escola['tipo'] ?? 'Privado';
+                $badge_class = $tipo_escola === 'Privado' ? 'badge-privado' : 'badge-publico';
                 $logo_url = !empty($escola['logo_url'])
                     ? $escola['logo_url']
                     : 'foto/sem_logo.png';
             ?>
-            <div class="escola_afiliada-item" data-id="<?= $escola['id'] ?? $index ?>">
-                <div class="escola_afiliada-cabecalho">
-                    <span class="titulo-escola"><?= htmlspecialchars($escola['nome']) ?></span>
-                    <div class="meta-info">
-                        <span class="<?= $badge_class ?>"><?= htmlspecialchars($escola['tipo'] ?? 'Privado') ?></span>
-                        <span class="escola_afiliada-seta">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </span>
-                    </div>
+            <article class="card-escola" data-id="<?= $escola['id'] ?? $index ?>">
+                <div class="foto-escola">
+                    <img src="<?= htmlspecialchars($logo_url) ?>" alt="<?= htmlspecialchars($escola['nome']) ?>" onerror="this.src='foto/sem_logo.png'">
                 </div>
-                <div class="escola_afiliada-conteudo">
 
-                    <!-- Nome (com círculo) -->
-                    <div class="info-row">
-                        <div class="info-row-left">
-                            <div class="icon-box">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-4h8v4"/></svg>
-                            </div>
-                            <div class="info-text">
-                                <strong>Nome da Escola</strong>
-                                <span><?= htmlspecialchars($escola['nome']) ?></span>
-                            </div>
-                        </div>
-                        <div class="circulo-logo">
-                            <img src="<?= htmlspecialchars($logo_url) ?>" alt="<?= htmlspecialchars($escola['nome']) ?>" onerror="this.src='foto/sem_logo.png'">
-                        </div>
-                    </div>
+                <h3><?= htmlspecialchars($escola['nome']) ?></h3>
+                <span class="badge-escola <?= $badge_class ?>">
+                    <i class="fas fa-school"></i>
+                    <?= htmlspecialchars($tipo_escola) ?>
+                </span>
 
-                    <!-- Email -->
+                <div class="info-escola">
                     <?php if(!empty($escola['email'])): ?>
-                    <div class="info-row">
-                        <div class="info-row-left">
-                            <div class="icon-box">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            </div>
-                            <div class="info-text">
-                                <strong>Email</strong>
-                                <span><?= htmlspecialchars($escola['email']) ?></span>
-                            </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <strong>Email</strong>
+                            <a href="mailto:<?= htmlspecialchars($escola['email']) ?>"><?= htmlspecialchars($escola['email']) ?></a>
                         </div>
                     </div>
                     <?php endif; ?>
 
-                    <!-- Telefone(s) -->
                     <?php if(!empty($escola['telefone1']) || !empty($escola['telefone2'])): ?>
-                    <div class="info-row">
-                        <div class="info-row-left">
-                            <div class="icon-box">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                            </div>
-                            <div class="info-text">
-                                <strong>Telefone</strong>
-                                <span>
-                                    <?= htmlspecialchars($escola['telefone1']) ?>
-                                    <?php if(!empty($escola['telefone2'])): ?>
-                                    / <?= htmlspecialchars($escola['telefone2']) ?>
-                                    <?php endif; ?>
-                                </span>
-                            </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <strong>Telefone</strong>
+                            <span>
+                                <?= htmlspecialchars($escola['telefone1'] ?? '') ?>
+                                <?php if(!empty($escola['telefone2'])): ?>
+                                / <?= htmlspecialchars($escola['telefone2']) ?>
+                                <?php endif; ?>
+                            </span>
                         </div>
                     </div>
                     <?php endif; ?>
 
-                    <!-- Endereço -->
                     <?php if(!empty($escola['endereco'])): ?>
-                    <div class="info-row">
-                        <div class="info-row-left">
-                            <div class="icon-box">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            </div>
-                            <div class="info-text">
-                                <strong>Endereço</strong>
-                                <span><?= nl2br(htmlspecialchars($escola['endereco'])) ?></span>
-                            </div>
+                    <div class="info-item">
+                        <i class="fas fa-location-dot"></i>
+                        <div>
+                            <strong>Endereço</strong>
+                            <span><?= nl2br(htmlspecialchars($escola['endereco'])) ?></span>
                         </div>
                     </div>
                     <?php endif; ?>
-
                 </div>
-            </div>
+
+                <?php if(!empty($escola['site_url'])): ?>
+                <a class="link-site-escola" href="<?= htmlspecialchars($escola['site_url']) ?>" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-arrow-up-right-from-square"></i> Visitar site
+                </a>
+                <?php endif; ?>
+            </article>
             <?php endforeach; ?>
         </div>
         <?php endif; ?>
+
     </section>
 
     <!-- ===== BOTÕES FLUTUANTES ===== -->
@@ -460,48 +372,11 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         <button class="botao-flutuante" id="botaoTopo" title="Voltar ao topo">
             <i class="fas fa-chevron-up"></i>
         </button>
-        <?php if($config['whatsapp_numero']): ?>
-        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp_numero']) ?>" class="botao-flutuante whatsapp" target="_blank" rel="noopener" title="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-        </a>
-        <?php endif; ?>
+        <?php include __DIR__ . '/includes/botao-whatsapp.php'; ?>
     </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
 
     <script src="js/header-footer.js"></script>
-    <script>
-        // ===== ACORDEÃO - FUNCIONALIDADE =====
-        document.addEventListener("DOMContentLoaded", function() {
-            const items = document.querySelectorAll(".escola_afiliada-item");
-
-            items.forEach(item => {
-                const header = item.querySelector(".escola_afiliada-cabecalho");
-                const content = item.querySelector(".escola_afiliada-conteudo");
-
-                header.addEventListener("click", () => {
-                    const isOpen = item.classList.contains("active");
-
-                    // Fechar todos os outros itens
-                    items.forEach(otherItem => {
-                        if (otherItem !== item && otherItem.classList.contains("active")) {
-                            otherItem.classList.remove("active");
-                            const otherContent = otherItem.querySelector(".escola_afiliada-conteudo");
-                            otherContent.style.maxHeight = null;
-                        }
-                    });
-
-                    // Abrir/fechar o item atual
-                    if (isOpen) {
-                        item.classList.remove("active");
-                        content.style.maxHeight = null;
-                    } else {
-                        item.classList.add("active");
-                        content.style.maxHeight = content.scrollHeight + 50 + "px";
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
