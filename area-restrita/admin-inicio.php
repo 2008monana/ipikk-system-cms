@@ -9,7 +9,7 @@ $titulo_pagina = 'Página Inicial';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -26,7 +26,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1340,7 +1340,7 @@ function salvarSlide(btn) {
     formData.append('botao', botao);
     formData.append('link', link || '#');
     if (imagemFile) formData.append('imagem', imagemFile);
-    fetch('processos/processar-inicio.php', { method: 'POST', body: formData })
+    fetch('processos/processar-inicio', { method: 'POST', body: formData })
         .then(response => response.json())
         .then(data => { if (data.success) { mostrarNotificacao(data.message, 'sucesso'); setTimeout(() => location.reload(), 1000); } else { mostrarNotificacao(data.message, 'erro'); } });
 }
@@ -1361,7 +1361,7 @@ function salvarNovoSlide(btn) {
     formData.append('botao', botao);
     formData.append('link', link || '#');
     if (imagemFile) formData.append('imagem', imagemFile);
-    fetch('processos/processar-inicio.php', { method: 'POST', body: formData })
+    fetch('processos/processar-inicio', { method: 'POST', body: formData })
         .then(response => response.json())
         .then(data => { if (data.success) { mostrarNotificacao(data.message, 'sucesso'); setTimeout(() => location.reload(), 1000); } else { mostrarNotificacao(data.message, 'erro'); } });
 }
@@ -1377,7 +1377,7 @@ function eliminarSlide(btn) {
     confirmar.parentNode.replaceChild(novoConfirmar, confirmar);
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-inicio.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ action: 'eliminar_slide', index: index }) });
+            const response = await fetch('processos/processar-inicio', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ action: 'eliminar_slide', index: index }) });
             const data = await response.json();
             if (data.success) { mostrarNotificacao(data.message, 'sucesso'); location.reload(); } else { mostrarNotificacao(data.message, 'erro'); }
         } catch (error) { mostrarNotificacao('Erro ao eliminar', 'erro'); }
@@ -1467,7 +1467,7 @@ function salvarParceiro(btn) {
     formData.append('nome', nome);
     formData.append('link', link);
     if (logoFile) formData.append('logo', logoFile);
-    fetch('processos/processar-inicio.php', { method: 'POST', body: formData })
+    fetch('processos/processar-inicio', { method: 'POST', body: formData })
         .then(response => response.json())
         .then(data => { if (data.success) { mostrarNotificacao(data.message, 'sucesso'); setTimeout(() => location.reload(), 1000); } else { mostrarNotificacao(data.message, 'erro'); } });
 }
@@ -1484,7 +1484,7 @@ function salvarNovoParceiro(btn) {
     formData.append('nome', nome);
     formData.append('link', link);
     if (logoFile) formData.append('logo', logoFile);
-    fetch('processos/processar-inicio.php', { method: 'POST', body: formData })
+    fetch('processos/processar-inicio', { method: 'POST', body: formData })
         .then(response => response.json())
         .then(data => { if (data.success) { mostrarNotificacao(data.message, 'sucesso'); setTimeout(() => location.reload(), 1000); } else { mostrarNotificacao(data.message, 'erro'); } });
 }
@@ -1500,7 +1500,7 @@ function eliminarParceiro(btn) {
     confirmar.parentNode.replaceChild(novoConfirmar, confirmar);
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-inicio.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ action: 'eliminar_parceiro', index: index }) });
+            const response = await fetch('processos/processar-inicio', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ action: 'eliminar_parceiro', index: index }) });
             const data = await response.json();
             if (data.success) { mostrarNotificacao(data.message, 'sucesso'); location.reload(); } else { mostrarNotificacao(data.message, 'erro'); }
         } catch (error) { mostrarNotificacao('Erro ao eliminar', 'erro'); }
@@ -1526,7 +1526,7 @@ function confirmarRemoverFotoDirector() {
     abrirModalConfirmacao('Remover foto do Director', 'Tem certeza que deseja remover a foto atual?', async () => {
         const formData = new FormData();
         formData.append('action', 'remover_foto_director');
-        const response = await fetch('processos/processar-inicio.php', { method: 'POST', body: formData });
+        const response = await fetch('processos/processar-inicio', { method: 'POST', body: formData });
         const data = await response.json();
         if (data.success) { mostrarNotificacao(data.message, 'sucesso'); setTimeout(() => location.reload(), 700); }
         else { mostrarNotificacao(data.message, 'erro'); }
@@ -1537,7 +1537,7 @@ function confirmarRemoverFotoMatricula() {
     abrirModalConfirmacao('Remover foto de Matrícula', 'Tem certeza que deseja remover a imagem atual?', async () => {
         const formData = new FormData();
         formData.append('action', 'remover_imagem_matricula');
-        const response = await fetch('processos/processar-inicio.php', { method: 'POST', body: formData });
+        const response = await fetch('processos/processar-inicio', { method: 'POST', body: formData });
         const data = await response.json();
         if (data.success) { mostrarNotificacao(data.message, 'sucesso'); setTimeout(() => location.reload(), 700); }
         else { mostrarNotificacao(data.message, 'erro'); }
@@ -1552,7 +1552,7 @@ function salvarMensagemDirector() {
     formData.append('mensagem', document.getElementById('directorMensagem').value);
     formData.append('assinatura', document.getElementById('directorAssinatura').value);
     if (pendingDirectorFoto) formData.append('foto', pendingDirectorFoto);
-    fetch('processos/processar-inicio.php', { method: 'POST', body: formData })
+    fetch('processos/processar-inicio', { method: 'POST', body: formData })
         .then(response => response.json())
         .then(data => { if (data.success) { mostrarNotificacao(data.message, 'sucesso'); setTimeout(() => location.reload(), 1000); } else { mostrarNotificacao(data.message, 'erro'); } });
 }
@@ -1563,7 +1563,7 @@ function salvarMatricula() {
     formData.append('titulo', document.getElementById('matriculaTitulo').value);
     formData.append('descricao', document.getElementById('matriculaDescricao').value);
     if (pendingMatriculaImg) formData.append('imagem', pendingMatriculaImg);
-    fetch('processos/processar-inicio.php', { method: 'POST', body: formData })
+    fetch('processos/processar-inicio', { method: 'POST', body: formData })
         .then(response => response.json())
         .then(data => { if (data.success) { mostrarNotificacao(data.message, 'sucesso'); setTimeout(() => location.reload(), 1000); } else { mostrarNotificacao(data.message, 'erro'); } });
 }
@@ -1574,7 +1574,7 @@ function salvarTudo() {
     setTimeout(() => { mostrarNotificacao('Todas as alterações foram guardadas!', 'sucesso'); }, 500);
 }
 
-function previewPagina() { window.open('../area-publica/index.php?preview=1', '_blank'); }
+function previewPagina() { window.open('../area-publica/index?preview=1', '_blank'); }
 
 document.getElementById('btnCancelarConfirmacao')?.addEventListener('click', () => { document.getElementById('modalConfirmacao').classList.remove('ativo'); });
 document.getElementById('modalConfirmacao')?.addEventListener('click', (e) => { if (e.target === document.getElementById('modalConfirmacao')) document.getElementById('modalConfirmacao').classList.remove('ativo'); });

@@ -10,7 +10,7 @@ $css_especifico = 'admin-percurso.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -27,7 +27,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1642,7 +1642,7 @@ async function salvarAlumni(event) {
     if (fotoFile) formData.append('foto', fotoFile);
     
     try {
-        const response = await fetch('processos/processar-percurso.php', {
+        const response = await fetch('processos/processar-percurso', {
             method: 'POST',
             body: formData
         });
@@ -1685,7 +1685,7 @@ function fecharModalAlumni() {
 }
 
 function editarAlumni(id) {
-    fetch(`processos/processar-percurso.php?action=buscar&id=${id}`)
+    fetch(`processos/processar-percurso?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -1721,7 +1721,7 @@ function eliminarAlumni(id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-percurso.php', {
+            const response = await fetch('processos/processar-percurso', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })

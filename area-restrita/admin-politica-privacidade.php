@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -31,7 +31,7 @@ $usuario = $stmt->fetch();
 
 if (!$usuario) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 

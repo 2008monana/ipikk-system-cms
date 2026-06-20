@@ -64,7 +64,7 @@ if (empty($director['realizacoes'])) {
 
 // Verificar status das inscrições para o botão de matrícula
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 ?>
 
 <!DOCTYPE html>

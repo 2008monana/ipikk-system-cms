@@ -10,7 +10,7 @@ $css_especifico = 'admin-normativos.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -27,7 +27,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1484,7 +1484,7 @@ async function salvarDescricao(event) {
     const descricao = document.getElementById('campoDescricaoPagina').value;
     
     try {
-        const response = await fetch('processos/processar-normativos.php', {
+        const response = await fetch('processos/processar-normativos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
@@ -1537,7 +1537,7 @@ function fecharModalDocumento() {
 }
 
 function editarDocumento(id) {
-    fetch(`processos/processar-normativos.php?action=buscar&id=${id}`)
+    fetch(`processos/processar-normativos?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -1597,7 +1597,7 @@ async function salvarDocumento(event) {
     btnSalvar.disabled = true;
     
     try {
-        const response = await fetch('processos/processar-normativos.php', {
+        const response = await fetch('processos/processar-normativos', {
             method: 'POST',
             body: formData
         });
@@ -1630,7 +1630,7 @@ function eliminarDocumento(id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-normativos.php', {
+            const response = await fetch('processos/processar-normativos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })
