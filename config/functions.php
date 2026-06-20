@@ -525,9 +525,19 @@ function registrarLog($acao, $tabela = null, $registro_id = null, $detalhes = nu
     $db = getDB();
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? null;
-    $utilizador_nome = $_SESSION['utilizador_nome'] ?? 'Utilizador';
+    $utilizador_nome = $_SESSION['utilizador_nome'] ?? 'Sistema';
     $nivel = ucfirst($_SESSION['utilizador_nivel'] ?? 'Sistema');
-    $utilizador_id = $_SESSION['utilizador_id'] ?? 1;
+    $utilizador_id = $_SESSION['utilizador_id'] ?? null;
+
+    if (!$utilizador_id) {
+        $stmt_utilizador = $db->query("SELECT id FROM utilizadores WHERE ativo = 1 ORDER BY nivel = 'admin' DESC, id ASC LIMIT 1");
+        $utilizador_id = $stmt_utilizador->fetchColumn();
+    }
+
+    if (!$utilizador_id) {
+        error_log('Não foi possível registrar log: nenhum utilizador disponível para associar o evento.');
+        return;
+    }
     $modulo = $tabela ?: 'sistema';
     $registro = ($registro_id !== null && $registro_id !== '') ? " ID {$registro_id}" : '';
     $detalhe_texto = $detalhes ? " - {$detalhes}" : '';

@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/config/index.php';
+require_once __DIR__ . '/config/constants.php';
+require_once __DIR__ . '/config/database.php';
 http_response_code(404);
 $config = [];
 try {
