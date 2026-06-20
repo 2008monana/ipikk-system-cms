@@ -358,9 +358,15 @@ if (!function_exists('uploadArquivoNuvem')) {
 function getPagina($slug) {
     $db = getDB();
     
-    // Primeiro tenta buscar da tabela conteudo_paginas (mais recente)
-    $stmt = $db->prepare("SELECT conteudo FROM conteudo_paginas WHERE slug = ?");
-    $stmt->execute([$slug]);
+    // Primeiro tenta buscar da tabela conteudo_paginas (mais recente).
+    $sql_conteudo = "SELECT conteudo FROM conteudo_paginas WHERE slug = ?";
+    $params_conteudo = [$slug];
+    if (colunaExiste('conteudo_paginas', 'status')) {
+        $sql_conteudo .= " AND status = ?";
+        $params_conteudo[] = 'publicado';
+    }
+    $stmt = $db->prepare($sql_conteudo);
+    $stmt->execute($params_conteudo);
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($resultado && !empty($resultado['conteudo'])) {
@@ -370,9 +376,17 @@ function getPagina($slug) {
         }
     }
     
-    // Fallback: tenta buscar da tabela paginas_estaticas (antiga)
-    $stmt = $db->prepare("SELECT conteudo FROM paginas_estaticas WHERE slug = ? AND ativo = 1");
-    $stmt->execute([$slug]);
+    // Fallback: tenta buscar da tabela paginas_estaticas (antiga).
+    // Algumas bases instaladas não possuem a coluna "ativo"; por isso a condição
+    // só é aplicada quando a coluna existe, evitando erro 1054.
+    $sql_estaticas = "SELECT conteudo FROM paginas_estaticas WHERE slug = ?";
+    $params_estaticas = [$slug];
+    if (colunaExiste('paginas_estaticas', 'ativo')) {
+        $sql_estaticas .= " AND ativo = ?";
+        $params_estaticas[] = 1;
+    }
+    $stmt = $db->prepare($sql_estaticas);
+    $stmt->execute($params_estaticas);
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($resultado && !empty($resultado['conteudo'])) {
@@ -383,6 +397,30 @@ function getPagina($slug) {
     }
     
     return [];
+}
+
+/**
+ * Verifica de forma cacheada se uma coluna existe na tabela atual.
+ */
+function colunaExiste($tabela, $coluna) {
+    static $cache = [];
+    $chave = $tabela . '.' . $coluna;
+
+    if (array_key_exists($chave, $cache)) {
+        return $cache[$chave];
+    }
+
+    try {
+        $db = getDB();
+        $stmt = $db->prepare("SHOW COLUMNS FROM `$tabela` LIKE ?");
+        $stmt->execute([$coluna]);
+        $cache[$chave] = (bool)$stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        error_log("Erro ao verificar coluna {$tabela}.{$coluna}: " . $e->getMessage());
+        $cache[$chave] = false;
+    }
+
+    return $cache[$chave];
 }
 
 /**
