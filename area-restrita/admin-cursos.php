@@ -10,7 +10,7 @@ $base_path = dirname(__DIR__);
 require_once $base_path . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -27,7 +27,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -951,7 +951,7 @@ function eliminarCursosSelecionados() {
             const ids = Array.from(cursosSelecionados);
             let processados = 0, erros = 0;
             ids.forEach(id => {
-        fetch('processos/processar-curso.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `action=delete_curso&curso_id=${id}` })
+        fetch('processos/processar-curso', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `action=delete_curso&curso_id=${id}` })
             .then(r => r.json())
             .then(data => {
                 processados++;
@@ -1037,7 +1037,7 @@ function importarCursos() {
                 formData.append('descricao_curta', headers.findIndex(h => h === 'Descrição Curta') !== -1 ? valores[headers.findIndex(h => h === 'Descrição Curta')] : '');
                 formData.append('descricao_completa', headers.findIndex(h => h === 'Descrição Completa') !== -1 ? valores[headers.findIndex(h => h === 'Descrição Completa')] : '');
                 try {
-                    const response = await fetch('processos/processar-curso.php', { method: 'POST', body: formData });
+                    const response = await fetch('processos/processar-curso', { method: 'POST', body: formData });
                     const data = await response.json();
                     if (data.success) { if (cursoExistente) atualizados++; else importados++; }
                     else erros++;
@@ -1122,7 +1122,7 @@ function renderizarÁreas() {
 function visualizarCurso(cursoId) {
     const curso = cursos.find(c => c.id == cursoId);
     if (!curso) { mostrarNotificacao('Curso nao encontrado', 'error'); return; }
-    const url = '../area-publica/curso.php?slug=' + curso.slug;
+    const url = '../area-publica/curso?slug=' + curso.slug;
     urlCursoAtual = url;
     document.getElementById('iframeCursoTitulo').textContent = curso.nome;
     document.getElementById('iframeCursoSubtitulo').innerHTML = '<i class="fas fa-link"></i> ' + url;
@@ -1203,7 +1203,7 @@ function eliminarÁrea(id) {
         'Confirmar eliminação',
         `Eliminar a area "${area.nome}"?`,
         () => {
-            fetch('processos/processar-curso.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`action=delete_area&area_id=${id}`})
+            fetch('processos/processar-curso',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`action=delete_area&area_id=${id}`})
                 .then(r=>r.json()).then(d=>{ if(d.success){mostrarNotificacao(d.message,'success');location.reload();}else mostrarNotificacao(d.message,'error'); })
                 .catch(()=>mostrarNotificacao('Erro ao comunicar','error'));
         },
@@ -1227,7 +1227,7 @@ function salvarÁrea(e) {
     const img = document.getElementById('areaImagemInput');
     if (img?.files.length) fd.append('imagem_url', img.files[0]);
     mostrarNotificacao('A processar...','info');
-    fetch('processos/processar-curso.php',{method:'POST',body:fd})
+    fetch('processos/processar-curso',{method:'POST',body:fd})
         .then(r=>r.json()).then(d=>{ if(d.success){mostrarNotificacao(d.message,'success');setTimeout(()=>location.reload(),1000);}else mostrarNotificacao(d.message||'Erro ao salvar','error'); })
         .catch(()=>mostrarNotificacao('Erro ao comunicar','error'));
 }
@@ -1686,7 +1686,7 @@ function eliminarCurso(id) {
         'Confirmar eliminação',
         'Eliminar este curso?',
         () => {
-            fetch('processos/processar-curso.php',{
+            fetch('processos/processar-curso',{
                 method:'POST',
                 headers:{'Content-Type':'application/x-www-form-urlencoded'},
                 body:`action=delete_curso&curso_id=${id}`
@@ -1829,7 +1829,7 @@ async function salvarCurso(event) {
     mostrarNotificacao('A guardar curso...', 'info');
 
     try {
-        const response = await fetch('processos/processar-curso.php', {
+        const response = await fetch('processos/processar-curso', {
             method: 'POST',
             body: formData
         });
@@ -1927,7 +1927,7 @@ function adicionarSaida(dados = null) {
         const file = e.target.files[0]; if(!file) return;
         const fd = new FormData(); fd.append('action','upload_imagem_saida'); fd.append('imagem',file);
         try {
-            const r = await fetch('processos/processar-curso.php',{method:'POST',body:fd});
+            const r = await fetch('processos/processar-curso',{method:'POST',body:fd});
             const d = await r.json();
             if(d.success){
                 previewImg.src=normalizarUrlMidiaAdmin(d.url);
@@ -2021,7 +2021,7 @@ function adicionarProjecto(dados = null) {
         const file = e.target.files[0]; if(!file) return;
         const fd = new FormData(); fd.append('action','upload_imagem_projeto'); fd.append('imagem',file);
         try {
-            const r = await fetch('processos/processar-curso.php',{method:'POST',body:fd});
+            const r = await fetch('processos/processar-curso',{method:'POST',body:fd});
             const d = await r.json();
             if(d.success){
                 previewImg.src=normalizarUrlMidiaAdmin(d.url);

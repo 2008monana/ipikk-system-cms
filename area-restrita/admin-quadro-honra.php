@@ -10,7 +10,7 @@ $css_especifico = 'admin-quadro-honra.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -967,7 +967,7 @@ async function salvarQuadroHonra() {
     mostrarNotificacao('A processar...', 'info');
     
     try {
-        const response = await fetch('processos/processar-quadro-honra.php', {
+        const response = await fetch('processos/processar-quadro-honra', {
             method: 'POST',
             body: formData
         });
@@ -985,7 +985,7 @@ async function salvarQuadroHonra() {
 }
 
 function previewQuadroHonra() {
-    window.open('../area-publica/quadro-honra.php', '_blank');
+    window.open('../area-publica/quadro-honra', '_blank');
 }
 
 // Atualizar cores dos previews

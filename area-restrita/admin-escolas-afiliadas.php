@@ -10,7 +10,7 @@ $css_especifico = 'admin-escolas-afiliadas.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -26,7 +26,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1283,7 +1283,7 @@ function salvarEscola(btn) {
     formData.append('endereco', endereco);
     if (fotoFile) formData.append('logo', fotoFile);
     
-    fetch('processos/processar-escolas-afiliadas.php', {
+    fetch('processos/processar-escolas-afiliadas', {
         method: 'POST',
         body: formData
     })
@@ -1337,7 +1337,7 @@ function salvarNovaEscola(btn) {
     formData.append('endereco', endereco);
     if (logoFile) formData.append('logo', logoFile);
     
-    fetch('processos/processar-escolas-afiliadas.php', {
+    fetch('processos/processar-escolas-afiliadas', {
         method: 'POST',
         body: formData
     })
@@ -1370,7 +1370,7 @@ function eliminarEscola(btn) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-escolas-afiliadas.php', {
+            const response = await fetch('processos/processar-escolas-afiliadas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })
@@ -1400,7 +1400,7 @@ function salvarTodas() {
     formData.append('titulo', titulo);
     formData.append('subtitulo', subtitulo);
     
-    fetch('processos/processar-escolas-afiliadas.php', {
+    fetch('processos/processar-escolas-afiliadas', {
         method: 'POST',
         body: formData
     })
@@ -1418,7 +1418,7 @@ function salvarTodas() {
 }
 
 function previewPagina() {
-    window.open('../area-publica/escolas-afiliadas.php?preview=1', '_blank');
+    window.open('../area-publica/escolas-afiliadas?preview=1', '_blank');
 }
 
 document.getElementById('btnCancelarConfirmacao')?.addEventListener('click', () => {

@@ -54,11 +54,11 @@ if ($utilizador['nivel'] === 'admin') {
 }
 
 // DEFINIR PÁGINA DE REDIRECIONAMENTO CONFORME PERMISSÕES
-$redirect_url = '../area-restrita/admin-dashboard.php'; // padrão para admin
+$redirect_url = '../area-restrita/admin-dashboard'; // padrão para admin
 
 // Se NÃO for admin, redirecionar SEMPRE para o perfil
 if ($utilizador['nivel'] !== 'admin') {
-    $redirect_url = '../area-restrita/admin-perfil.php';
+    $redirect_url = '../area-restrita/admin-perfil';
 }
 
 // Login bem-sucedido

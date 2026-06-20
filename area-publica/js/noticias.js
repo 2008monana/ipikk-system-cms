@@ -179,7 +179,7 @@ const noticiaController = {
     },
 
     abrirModal(id) {
-        fetch(`incrementar-visualizacao.php?tipo=noticia&id=${id}`).catch(() => {});
+        fetch(`incrementar-visualizacao?tipo=noticia&id=${id}`).catch(() => {});
         const noticia = this.filaNoticias.find(n => Number(n.id) === Number(id));
         if (!noticia) return;
 

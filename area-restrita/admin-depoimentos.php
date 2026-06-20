@@ -11,7 +11,7 @@ $base_path = dirname(__DIR__);
 require_once $base_path . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -28,7 +28,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -49,7 +49,7 @@ if (!is_array($permissoes)) {
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
 
 if ($nivel !== 'admin' && !in_array('galeria', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
+    header('Location: admin-dashboard?erro=permissao');
     exit;
 }
 
@@ -1295,7 +1295,7 @@ async function salvarDepoimento(event) {
     if (fotoFile) formData.append('foto', fotoFile);
     
     try {
-        const response = await fetch('processos/processar-depoimentos.php', {
+        const response = await fetch('processos/processar-depoimentos', {
             method: 'POST',
             body: formData
         });
@@ -1324,7 +1324,7 @@ function eliminarDepoimento(id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-depoimentos.php', {
+            const response = await fetch('processos/processar-depoimentos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })

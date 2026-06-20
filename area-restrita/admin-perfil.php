@@ -10,7 +10,7 @@ $base_path = dirname(__DIR__);
 require_once $base_path . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 // "Meu Perfil" deve estar acessível a qualquer utilizador autenticado.
@@ -24,7 +24,7 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$usuario) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 

@@ -10,7 +10,7 @@ $base_path = dirname(__DIR__);
 require_once $base_path . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 // ===== VERIFICAÇÃO DE PERMISSÃO CORRIGIDA =====
@@ -31,7 +31,7 @@ if (!is_array($permissoes)) {
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
 
 if ($nivel !== 'admin' && !in_array('logs', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
+    header('Location: admin-dashboard?erro=permissao');
     exit;
 }
 
@@ -43,7 +43,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -727,13 +727,13 @@ function obterIconeAcao($acao) {
                             <i class="fas fa-search"></i>
                             <input type="text" name="busca" placeholder="Buscar por detalhes, utilizador ou tabela..." value="<?= htmlspecialchars($filtro_busca) ?>">
                             <?php if(!empty($filtro_busca)): ?>
-                                <a href="admin-logs.php" class="search-clear"><i class="fas fa-times-circle"></i></a>
+                                <a href="admin-logs" class="search-clear"><i class="fas fa-times-circle"></i></a>
                             <?php endif; ?>
                         </div>
                     </div>
                     <div class="filter-actions">
                         <button type="submit" class="btn-filter"><i class="fas fa-search"></i> Filtrar</button>
-                        <a href="admin-logs.php" class="btn-clear"><i class="fas fa-undo-alt"></i> Limpar</a>
+                        <a href="admin-logs" class="btn-clear"><i class="fas fa-undo-alt"></i> Limpar</a>
                     </div>
                 </div>
             </form>
@@ -867,7 +867,7 @@ function obterIconeAcao($acao) {
                     <div class="empty-icon"><i class="fas fa-inbox"></i></div>
                     <h3>Nenhum registo encontrado</h3>
                     <p>Tente ajustar os filtros de busca.</p>
-                    <a href="admin-logs.php" class="btn-clear-state"><i class="fas fa-undo-alt"></i> Limpar filtros</a>
+                    <a href="admin-logs" class="btn-clear-state"><i class="fas fa-undo-alt"></i> Limpar filtros</a>
                 </div>
             <?php endif; ?>
         </div>
