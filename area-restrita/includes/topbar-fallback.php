@@ -50,16 +50,16 @@ $pode_ver_logs_topo = ($_SESSION['utilizador_nivel'] ?? 'editor') === 'admin'
                     </div>
                 </div>
                 <div class="dropdown-divider"></div>
-                <a href="admin-perfil.php" class="dropdown-item">
+                <a href="admin-perfil" class="dropdown-item">
                     <i class="fas fa-user"></i> Meu Perfil
                 </a>
                 <?php if ($pode_ver_logs_topo): ?>
-                <a href="admin-logs.php" class="dropdown-item">
+                <a href="admin-logs" class="dropdown-item">
                     <i class="fas fa-history"></i> Logs
                 </a>
                 <?php endif; ?>
                 <div class="dropdown-divider"></div>
-                <a href="logout.php" class="dropdown-item logout">
+                <a href="logout" class="dropdown-item logout">
                     <i class="fas fa-sign-out-alt"></i> Sair
                 </a>
             </div>

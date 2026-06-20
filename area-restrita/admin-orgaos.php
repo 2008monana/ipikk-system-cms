@@ -10,7 +10,7 @@ $css_especifico = 'admin-orgaos.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 // ===== VERIFICAÇÃO DE PERMISSÃO CORRIGIDA =====
@@ -31,7 +31,7 @@ if (!is_array($permissoes)) {
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
 
 if ($nivel !== 'admin' && !in_array('galeria', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
+    header('Location: admin-dashboard?erro=permissao');
     exit;
 }
 
@@ -43,7 +43,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1422,7 +1422,7 @@ async function salvarMembro(event) {
     if (fotoInput) formData.append('foto', fotoInput);
     
     try {
-        const response = await fetch('processos/processar-orgaos.php', {
+        const response = await fetch('processos/processar-orgaos', {
             method: 'POST',
             body: formData
         });
@@ -1462,7 +1462,7 @@ function fecharModalMembro() {
 }
 
 function editarMembro(id) {
-    fetch(`processos/processar-orgaos.php?action=buscar&id=${id}`)
+    fetch(`processos/processar-orgaos?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -1496,7 +1496,7 @@ function eliminarMembro(id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-orgaos.php', {
+            const response = await fetch('processos/processar-orgaos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })

@@ -497,25 +497,60 @@ function getConfig($chave) {
 // ============================================
 
 /**
- * Registra uma ação no log
+ * Remove a extensão .php de URLs internas sem alterar includes/requires.
+ */
+function urlAmigavel($url) {
+    if (!is_string($url) || $url === '' || preg_match('#^(https?:)?//#i', $url) || strpos($url, 'mailto:') === 0 || strpos($url, 'tel:') === 0) {
+        return $url;
+    }
+
+    return preg_replace('/\.php(?=([?#]|$))/', '', $url);
+}
+
+/**
+ * Redireciona usando URLs amigáveis quando aplicável.
+ */
+function redirectAmigavel($url, $status = 302) {
+    header('Location: ' . urlAmigavel($url), true, $status);
+    exit;
+}
+
+/**
+ * Registra uma ação no log mantendo compatibilidade com a assinatura antiga.
+ *
+ * Formato detalhado gravado:
+ * [YYYY-mm-dd HH:ii] Nome (Nivel) ação módulo ID X - detalhes
  */
 function registrarLog($acao, $tabela = null, $registro_id = null, $detalhes = null) {
-    if (!isset($_SESSION['utilizador_id'])) {
-        return;
-    }
-    
     $db = getDB();
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+    $utilizador_nome = $_SESSION['utilizador_nome'] ?? 'Utilizador';
+    $nivel = ucfirst($_SESSION['utilizador_nivel'] ?? 'Sistema');
+    $utilizador_id = $_SESSION['utilizador_id'] ?? 1;
+    $modulo = $tabela ?: 'sistema';
+    $registro = ($registro_id !== null && $registro_id !== '') ? " ID {$registro_id}" : '';
+    $detalhe_texto = $detalhes ? " - {$detalhes}" : '';
+    $detalhes_formatados = sprintf(
+        '[%s] %s (%s) %s %s%s%s | IP: %s',
+        date('Y-m-d H:i'),
+        $utilizador_nome,
+        $nivel,
+        $acao,
+        $modulo,
+        $registro,
+        $detalhe_texto,
+        $ip ?: 'N/A'
+    );
     
     $stmt = $db->prepare("INSERT INTO logs (utilizador_id, acao, tabela, registro_id, detalhes, ip_address, user_agent) 
                           VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
-        $_SESSION['utilizador_id'],
+        $utilizador_id,
         $acao,
         $tabela,
         $registro_id,
-        $detalhes,
+        $detalhes_formatados,
         $ip,
         $user_agent
     ]);

@@ -10,7 +10,7 @@ $css_especifico = 'admin-notificacoes.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 // ===== VERIFICAÇÃO DE PERMISSÃO CORRIGIDA =====
@@ -31,7 +31,7 @@ if (!is_array($permissoes)) {
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
 
 if ($nivel !== 'admin' && !in_array('galeria', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
+    header('Location: admin-dashboard?erro=permissao');
     exit;
 }
 
@@ -43,7 +43,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 

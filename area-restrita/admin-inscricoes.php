@@ -12,7 +12,7 @@ require_once $base_path . '/config/index.php';
 
 // Verificar autenticação
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -31,7 +31,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -107,6 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->execute([$status, $modo, $data_abertura, $data_encerramento])) {
             $stmtConfig = $db->prepare("UPDATE configuracoes SET ano_lectivo_atual = ? WHERE id = 1");
             $stmtConfig->execute([$ano_lectivo]);
+            if (function_exists('registrarLog')) {
+                registrarLog('editou', 'inscricoes', 1, "Atualizou controlo de inscrições para {$status} ({$modo}) no ano lectivo {$ano_lectivo}");
+            }
             echo json_encode(['success' => true, 'message' => 'Configurações de controle salvas com sucesso!']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Erro ao salvar configurações.']);
@@ -157,6 +160,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         
         if ($success) {
+            if (function_exists('registrarLog')) {
+                registrarLog('editou', 'inscricoes', 1, 'Atualizou conteúdo público de inscrições e matrícula');
+            }
             echo json_encode(['success' => true, 'message' => 'Conteúdo salvo com sucesso!']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Erro ao salvar conteúdo.']);
@@ -1182,7 +1188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .map(vaga => ({ curso_id: vaga.curso_id, vagas: vaga.vagas_disponiveis || 0 }));
         
         try {
-            const response = await fetch('processos/processar-vagas.php', {
+            const response = await fetch('processos/processar-vagas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
@@ -1224,13 +1230,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     function previewPaginaModal(tipo, titulo) {
         let url;
         if (tipo === 'disponivel') {
-            url = '../area-publica/inscricoes.php?preview=1';
+            url = '../area-publica/inscricoes?preview=1';
         } else if (tipo === 'indisponivel') {
-            url = '../area-publica/inscricoes-indisponiveis.php?preview=1';
+            url = '../area-publica/inscricoes-indisponiveis?preview=1';
         } else if (tipo === 'matricula') {
-            url = '../area-publica/inscricoes.php?tab=matricula&preview=1';
+            url = '../area-publica/inscricoes?tab=matricula&preview=1';
         } else {
-            url = '../area-publica/inscricoes.php?preview=1';
+            url = '../area-publica/inscricoes?preview=1';
         }
         
         urlPreviewAtual = url;

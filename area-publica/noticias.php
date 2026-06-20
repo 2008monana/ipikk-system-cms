@@ -20,7 +20,7 @@ foreach ($todos_cursos as $curso_item) {
 
 // Verificar status das inscrições
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 
 // Buscar conteúdo da página (JSON)
 $pagina = getPagina('noticias');
@@ -772,7 +772,7 @@ function incrementarVisualizacaoNoticia(id) {
     if (sessionStorage.getItem(chaveSessao)) return;
     sessionStorage.setItem(chaveSessao, '1');
 
-    fetch(`../incrementar-visualizacao.php?tipo=noticia&id=${noticiaId}`)
+    fetch(`../incrementar-visualizacao?tipo=noticia&id=${noticiaId}`)
         .then(() => {
             const noticia = noticiasData.find(n => Number(n.id) === noticiaId);
             if (noticia) {

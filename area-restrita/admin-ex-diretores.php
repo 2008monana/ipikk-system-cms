@@ -10,7 +10,7 @@ $css_especifico = 'admin-ex-directores.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 // ===== VERIFICAÇÃO DE PERMISSÃO CORRIGIDA =====
@@ -31,7 +31,7 @@ if (!is_array($permissoes)) {
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
 
 if ($nivel !== 'admin' && !in_array('galeria', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
+    header('Location: admin-dashboard?erro=permissao');
     exit;
 }
 
@@ -43,7 +43,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1230,7 +1230,7 @@ async function salvarExDirector(event) {
     if (fotoInput) formData.append('foto', fotoInput);
     
     try {
-        const response = await fetch('processos/processar-ex-directores.php', {
+        const response = await fetch('processos/processar-ex-directores', {
             method: 'POST',
             body: formData
         });
@@ -1273,7 +1273,7 @@ function fecharModalExDirector() {
 }
 
 function editarExDirector(id) {
-    fetch(`processos/processar-ex-directores.php?action=buscar&id=${id}`)
+    fetch(`processos/processar-ex-directores?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -1307,7 +1307,7 @@ function eliminarExDirector(id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-ex-directores.php', {
+            const response = await fetch('processos/processar-ex-directores', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar', id: id })

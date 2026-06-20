@@ -20,7 +20,7 @@ foreach ($todos_cursos as $curso_item) {
 
 // Verificar status das inscrições
 $status_inscricoes = getDB()->query("SELECT status FROM controle_inscricoes WHERE id = 1")->fetch();
-$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes.php' : 'inscricoes-indisponiveis.php';
+$link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abertas') ? 'inscricoes' : 'inscricoes-indisponiveis';
 
 // Processar formulário
 $processar = isset($_GET['processar']) ? true : false;
@@ -61,6 +61,9 @@ if ($processar && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $db->prepare("INSERT INTO mensagens (nome, email, assunto, mensagem, ip_address, user_agent)
                                        VALUES (?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$nome, $email, $assunto, $mensagem, $ip, $user_agent]);
+                if (function_exists('registrarLog')) {
+                    registrarLog('criou', 'mensagens', $db->lastInsertId(), "Nova mensagem recebida no formulário de contactos: {$assunto}");
+                }
 
                 $resposta = ['success' => true, 'message' => 'Mensagem enviada com sucesso! Entraremos em contacto em breve.'];
             }

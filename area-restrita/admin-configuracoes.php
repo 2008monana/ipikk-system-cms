@@ -11,7 +11,7 @@ $base_path = dirname(__DIR__);
 require_once $base_path . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -32,7 +32,7 @@ if (!is_array($permissoes)) {
 $nivel = $_SESSION['utilizador_nivel'] ?? 'editor';
 
 if ($nivel !== 'admin' && !in_array('galeria', $permissoes) && !in_array('*', $permissoes)) {
-    header('Location: admin-dashboard.php?erro=permissao');
+    header('Location: admin-dashboard?erro=permissao');
     exit;
 }
 
@@ -45,7 +45,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -968,11 +968,11 @@ $dados_js = [
                 <div id="builder_rapidos" class="links-builder" data-target="rodape_links_rapidos"></div>
                 <p style="margin:8px 0; font-size:12px; color:#666;">Nos Links Rápidos o destino é digitado manualmente (URL livre).</p>
                 <button type="button" class="btn btn-secundario" onclick="adicionarLinhaLink('builder_rapidos')"><i class="fas fa-plus"></i> Adicionar Link Rápido</button>
-                <textarea class="area-texto" rows="5" id="rodape_links_ipikk" style="display:none;"><?= htmlspecialchars($config['rodape_links_ipikk'] ?? "Sobre Nós|sobre-nos.php
-Inscrição|inscricoes.php
-Contactos|contatos.php
-Área Restrita|area-restrita.php
-Políticas de Privacidade|politica-privacidade.php") ?></textarea>
+                <textarea class="area-texto" rows="5" id="rodape_links_ipikk" style="display:none;"><?= htmlspecialchars($config['rodape_links_ipikk'] ?? "Sobre Nós|sobre-nos
+Inscrição|inscricoes
+Contactos|contatos
+Área Restrita|area-restrita
+Políticas de Privacidade|politica-privacidade") ?></textarea>
                 <textarea class="area-texto" rows="5" id="rodape_links_rapidos" style="display:none;"><?= htmlspecialchars($config['rodape_links_rapidos'] ?? "Governo de Angola|https://governo.gov.ao/
 Governo Provincial de Luanda|https://luanda.gov.ao/
 Ministério da Educação|https://med.gov.ao/
@@ -1289,7 +1289,7 @@ Webmail IPIKK|https://webmail.ipikk.ao/") ?></textarea>
     }
 
 
-    const paginasDisponiveis = ['sobre-nos.php','inscricoes.php','contatos.php','area-restrita.php','politica-privacidade.php','cursos.php','noticias.php','index.php'];
+    const paginasDisponiveis = ['sobre-nos','inscricoes','contatos','area-restrita','politica-privacidade','cursos','noticias','index'];
     function adicionarLinhaLink(builderId, nome = '', url = '') {
         const builder = document.getElementById(builderId);
         const row = document.createElement('div');
@@ -1570,7 +1570,7 @@ async function guardarConfigManutencao() {
 
 function previewManutencao() {
     guardarConfigManutencao();
-    window.open('../area-publica/site-manutencao.php?preview=1', '_blank');
+    window.open('../area-publica/site-manutencao?preview=1', '_blank');
 }
 
 // Carregar valores atuais no DOM

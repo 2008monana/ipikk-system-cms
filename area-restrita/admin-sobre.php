@@ -10,7 +10,7 @@ $css_especifico = 'admin-sobre.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -26,7 +26,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -1034,7 +1034,7 @@ function salvarEvento(btn) {
     formData.append('ano', ano);
     formData.append('descricao', descricao);
     
-    fetch('processos/processar-sobre.php', {
+    fetch('processos/processar-sobre', {
         method: 'POST',
         body: formData
     })
@@ -1064,7 +1064,7 @@ function salvarNovoEvento(btn) {
     formData.append('ano', ano);
     formData.append('descricao', descricao);
     
-    fetch('processos/processar-sobre.php', {
+    fetch('processos/processar-sobre', {
         method: 'POST',
         body: formData
     })
@@ -1091,7 +1091,7 @@ function eliminarEvento(btn, id) {
     
     novoConfirmar.onclick = async () => {
         try {
-            const response = await fetch('processos/processar-sobre.php', {
+            const response = await fetch('processos/processar-sobre', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ action: 'eliminar_evento', id: id })
@@ -1127,7 +1127,7 @@ function salvarTudo() {
     
     if (pendingHistoriaImagem) formData.append('historia_imagem', pendingHistoriaImagem);
     
-    fetch('processos/processar-sobre.php', {
+    fetch('processos/processar-sobre', {
         method: 'POST',
         body: formData
     })
@@ -1145,7 +1145,7 @@ function salvarTudo() {
 }
 
 function previewPagina() {
-    window.open('../area-publica/sobre-nos.php?preview=1', '_blank');
+    window.open('../area-publica/sobre-nos?preview=1', '_blank');
 }
 
 document.getElementById('btnCancelarConfirmacao')?.addEventListener('click', () => {

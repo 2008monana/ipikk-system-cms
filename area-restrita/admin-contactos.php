@@ -10,7 +10,7 @@ $css_especifico = 'admin-contactos.css';
 require_once dirname(__DIR__) . '/config/index.php';
 
 if (!isset($_SESSION['utilizador_id'])) {
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -28,7 +28,7 @@ $usuario_logado = $stmt->fetch();
 
 if (!$usuario_logado) {
     session_destroy();
-    header('Location: area-restrita.php');
+    header('Location: area-restrita');
     exit;
 }
 
@@ -76,6 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message_id = (int)$_POST['message_id'];
             $stmt = $db->prepare("DELETE FROM mensagens WHERE id = ?");
             $stmt->execute([$message_id]);
+            if (function_exists('registrarLog')) {
+                registrarLog('eliminou', 'mensagens', $message_id, 'Eliminou mensagem de contacto');
+            }
             $feedback = 'Mensagem excluída permanentemente.';
             $feedback_tipo = 'success';
 
@@ -84,6 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $placeholders = implode(',', array_fill(0, count($ids), '?'));
             $stmt = $db->prepare("DELETE FROM mensagens WHERE id IN ($placeholders)");
             $stmt->execute($ids);
+            if (function_exists('registrarLog')) {
+                registrarLog('eliminou', 'mensagens', 0, 'Eliminou mensagens de contacto em massa: IDs ' . implode(', ', $ids));
+            }
             $feedback = count($ids) . ' mensagem(ns) excluída(s) permanentemente.';
             $feedback_tipo = 'success';
 
@@ -91,6 +97,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message_id = (int)$_POST['message_id'];
             $stmt = $db->prepare("UPDATE mensagens SET respondida = 1, lida = 1, data_resposta = COALESCE(data_resposta, NOW()), respondido_por = COALESCE(respondido_por, ?) WHERE id = ?");
             $stmt->execute([$_SESSION['utilizador_id'], $message_id]);
+            if (function_exists('registrarLog')) {
+                registrarLog('respondeu', 'mensagens', $message_id, 'Marcou mensagem de contacto como respondida');
+            }
             $feedback = 'Mensagem marcada como respondida.';
             $feedback_tipo = 'success';
 
@@ -193,7 +202,7 @@ include 'includes/sidebar.php';
             </h1>
         </div>
         <div class="direita-barra-topo">
-            <a href="admin-contactos.php" class="btn-secundario">
+            <a href="admin-contactos" class="btn-secundario">
                 <i class="fas fa-sync-alt"></i> Actualizar
             </a>
         </div>
@@ -1676,7 +1685,7 @@ function verMensagem(id) {
     conteudo.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
     modal.classList.add('active');
 
-    fetch(`admin-contactos.php?action=buscar&id=${id}`)
+    fetch(`admin-contactos?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -1766,7 +1775,7 @@ function abrirModalRespostaAtual() {
 }
 
 function abrirModalRespostaPorId(id) {
-    fetch(`admin-contactos.php?action=buscar&id=${id}`)
+    fetch(`admin-contactos?action=buscar&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -1794,7 +1803,7 @@ function enviarResposta(event) {
     const textoOriginal = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
 
-    fetch('processos/processar-resposta.php', {
+    fetch('processos/processar-resposta', {
         method: 'POST',
         headers: { 'X-Requested-With': 'XMLHttpRequest' },
         body: formData

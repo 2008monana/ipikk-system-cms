@@ -956,7 +956,7 @@ $link_inscricao = ($status_inscricoes && $status_inscricoes['status'] === 'abert
         if (sessionStorage.getItem(chaveSessao)) return;
         sessionStorage.setItem(chaveSessao, '1');
 
-        fetch(`../incrementar-visualizacao.php?tipo=noticia&id=${noticiaId}`)
+        fetch(`../incrementar-visualizacao?tipo=noticia&id=${noticiaId}`)
             .then(() => {
                 const noticia = noticiasData.find(n => Number(n.id) === noticiaId);
                 if (noticia) {
