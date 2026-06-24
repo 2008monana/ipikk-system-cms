@@ -4,13 +4,24 @@
  * Deve ser incluído no início de todos os arquivos PHP
  */
 
-// Iniciar sessão
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Preparar helper de sessão/cookies sem obrigar cookies em todas as páginas públicas
+require_once __DIR__ . '/session.php';
 
 // Definir timezone
 date_default_timezone_set('Africa/Luanda');
+
+$arquivo_atual = basename($_SERVER['PHP_SELF']);
+$paginas_que_precisam_sessao = [
+    'area-restrita.php',
+    'processar-login.php',
+    'processar-traducao.php',
+    'recuperar-senha.php',
+    'redefinir-senha.php',
+];
+
+if (in_array($arquivo_atual, $paginas_que_precisam_sessao, true) || isset($_COOKIE[session_name()])) {
+    iniciarSessaoIpikk();
+}
 
 // Carregar constantes
 require_once __DIR__ . '/constants.php';
@@ -22,13 +33,13 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/database.php';
 
 require_once __DIR__ . '/email.php';
+require_once __DIR__ . '/translation.php';
 
 // ============================================
 // CONTAGEM DE VISITANTES (APENAS SITE PÚBLICO)
 // ============================================
 
 // Verificar se é uma página pública (não é área restrita)
-$arquivo_atual = basename($_SERVER['PHP_SELF']);
 $excecoes_visitante = ['site-manutencao.php', 'area-restrita.php', 'processar-login.php', 'admin-'];
 
 $is_publica = true;
